@@ -32,7 +32,7 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-        // Botón de ggogle
+        // Botón de Google
         MaterialCardView btnGoogle = findViewById(R.id.buttonGoogle);
         btnGoogle.setOnClickListener(new View.OnClickListener() {
             @Override

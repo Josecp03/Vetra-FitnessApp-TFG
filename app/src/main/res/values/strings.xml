@@ -13,7 +13,14 @@
     <string name="sign_in">Sign In</string>
     <string name="forget_your_password">Forget your password?</string>
     <string name="or_sign_in_with">Or sign in with</string>
+    <string name="or_sign_up_with">Or sign up with</string>
     <string name="icono_de_google">Icono de google</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="sign_up_here">Sign up here</string>
+    <string name="welcome">Welcome!</string>
+    <string name="create_your_account">Create your account</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="username">Username</string>
+    <string name="user_icon">user icon</string>
+    <string name="back_icon">back icon</string>
 </resources>
