@@ -1,19 +1,18 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
 import com.example.vetra_fitnessapp_tfg.R;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.card.MaterialCardView;
+
+import java.util.Objects;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -24,7 +23,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
         // Botón de iniciar sesión
-        Button btnSignIn = findViewById(R.id.buttonSignIn);
+        Button btnSignIn = findViewById(R.id.buttonSendRecovery);
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,12 +42,8 @@ public class SignInActivity extends AppCompatActivity {
 
         // Texto "Forget your password"
         TextView textForgetPassword = findViewById(R.id.textViewForgetPassword);
-        textForgetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(SignInActivity.this, "Forgot password pressed", Toast.LENGTH_SHORT).show();
-            }
-        });
+        textForgetPassword.setOnClickListener(v -> showForgotPasswordDialog());
+
 
         // Texto "Sign up here"
         TextView textSignUp = findViewById(R.id.textViewSignUp);
@@ -60,4 +55,21 @@ public class SignInActivity extends AppCompatActivity {
         });
 
     }
+
+
+    private void showForgotPasswordDialog() {
+        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_recover_password, null);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+        bottomSheetDialog.setContentView(dialogView);
+        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+        bottomSheetDialog.show();
+
+        // Forzar altura máxima
+        View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (bottomSheet != null) {
+            bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
+    }
+
 }
