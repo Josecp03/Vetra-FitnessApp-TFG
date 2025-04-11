@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:orientation="vertical"
+    android:textAlignment="center"
+    tools:context=".view.activities.SignInActivity">
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
+        android:layout_height="146dp"
+        android:layout_marginTop="50dp"
+        android:contentDescription="@string/dark_logo_app"
+        android:paddingEnd="8dp"
+        app:srcCompat="@drawable/logo_vetra_black"
+        tools:ignore="RtlSymmetry" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/welcome_back"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="28sp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="45dp"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/login_to_your_account"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+    <!-- EMAIL -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp">
+
+        <FrameLayout
+            android:id="@+id/circleContainerEmail"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/circle_background"
+            android:elevation="1dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/email_icon"
+                android:src="@drawable/baseline_email_24" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/rectangleContainerEmail"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="-30dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_rectangle_background"
+            android:elevation="0dp"
+            android:paddingStart="4dp"
+            tools:ignore="RtlSymmetry">
+
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="230dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="50dp"
+                android:autofillHints=""
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/goldman"
+                android:gravity="center_vertical"
+                android:hint="@string/email"
+                android:textColorHint="@color/dark_gray"
+                android:includeFontPadding="false"
+                android:inputType="text"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                tools:ignore="TextFields" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <!-- PASSWORD -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp">
+
+        <FrameLayout
+            android:id="@+id/circleContainerPassword"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/circle_background"
+            android:elevation="1dp"
+            tools:ignore="DuplicateIds">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/lock_icon"
+                android:src="@drawable/baseline_lock_24" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/rectangleContainerPassword"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="-30dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_rectangle_background"
+            android:elevation="0dp"
+            android:paddingStart="4dp"
+            tools:ignore="DuplicateIds,RtlSymmetry">
+
+            <EditText
+                android:id="@+id/editTextPassword"
+                android:layout_width="230dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="50dp"
+                android:autofillHints=""
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/goldman"
+                android:gravity="center_vertical"
+                android:hint="@string/password"
+                android:textColorHint="@color/dark_gray"
+                android:includeFontPadding="false"
+                android:inputType="textPassword"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                tools:ignore="TextFields" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
