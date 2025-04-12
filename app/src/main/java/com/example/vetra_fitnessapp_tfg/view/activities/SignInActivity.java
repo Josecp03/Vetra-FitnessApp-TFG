@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class SignInActivity extends AppCompatActivity {
 
+    // Atributos
     private ActivitySignInBinding binding;
 
     @Override
