@@ -17,7 +17,7 @@
 
         <!-- Back -->
         <ImageView
-            android:id="@+id/btnBack"
+            android:id="@+id/buttonBack"
             android:layout_width="116dp"
             android:layout_height="48dp"
             android:layout_marginStart="20dp"
@@ -262,7 +262,7 @@
             android:paddingBottom="20dp">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonSendRecovery"
+                android:id="@+id/buttonSignUp"
                 android:layout_width="155dp"
                 android:layout_height="62dp"
                 android:fontFamily="@font/goldman"
@@ -295,14 +295,14 @@
                 android:background="@color/black" />
 
             <TextView
-                android:id="@+id/txtDivider"
+                android:id="@+id/textViewDivider"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:fontFamily="@font/goldman"
                 android:text="@string/or_sign_up_with"
                 android:textColor="@color/black"
-                android:fontFamily="@font/goldman"
                 android:textSize="14sp" />
 
             <View
