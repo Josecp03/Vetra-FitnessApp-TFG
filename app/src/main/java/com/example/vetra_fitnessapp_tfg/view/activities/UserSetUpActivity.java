@@ -74,8 +74,14 @@ public class UserSetUpActivity extends AppCompatActivity {
 
             } else {
 
-                // Crear y lanzar la actividad para navegar a SignUpActivity
-                startActivity(new Intent(this, MainActivity.class));
+                // Crear el intent para navegar a MainActivity
+                Intent intent = new Intent(this, MainActivity.class);
+
+                // Limpiar el historial de actividades anteriores para que no se pueda volver
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                // Lanzar el intent
+                startActivity(intent);
 
                 // Aplicar animación de transición
                 overridePendingTransition(R.anim.slide_in_left_fade, R.anim.slide_out_right_fade);

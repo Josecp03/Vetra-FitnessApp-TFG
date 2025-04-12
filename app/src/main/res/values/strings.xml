@@ -31,4 +31,8 @@
     <string name="account_details">Account Details</string>
     <string name="next">Next</string>
     <string name="back">Back</string>
+    <string name="workouts">Workouts</string>
+    <string name="chatbot">Chatbot</string>
+    <string name="nutrition">Nutrition</string>
+    <string name="profile">Profile</string>
 </resources>
