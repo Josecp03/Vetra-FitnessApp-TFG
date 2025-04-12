@@ -26,4 +26,9 @@
     <string name="recover_password">Recover password</string>
     <string name="send_email">Send Mail</string>
     <string name="please_check_your_email_for_password_reset_instructions">Please check your email for password reset instructions.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="account_details">Account Details</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
 </resources>

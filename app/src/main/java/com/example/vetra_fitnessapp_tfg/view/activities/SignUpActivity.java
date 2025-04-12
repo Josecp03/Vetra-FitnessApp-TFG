@@ -16,6 +16,7 @@ public class SignUpActivity extends AppCompatActivity {
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Listener para el botón de volver
         binding.buttonBack.setOnClickListener(v -> {
 
             // Crear el intent para navegar a SignInActivity
@@ -26,6 +27,20 @@ public class SignUpActivity extends AppCompatActivity {
 
             // Aplicar animación de transición
             overridePendingTransition(R.anim.slide_in_left_fade, R.anim.slide_out_right_fade);
+
+        });
+
+        // Listener para el botón de SignUp
+        binding.buttonSignUp.setOnClickListener(v ->{
+
+            // Crear el intent para navegar a UserSetUpActivity
+            Intent i = new Intent(SignUpActivity.this, UserSetUpActivity.class);
+
+            // Lanzar el intent
+            startActivity(i);
+
+            // Aplicar animación de transición
+            overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
 
         });
 
