@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.example.vetra_fitnessapp_tfg.R;
 
@@ -60,7 +61,27 @@ public class PersonalInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_personal_info, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_personal_info, container, false);
+
+        LinearLayout optionMan = view.findViewById(R.id.optionMan);
+        LinearLayout optionWoman = view.findViewById(R.id.optionWoman);
+        final View checkMan = view.findViewById(R.id.checkMan);
+        final View checkWoman = view.findViewById(R.id.checkWoman);
+
+        // Cuando se pulsa "Man"
+        optionMan.setOnClickListener(v -> {
+            checkMan.setVisibility(View.VISIBLE);
+            checkWoman.setVisibility(View.GONE);
+        });
+
+        // Cuando se pulsa "Woman"
+        optionWoman.setOnClickListener(v -> {
+            checkMan.setVisibility(View.GONE);
+            checkWoman.setVisibility(View.VISIBLE);
+        });
+
+        return view;
     }
+
 }
