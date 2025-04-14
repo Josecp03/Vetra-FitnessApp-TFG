@@ -6,7 +6,7 @@
     tools:context=".view.fragments.PersonalInfoFragment"
     android:background="@android:color/transparent">
 
-    <!-- LinearLayout con n TextViews y un Divider -->
+    <!-- LinearLayout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -237,8 +237,8 @@
 
                 <ImageView
                     android:id="@+id/checkMan"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:contentDescription="@string/check_icon"
                     android:src="@drawable/ic_selector"
                     android:visibility="gone" />
@@ -266,15 +266,14 @@
 
                 <ImageView
                     android:id="@+id/checkWoman"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:contentDescription="@string/check_icon"
                     android:src="@drawable/ic_selector"
                     android:visibility="gone" />
             </LinearLayout>
+
         </LinearLayout>
-
-
 
     </LinearLayout>
 

@@ -2,86 +2,54 @@ package com.example.vetra_fitnessapp_tfg.view.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import com.example.vetra_fitnessapp_tfg.databinding.FragmentPersonalInfoBinding;
 
-import com.example.vetra_fitnessapp_tfg.R;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PersonalInfoFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PersonalInfoFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public PersonalInfoFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PersonalInfoFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PersonalInfoFragment newInstance(String param1, String param2) {
-        PersonalInfoFragment fragment = new PersonalInfoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private FragmentPersonalInfoBinding binding;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        binding = FragmentPersonalInfoBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
-        View view = inflater.inflate(R.layout.fragment_personal_info, container, false);
+        // Establecer un género por defecto
+        selectGender("man");
 
-        LinearLayout optionMan = view.findViewById(R.id.optionMan);
-        LinearLayout optionWoman = view.findViewById(R.id.optionWoman);
-        final View checkMan = view.findViewById(R.id.checkMan);
-        final View checkWoman = view.findViewById(R.id.checkWoman);
-
-        // Cuando se pulsa "Man"
-        optionMan.setOnClickListener(v -> {
-            checkMan.setVisibility(View.VISIBLE);
-            checkWoman.setVisibility(View.GONE);
-        });
-
-        // Cuando se pulsa "Woman"
-        optionWoman.setOnClickListener(v -> {
-            checkMan.setVisibility(View.GONE);
-            checkWoman.setVisibility(View.VISIBLE);
-        });
+        // Llamar a una función para actuaizar la vista según el género seleccionado
+        binding.optionMan.setOnClickListener(v -> selectGender("man"));
+        binding.optionWoman.setOnClickListener(v -> selectGender("woman"));
 
         return view;
+    }
+
+    private void selectGender(String gender) {
+
+        // Comprobar el género que fue seleccionado
+        if (gender.equals("man")) {
+
+            // Hacer visible la imagen de seleccionado en man
+            binding.checkMan.setVisibility(View.VISIBLE);
+
+            // Ocultar la imagen de seleccionado en woman
+            binding.checkWoman.setVisibility(View.GONE);
+
+        } else if (gender.equals("woman")) {
+
+            // Ocultar la imagen de seleccionado e woman
+            binding.checkMan.setVisibility(View.GONE);
+
+            // Hacer visible la imagen de seleccionado en woman
+            binding.checkWoman.setVisibility(View.VISIBLE);
+
+        }
+
     }
 
 }

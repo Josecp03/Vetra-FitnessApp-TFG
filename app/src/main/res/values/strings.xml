@@ -44,4 +44,15 @@
     <string name="man">Man</string>
     <string name="woman">Woman</string>
     <string name="check_icon">Check icon</string>
+    <string name="body_metrics">Body Metrics</string>
+    <string name="height_icon">Height icon</string>
+    <string name="height">Height</string>
+    <string name="weight_icon">Weight icon</string>
+    <string name="weight">Weight</string>
+    <string name="cm">CM</string>
+    <string name="kg">KG</string>
+    <string name="calorie_goal">Calorie Goal</string>
+    <string name="calories_icon">Calories icon</string>
+    <string name="number_of_kcal">Number of Kcal</string>
+    <string name="kcal">KCAL</string>
 </resources>
