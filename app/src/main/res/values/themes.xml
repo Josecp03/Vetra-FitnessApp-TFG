@@ -28,6 +28,11 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="RoundedImage" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
+
 
 
 

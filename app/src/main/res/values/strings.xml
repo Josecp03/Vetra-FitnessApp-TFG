@@ -56,4 +56,6 @@
     <string name="number_of_kcal">Number of Kcal</string>
     <string name="kcal">KCAL</string>
     <string name="logo_vetra_white">Logo vetra white</string>
+    <string name="control_your_space">Control your space</string>
+    <string name="hello_username">Hello, username</string>
 </resources>
