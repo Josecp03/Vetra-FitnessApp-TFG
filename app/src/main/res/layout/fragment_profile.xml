@@ -31,18 +31,23 @@
                 android:src="@drawable/ic_profile_picture"
                 app:shapeAppearanceOverlay="@style/RoundedImage" />
 
-            <!-- Texto para cambiar la imagen -->
+            <!-- Cambiar imagen -->
             <TextView
                 android:id="@+id/change_picture_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Change picture"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/change_picture"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:fontFamily="@font/goldman" />
+                android:fontFamily="@font/goldman"
+                android:includeFontPadding="false"
+                android:textStyle="bold"
+                android:minHeight="48dp"
+                android:gravity="center_vertical" />
 
-            <!-- Separador horizontal -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -50,7 +55,6 @@
                 android:layout_marginHorizontal="40dp"
                 android:background="@android:color/black" />
 
-            <!-- BLOQUE DE DATOS (Name, Age, Weight, etc.) -->
             <!-- Name -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -64,75 +68,29 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Name"
+                    android:text="@string/first_name"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:fontFamily="@font/goldman" />
 
-                <!-- EditText con apariencia simple -->
                 <EditText
-                    android:id="@+id/edit_name"
+                    android:id="@+id/editTextFirstName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:autofillHints=""
                     android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
+                    android:cursorVisible="true"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
                     android:maxLength="20"
-                    android:cursorVisible="true"
-                    android:fontFamily="@font/goldman"
-                    android:hint="Your name"
+                    android:minHeight="48dp"
+                    android:text="@string/your_name"
+                    android:textColor="@android:color/black"
                     android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
+                    android:textSize="14sp"
+                    tools:ignore="LabelFor,TextFields" />
             </LinearLayout>
 
-            <!-- Línea divisoria -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/black" />
-
-            <!-- LastName -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="40dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="LastName"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/goldman" />
-
-                <EditText
-                    android:id="@+id/editTextLastName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:maxLength="40"
-                    android:cursorVisible="true"
-                    android:fontFamily="@font/goldman"
-                    android:hint="Your last name"
-                    android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields"
-                    android:inputType="text|textNoSuggestions"
-                    android:maxLines="1"
-                    android:scrollHorizontally="true"
-                    android:ellipsize="end"/>
-            </LinearLayout>
-
-            <!-- Línea divisoria -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -153,25 +111,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Age"
+                    android:text="@string/age"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:fontFamily="@font/goldman" />
 
                 <EditText
-                    android:id="@+id/edit_age"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/editTextAge"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
+                    android:autofillHints=""
                     android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
                     android:cursorVisible="true"
                     android:fontFamily="@font/goldman"
                     android:maxLength="3"
-                    android:hint="21"
+                    android:minHeight="48dp"
+                    android:text="@string/_0"
+                    android:textAlignment="textEnd"
+                    android:textColor="@android:color/black"
                     android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
+                    android:textSize="14sp"
+                    android:inputType="number"
+                    tools:ignore="LabelFor,TextFields" />
             </LinearLayout>
 
             <View
@@ -194,25 +155,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Weight"
+                    android:text="@string/weight"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:fontFamily="@font/goldman" />
 
                 <EditText
-                    android:id="@+id/edit_weight"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/editTextWeight"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
+                    android:autofillHints=""
                     android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
                     android:cursorVisible="true"
                     android:fontFamily="@font/goldman"
                     android:maxLength="5"
-                    android:hint="82 kg"
+                    android:minHeight="48dp"
+                    android:text="@string/_0"
+                    android:textAlignment="textEnd"
+                    android:textColor="@android:color/black"
                     android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
+                    android:textSize="14sp"
+                    android:inputType="numberDecimal"
+                    tools:ignore="LabelFor,TextFields" />
             </LinearLayout>
 
             <View
@@ -235,25 +199,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Height"
+                    android:text="@string/height"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:fontFamily="@font/goldman" />
 
                 <EditText
-                    android:id="@+id/edit_height"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/editTextHeight"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
+                    android:autofillHints=""
                     android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
                     android:cursorVisible="true"
                     android:fontFamily="@font/goldman"
                     android:maxLength="3"
-                    android:hint="180 cm"
+                    android:minHeight="48dp"
+                    android:text="@string/_0"
+                    android:textAlignment="textEnd"
+                    android:textColor="@android:color/black"
                     android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
+                    android:textSize="14sp"
+                    android:inputType="number"
+                    tools:ignore="LabelFor,TextFields" />
             </LinearLayout>
 
             <View
@@ -276,25 +243,28 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Calorie Goal"
+                    android:text="@string/calorie_goal"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:fontFamily="@font/goldman" />
 
                 <EditText
                     android:id="@+id/edit_calorie_goal"
-                    android:layout_width="wrap_content"
+                    android:layout_width="48dp"
                     android:layout_height="wrap_content"
+                    android:autofillHints=""
                     android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
                     android:cursorVisible="true"
                     android:fontFamily="@font/goldman"
                     android:maxLength="5"
-                    android:hint="3000 kcal"
+                    android:minHeight="48dp"
+                    android:text="@string/_0"
+                    android:textAlignment="textEnd"
+                    android:textColor="@android:color/black"
                     android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
+                    android:textSize="14sp"
+                    android:inputType="number"
+                    tools:ignore="LabelFor,TextFields" />
             </LinearLayout>
 
             <View
@@ -304,47 +274,6 @@
                 android:layout_marginTop="8dp"
                 android:background="@android:color/black" />
 
-            <!-- Gender -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal"
-                android:paddingHorizontal="40dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Gender"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/goldman" />
-
-                <EditText
-                    android:id="@+id/edit_gender"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:gravity="end"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:cursorVisible="true"
-                    android:fontFamily="@font/goldman"
-                    android:hint="Male"
-                    android:textCursorDrawable="@drawable/custom_cursor"
-                    tools:ignore="TextFields" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="40dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/black" />
-
-            <!-- BOTONES INFERIORES -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -353,36 +282,42 @@
                 android:gravity="center"
                 android:paddingHorizontal="40dp">
 
+                <!-- Guardar cambios -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_save_changes"
+                    android:id="@+id/buttonSaveChanges"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Save Changes"
-                    android:textColor="@android:color/white"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/goldman"
+                    android:includeFontPadding="false"
+                    android:text="@string/save_changes"
                     android:textAllCaps="false"
+                    android:textColor="@android:color/white"
                     android:textSize="14sp"
-                    app:cornerRadius="8dp"
                     app:backgroundTint="@android:color/black"
-                    app:iconTint="@null"
-                    app:strokeColor="@android:color/black"
-                    app:strokeWidth="2dp"
-                    android:layout_marginRight="16dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_log_out"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Log out"
-                    android:textColor="@android:color/white"
-                    android:textAllCaps="false"
-                    android:textSize="14sp"
                     app:cornerRadius="8dp"
-                    app:backgroundTint="@android:color/holo_red_dark"
                     app:iconTint="@null"
                     app:strokeColor="@android:color/black"
                     app:strokeWidth="2dp" />
+
+                <!-- Cerrar sesión -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonLogOut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/goldman"
+                    android:includeFontPadding="false"
+                    android:text="@string/log_out"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    app:backgroundTint="@android:color/holo_red_dark"
+                    app:cornerRadius="8dp"
+                    app:iconTint="@null" />
             </LinearLayout>
 
         </LinearLayout>
+
     </ScrollView>
+
 </FrameLayout>

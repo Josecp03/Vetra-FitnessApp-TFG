@@ -62,4 +62,10 @@
     <string name="my_nutrition">My nutrition</string>
     <string name="my_workouts">My workouts</string>
     <string name="my_chatbot">My chatbot</string>
+    <string name="change_picture">Change picture</string>
+    <string name="your_name">Your name</string>
+    <string name="_0">0</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="log_out">Log out</string>
+    <string name="log_out_message">Are you sure you want to log out? You will need to sign in again to contiune.</string>
 </resources>
