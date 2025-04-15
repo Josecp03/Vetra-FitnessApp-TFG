@@ -68,4 +68,9 @@
     <string name="my_workouts">My workouts</string>
     <string name="my_chatbot">My chatbot</string>
     <string name="add_new_routine">Add New Routine</string>
+    <string name="take_photo">Take photo</string>
+    <string name="select_from_gallery">Select from gallery</string>
+    <string name="insert_external_link">Insert external link</string>
+    <string name="generate_image_with_ai">Generate image with AI</string>
+    <string name="delete_profile_photo">Delete profile photo</string>
 </resources>

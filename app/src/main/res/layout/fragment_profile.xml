@@ -249,7 +249,7 @@
                     android:fontFamily="@font/goldman" />
 
                 <EditText
-                    android:id="@+id/edit_calorie_goal"
+                    android:id="@+id/editTextCalorieGoal"
                     android:layout_width="48dp"
                     android:layout_height="wrap_content"
                     android:autofillHints=""

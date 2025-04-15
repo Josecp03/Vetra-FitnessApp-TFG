@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 import com.example.vetra_fitnessapp_tfg.R;
+import com.example.vetra_fitnessapp_tfg.databinding.DialogChangePictureBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
@@ -26,6 +28,8 @@ public class ProfileFragment extends Fragment {
         // Listener para el botón de logut
         binding.buttonLogOut.setOnClickListener(v -> showLogoutDialog());
 
+        // Listener para el botón de cambiar foto
+        binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
 
         return view;
     }
@@ -61,4 +65,40 @@ public class ProfileFragment extends Fragment {
         // Mostrar el diálogo
         bottomSheetDialog.show();
     }
+
+    private void showChangePictureDialog() {
+
+        // Inflar la vista del diálogo
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_change_picture, null);
+
+        // Crear el BottomSheetDialog
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+
+        // Asignar la vista inflada al diálogo
+        dialog.setContentView(dialogView);
+
+        // Ajustar fondo transparente
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Acciones del diálogo
+        MaterialButton buttonTakePhoto = dialogView.findViewById(R.id.buttonTakePhoto);
+        buttonTakePhoto.setOnClickListener(v -> dialog.dismiss());
+
+        MaterialButton buttonSelectGallery = dialogView.findViewById(R.id.buttonSelectGallery);
+        buttonSelectGallery.setOnClickListener(v -> dialog.dismiss());
+
+        MaterialButton buttonInsertLink = dialogView.findViewById(R.id.buttonInsertLink);
+        buttonInsertLink.setOnClickListener(v -> dialog.dismiss());
+
+        MaterialButton buttonGenerateAi = dialogView.findViewById(R.id.buttonGenerateAi);
+        buttonGenerateAi.setOnClickListener(v -> dialog.dismiss());
+
+        MaterialButton buttonDeletePhoto = dialogView.findViewById(R.id.buttonDeletePhoto);
+        buttonDeletePhoto.setOnClickListener(v -> dialog.dismiss());
+
+        // Mostrar el diálogo
+        dialog.show();
+
+    }
+
 }
