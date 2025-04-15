@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1028343963760",
+    "project_id": "vetra-28db4",
+    "storage_bucket": "vetra-28db4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028343963760:android:36739d3fafa0fdd29e54b5",
+        "android_client_info": {
+          "package_name": "com.example.vetra_fitnessapp_tfg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE_U3QBfBWXf6-fJP2ADsvxNzvIiRsY8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
