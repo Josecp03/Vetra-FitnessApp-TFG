@@ -73,4 +73,11 @@
     <string name="insert_external_link">Insert external link</string>
     <string name="generate_image_with_ai">Generate image with AI</string>
     <string name="delete_profile_photo">Delete profile photo</string>
+    <string name="external_link">External link</string>
+    <string name="insert_link">Insert link</string>
+    <string name="save">Save</string>
+    <string name="link_icon">link icon</string>
+    <string name="icon_prompt_ai">icon prompt ai</string>
+    <string name="insert_prompt">Insert prompt</string>
+    <string name="generate_with_ai">Generate with AI</string>
 </resources>

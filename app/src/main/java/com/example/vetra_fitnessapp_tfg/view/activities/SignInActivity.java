@@ -58,7 +58,6 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
-
     private void showForgotPasswordDialog() {
 
         // Inflar la vista personalizada del diálogo desde el layout XML

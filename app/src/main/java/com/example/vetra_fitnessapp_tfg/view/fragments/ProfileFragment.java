@@ -1,5 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.view.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,16 +89,72 @@ public class ProfileFragment extends Fragment {
         buttonSelectGallery.setOnClickListener(v -> dialog.dismiss());
 
         MaterialButton buttonInsertLink = dialogView.findViewById(R.id.buttonInsertLink);
-        buttonInsertLink.setOnClickListener(v -> dialog.dismiss());
+        buttonInsertLink.setOnClickListener(v -> {
+            dialog.dismiss();
+            showExternalLinkDialog();
+        });
 
         MaterialButton buttonGenerateAi = dialogView.findViewById(R.id.buttonGenerateAi);
-        buttonGenerateAi.setOnClickListener(v -> dialog.dismiss());
+        buttonGenerateAi.setOnClickListener(v -> {
+            dialog.dismiss();
+            showPromptAIDialog();
+        });
 
         MaterialButton buttonDeletePhoto = dialogView.findViewById(R.id.buttonDeletePhoto);
         buttonDeletePhoto.setOnClickListener(v -> dialog.dismiss());
 
         // Mostrar el diálogo
         dialog.show();
+
+    }
+
+    private void showExternalLinkDialog() {
+
+        // Inflar la vista personalizada del diálogo desde el layout XML
+        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_external_link, null);
+
+        // Crear un BottomSheetDialog con un tema personalizado
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+
+        // Asignar la vista inflada al diálogo
+        bottomSheetDialog.setContentView(dialogView);
+
+        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
+        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Mostrar el diálogo
+        bottomSheetDialog.show();
+
+        // Obtener la vista del bottom sheet
+        View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+
+        // Forzar que ocupe toda la altura de la pantalla
+        bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+    }
+
+    private void showPromptAIDialog() {
+
+        // Inflar la vista personalizada del diálogo desde el layout XML
+        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_ai, null);
+
+        // Crear un BottomSheetDialog con un tema personalizado
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+
+        // Asignar la vista inflada al diálogo
+        bottomSheetDialog.setContentView(dialogView);
+
+        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
+        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Mostrar el diálogo
+        bottomSheetDialog.show();
+
+        // Obtener la vista del bottom sheet
+        View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+
+        // Forzar que ocupe toda la altura de la pantalla
+        bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
 
     }
 
