@@ -12,7 +12,12 @@
           "package_name": "com.example.vetra_fitnessapp_tfg"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBE_U3QBfBWXf6-fJP2ADsvxNzvIiRsY8g"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
