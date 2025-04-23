@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
+import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -60,47 +61,52 @@ public class SignInActivity extends AppCompatActivity {
         googleClient = GoogleSignIn.getClient(this, googleOptions);
 
         // Listener para el botón de SignIn
-        binding.buttonSignIn.setOnClickListener(v -> {
-            Toast.makeText(SignInActivity.this, "Login pressed", Toast.LENGTH_SHORT).show();
-        });
+        binding.buttonSignIn.setOnClickListener(v -> signInWithEmail());
 
         // Listener para el botón de Google
-        binding.buttonGoogle.setOnClickListener(v -> {
-            Toast.makeText(SignInActivity.this, "Google pressed", Toast.LENGTH_SHORT).show();
-        });
+        binding.buttonGoogle.setOnClickListener(v -> signInWithGoogle());
 
         // Listener para el texto "Forget your password?"
         binding.textViewForgetPassword.setOnClickListener(v -> showForgotPasswordDialog());
 
         // Listener para el texto "Sign up here"
-        binding.textViewSignUp.setOnClickListener(v -> {
-
-            // Crear intent para navegar a SignUpActivity
-            Intent i = new Intent(SignInActivity.this, SignUpActivity.class);
-
-            // Lanzar el intent
-            startActivity(i);
-
-            // Aplicar animación de transición
-            overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
-        });
+        binding.textViewSignUp.setOnClickListener(v -> navigateToSignUpActivity());
 
     }
 
     private void showForgotPasswordDialog() {
 
-        // Inflar la vista personalizada del diálogo desde el layout XML
-        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_recover_password, null);
+        // Inflar el binding del diálogo
+        DialogRecoverPasswordBinding dialogBinding = DialogRecoverPasswordBinding.inflate(getLayoutInflater());
 
         // Crear un BottomSheetDialog con un tema personalizado
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
 
-        // Asignar la vista inflada al diálogo
-        bottomSheetDialog.setContentView(dialogView);
+        // Asignar la vista al diálogo
+        bottomSheetDialog.setContentView(dialogBinding.getRoot());
 
         // Establecer fondo transparente para que los bordes sean redondeados o personalizados
         Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Listener para el botón de enviar email con enlace de recuperación
+        dialogBinding.buttonSendMail.setOnClickListener(v -> {
+
+            // Obtener el email ingresado
+            String email = dialogBinding.editTextEmail.getText().toString().trim();
+
+            // Comprobar que el email no esté vacío
+            if (email.isEmpty()) {
+
+                // Mostrar un mensaje de error
+                Toast.makeText(this, "Email is required", Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+
+            // Recuperar la contraseña envianod un correo al usuario
+            resetPassword(email, bottomSheetDialog);
+
+        });
 
         // Mostrar el diálogo
         bottomSheetDialog.show();
@@ -110,6 +116,32 @@ public class SignInActivity extends AppCompatActivity {
 
         // Forzar que ocupe toda la altura de la pantalla
         bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+    }
+
+    private void resetPassword(String email, BottomSheetDialog dialog) {
+
+        // Enviar enlace de recuperación de contraseña a Firebase
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(this, task -> {
+
+                    // Comporbar si el enlace fue enviado
+                    if (task.isSuccessful()) {
+
+                        // Mostrar mensaje de éxito
+                        Toast.makeText(this, "Password reset link sent to your email", Toast.LENGTH_SHORT).show();
+
+                        // Cerrar el diálogo
+                        dialog.dismiss();
+
+                    } else {
+
+                        // Manejar errores de autenticación
+                        Log.e(TAG, "Error al envira el enlace");
+
+                    }
+
+                });
 
     }
 
@@ -210,41 +242,6 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
-    private void resetPassword() {
-
-        // Obtener el valor del campo de texto
-        String email = binding.editTextEmail.getText().toString().trim();
-
-        // Comprobar que el campo no esté vacío
-        if (email.isEmpty()) {
-
-            // Mostrar un mensaje de error
-            Toast.makeText(this, "Email is required", Toast.LENGTH_SHORT).show();
-            return;
-
-        }
-
-        // Enviar enlace de recuperación de contraseña a Firebase
-        mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si el enlace fue enviado
-                    if (task.isSuccessful()) {
-
-                        // Mostrar mensaje de éxito
-                        Toast.makeText(this, "Password reset link sent to your email", Toast.LENGTH_SHORT).show();
-
-                    } else {
-
-                        // Manejar errores de autenticación
-                        Log.e(TAG, "Error al envira el enlace");
-
-                    }
-
-                });
-
-    }
-
     private void navigateToMainActivity() {
 
         // Crear el intent para navegar a la actividad principal
@@ -255,6 +252,19 @@ public class SignInActivity extends AppCompatActivity {
 
         // Finalizar la actividad actual
         finish();
+
+    }
+
+    private void navigateToSignUpActivity() {
+
+        // Crear intent para navegar a SignUpActivity
+        Intent i = new Intent(SignInActivity.this, SignUpActivity.class);
+
+        // Lanzar el intent
+        startActivity(i);
+
+        // Aplicar animación de transición
+        overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
 
     }
 

@@ -103,9 +103,11 @@ public class SignUpActivity extends AppCompatActivity {
                         Log.e(TAG, "Registro con correo fallida");
 
                     }
+
                 });
 
     }
+
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
 
         // Crear un objeto de autenticación con el token de Google
