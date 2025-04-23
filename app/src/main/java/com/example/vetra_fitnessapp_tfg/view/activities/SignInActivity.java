@@ -24,10 +24,12 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 
+import java.util.List;
 import java.util.Objects;
 
 public class SignInActivity extends AppCompatActivity {
@@ -233,8 +235,8 @@ public class SignInActivity extends AppCompatActivity {
 
                     } else {
 
-                        // Manejar errores de autenticación
-                        Log.e(TAG, "Inicio de sesión con correo fallido");
+                        // Mostrar un mensaje de error
+                        Toast.makeText(this, "Account already registered. Use another provider", Toast.LENGTH_SHORT).show();
 
                     }
 

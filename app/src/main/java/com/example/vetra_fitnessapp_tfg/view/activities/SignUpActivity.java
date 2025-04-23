@@ -100,7 +100,7 @@ public class SignUpActivity extends AppCompatActivity {
                     } else {
 
                         // Manejar errores de autenticación
-                        Log.e(TAG, "Registro con correo fallida");
+                        Toast.makeText(this, "Account already registered. Use another provider", Toast.LENGTH_SHORT).show();
 
                     }
 
