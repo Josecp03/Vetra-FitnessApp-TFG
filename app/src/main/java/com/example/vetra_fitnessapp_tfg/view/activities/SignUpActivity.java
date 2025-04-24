@@ -87,6 +87,15 @@ public class SignUpActivity extends AppCompatActivity {
 
         }
 
+        // Comprobar que el email sea válido
+        if (!isEmailValid(email)) {
+
+            // Mostrar un mensaje de error
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+
+        }
+
         // Registrar con Firebase
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
@@ -120,8 +129,26 @@ public class SignUpActivity extends AppCompatActivity {
                     // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
 
-                        // Navegar a la actividad principal
-                        navigateToUserSetUpActivity();
+                        // Guardar en variable booleana si es nuevo usuario
+                        boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
+
+                        // Comprobar el estado de la variable booleana
+                        if (isNew) {
+
+                            // Navegar a la actividad específica
+                            navigateToUserSetUpActivity();
+
+                        } else {
+
+                            // Mostrar mensaje de error
+                            Toast.makeText(this, "Account already exists. Please sign in", Toast.LENGTH_SHORT).show();
+
+                            // Cerrar sesión y volver a SignIn
+                            mAuth.signOut();
+                            googleClient.signOut();
+                            finish();
+
+                        }
 
                     } else {
 
@@ -180,6 +207,10 @@ public class SignUpActivity extends AppCompatActivity {
         // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
 
+    }
+
+    public static boolean isEmailValid(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
 }

@@ -1,18 +1,15 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
@@ -24,13 +21,11 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
-
-import java.util.List;
 import java.util.Objects;
+import android.util.Patterns;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -194,8 +189,27 @@ public class SignInActivity extends AppCompatActivity {
                     // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
 
-                        // Navegar a la actividad principal
-                        navigateToMainActivity();
+                        // Guardar en variable booleana si es nuevo usuario
+                        boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
+
+                        // Comprobar el estado de la variable booleana
+                        if (isNew) {
+
+                            // Mostrar mensaje de error
+                            Toast.makeText(this, "No account found. Please sign up first", Toast.LENGTH_SHORT).show();
+
+                            // Obtener el usuario autenticado por Google (aún existe en Firebase)
+                            FirebaseUser user = mAuth.getCurrentUser();
+
+                            // Eliminar el usuario
+                            user.delete();
+
+                        } else {
+
+                            // Navegar a la actividad principal
+                            navigateToMainActivity();
+
+                        }
 
                     } else {
 
@@ -223,6 +237,15 @@ public class SignInActivity extends AppCompatActivity {
 
         }
 
+        // Comprobar que el email sea válido
+        if (!isEmailValid(email)) {
+
+            // Mostrar un mensaje de error
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+
+        }
+
         // Iniciar sesión con Firebase
         mAuth.signInWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
@@ -236,7 +259,7 @@ public class SignInActivity extends AppCompatActivity {
                     } else {
 
                         // Mostrar un mensaje de error
-                        Toast.makeText(this, "Account already registered. Use another provider", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -269,6 +292,12 @@ public class SignInActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
 
     }
+
+    public static boolean isEmailValid(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+
 
 
 }
