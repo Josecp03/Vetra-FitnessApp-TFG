@@ -199,10 +199,13 @@ public class SignUpActivity extends AppCompatActivity {
     private void navigateToUserSetUpActivity() {
 
         // Crear el intent para navegar a UserSetUpActivity
-        Intent i = new Intent(SignUpActivity.this, UserSetUpActivity.class);
+        Intent intent = new Intent(SignUpActivity.this, UserSetUpActivity.class);
+
+        // Limpiar el back-stack para que no pueda volver a SignIn
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         // Lanzar el intent
-        startActivity(i);
+        startActivity(intent);
 
         // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);

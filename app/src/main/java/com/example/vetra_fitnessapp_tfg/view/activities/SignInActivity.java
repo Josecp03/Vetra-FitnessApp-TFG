@@ -283,10 +283,10 @@ public class SignInActivity extends AppCompatActivity {
     private void navigateToSignUpActivity() {
 
         // Crear intent para navegar a SignUpActivity
-        Intent i = new Intent(SignInActivity.this, SignUpActivity.class);
+        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
 
         // Lanzar el intent
-        startActivity(i);
+        startActivity(intent);
 
         // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
@@ -297,7 +297,21 @@ public class SignInActivity extends AppCompatActivity {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        // Comprobar si el usuario ya está autenticado
+        if (mAuth.getCurrentUser() != null) {
+
+            // Navegar a la actividad principal
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+
+            // Cerrar la actividad actual
+            finish();
+
+        }
+    }
 
 
 }
