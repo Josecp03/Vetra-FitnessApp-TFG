@@ -15,7 +15,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
@@ -77,6 +80,7 @@ public class SignUpActivity extends AppCompatActivity {
         // Obtener los valores de los campos de texto
         String email = binding.editTextEmail.getText().toString().trim();
         String pass  = binding.editTextPassword.getText().toString().trim();
+        String username = binding.editTextUserName.getText().toString().trim();
 
         // Comprobar que los campos no estén vacíos
         if (email.isEmpty() || pass.isEmpty()) {
@@ -103,8 +107,16 @@ public class SignUpActivity extends AppCompatActivity {
                     // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
 
-                        // Navegar a la actividad principal
-                        navigateToUserSetUpActivity();
+                        // Obtener el usuairo actual
+                        FirebaseUser user = mAuth.getCurrentUser();
+
+                        // Actualizar el perfil del usuario
+                        UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(username)
+                                .build();
+
+                        // Navegar a la actividad específica cuando se complete la actualización de perfil
+                        user.updateProfile(req).addOnCompleteListener(uTask -> navigateToUserSetUpActivity());
 
                     } else {
 
@@ -132,11 +144,23 @@ public class SignUpActivity extends AppCompatActivity {
                         // Guardar en variable booleana si es nuevo usuario
                         boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
 
+                        // Obtener el usuario autenticado por Google
+                        FirebaseUser user = mAuth.getCurrentUser();
+
                         // Comprobar el estado de la variable booleana
                         if (isNew) {
 
+                            // Actualizar el perfil del usuario
+                            String googleName = acct.getDisplayName();
+
+                            // Crear un UserProfileChangeRequest para actualizar el nombre de usuario
+                            UserProfileChangeRequest updateRequest =
+                                    new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(googleName)
+                                            .build();
+
                             // Navegar a la actividad específica
-                            navigateToUserSetUpActivity();
+                            user.updateProfile(updateRequest).addOnCompleteListener(updateTask -> navigateToUserSetUpActivity());
 
                         } else {
 

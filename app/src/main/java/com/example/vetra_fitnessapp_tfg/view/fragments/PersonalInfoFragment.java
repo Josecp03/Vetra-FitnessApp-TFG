@@ -12,6 +12,7 @@ import com.example.vetra_fitnessapp_tfg.databinding.FragmentPersonalInfoBinding;
 public class PersonalInfoFragment extends Fragment {
 
     private FragmentPersonalInfoBinding binding;
+    private String selectedGender = "man";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -40,6 +41,9 @@ public class PersonalInfoFragment extends Fragment {
             // Ocultar la imagen de seleccionado en woman
             binding.checkWoman.setVisibility(View.GONE);
 
+            // Actualizar variable selectgender
+            selectedGender = "man";
+
         } else if (gender.equals("woman")) {
 
             // Ocultar la imagen de seleccionado e woman
@@ -48,8 +52,35 @@ public class PersonalInfoFragment extends Fragment {
             // Hacer visible la imagen de seleccionado en woman
             binding.checkWoman.setVisibility(View.VISIBLE);
 
+            // Actualizar variable selectgender
+            selectedGender = "woman";
+
         }
 
+    }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public String getFirstName() {
+        return binding.editTextFirstName.getText().toString().trim();
+    }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public String getLastName() {
+        return binding.editTextSecondName.getText().toString().trim();
+    }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public Integer getAgeValue() {
+        try {
+            return Integer.parseInt(binding.editTextAge.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public String getGender() {
+        return selectedGender;
     }
 
 }

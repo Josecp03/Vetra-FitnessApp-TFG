@@ -25,4 +25,15 @@ public class BodyMetricsFragment extends Fragment {
 
         return view;
     }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public int getHeightValue() {
+        return Integer.parseInt(binding.editTextHeight.getText().toString().trim());
+    }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public double getWeightValue() {
+        return Double.parseDouble(binding.editTextWeight.getText().toString().trim());
+    }
+
 }

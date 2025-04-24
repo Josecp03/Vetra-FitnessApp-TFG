@@ -19,4 +19,11 @@ public class CalorieGoalFragment extends Fragment {
 
         return view;
     }
+
+    /** Llamado desde la Activity al pulsar NEXT */
+    public int getCalorieGoalValue() {
+        return Integer.parseInt(binding.editTextCalories.getText().toString().trim());
+    }
+
+
 }
