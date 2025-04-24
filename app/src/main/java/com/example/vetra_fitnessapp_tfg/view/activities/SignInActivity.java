@@ -1,6 +1,7 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -207,7 +208,7 @@ public class SignInActivity extends AppCompatActivity {
                         } else {
 
                             // Navegar a la actividad principal
-                            navigateToMainActivity();
+                            navigatePostLogin();
 
                         }
 
@@ -254,7 +255,7 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
 
                         // Navegar a la actividad principal
-                        navigateToMainActivity();
+                        navigatePostLogin();
 
                     } else {
 
@@ -267,18 +268,33 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
-    private void navigateToMainActivity() {
+    private void navigatePostLogin() {
 
-        // Crear el intent para navegar a la actividad principal
-        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+        // Guardar el estado del perfil en SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        boolean isProfileComplete = prefs.getBoolean("isProfileComplete", false);
+
+        // Iniializar el intent
+        Intent intent;
+
+        // Comprobar el estado del perfil
+        if (isProfileComplete) {
+            intent = new Intent(this, MainActivity.class);
+        } else {
+            intent = new Intent(this, UserSetUpActivity.class);
+        }
+
+        // Limpiar el back-stack para que no pueda volver a SignIn
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         // Lanzar el intent
         startActivity(intent);
 
-        // Finalizar la actividad actual
+        // Finalizar la actividad
         finish();
 
     }
+
 
     private void navigateToSignUpActivity() {
 
@@ -304,11 +320,8 @@ public class SignInActivity extends AppCompatActivity {
         // Comprobar si el usuario ya está autenticado
         if (mAuth.getCurrentUser() != null) {
 
-            // Navegar a la actividad principal
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-
-            // Cerrar la actividad actual
-            finish();
+            // Navegar a la actividad correspondiente
+            navigatePostLogin();
 
         }
     }

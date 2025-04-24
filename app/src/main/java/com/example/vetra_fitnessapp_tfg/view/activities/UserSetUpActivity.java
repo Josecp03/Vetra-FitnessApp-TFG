@@ -1,6 +1,7 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -73,6 +74,10 @@ public class UserSetUpActivity extends AppCompatActivity {
                 showStep(currentStep);
 
             } else {
+
+                // Guardar el estado del perfil en SharedPreferences
+                SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                prefs.edit().putBoolean("isProfileComplete", true).apply();
 
                 // Crear el intent para navegar a MainActivity
                 Intent intent = new Intent(this, MainActivity.class);
