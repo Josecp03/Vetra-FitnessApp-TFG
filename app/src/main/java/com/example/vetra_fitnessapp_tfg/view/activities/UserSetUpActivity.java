@@ -74,6 +74,9 @@ public class UserSetUpActivity extends AppCompatActivity {
         // Listener para el botón de siguiente
         binding.buttonNext.setOnClickListener(v -> {
 
+            // Guardamos los datos del paso actual antes de cambiar
+            saveStepData(currentStep);
+
             // Comprobar si no estamos en el último fragmento
             if (currentStep < steps.length - 1) {
 
