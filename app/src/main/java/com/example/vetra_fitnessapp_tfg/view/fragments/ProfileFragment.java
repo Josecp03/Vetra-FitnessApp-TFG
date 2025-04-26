@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
@@ -18,7 +18,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
+import android.util.Log;
+import android.widget.Toast;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
@@ -26,6 +32,8 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleClient;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,6 +59,68 @@ public class ProfileFragment extends Fragment {
         binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Leer perfil de Firestore
+        db.collection("users")
+                .document(user.getUid())
+                .get()
+                .addOnSuccessListener((DocumentSnapshot doc) -> {
+
+                    // Escribir los datos del usuario en los campos de texto
+                    binding.editTextFirstName.setText(doc.getString("real_name"));
+                    binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
+                    binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
+                    binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
+                    binding.editTextCalorieGoal.setText(String.valueOf(doc.getLong("user_calories")));
+
+                })
+
+                // Manejar errores
+                .addOnFailureListener(e -> {
+                    Log.e("ProfileFragment", "Error leyendo perfil", e);
+                });
+
+        // Listener para guardar los cambios
+        binding.buttonSaveChanges.setOnClickListener(v -> {
+
+            // Guardar en variables los datos de la interfaz
+            String newFirstName = binding.editTextFirstName.getText().toString().trim();
+            String ageStr = binding.editTextAge.getText().toString().trim();
+            String heightStr = binding.editTextHeight.getText().toString().trim();
+            String weightStr = binding.editTextWeight.getText().toString().trim();
+            String caloriesStr = binding.editTextCalorieGoal.getText().toString().trim();
+
+            // Preparar el Map con los campos a actualizar
+            Map<String,Object> updates = new HashMap<>();
+            updates.put("real_name", newFirstName);
+            updates.put("age", Integer.parseInt(ageStr));
+            updates.put("height", Integer.parseInt(heightStr));
+            updates.put("weight", Double.parseDouble(weightStr));
+            updates.put("user_calories", Integer.parseInt(caloriesStr));
+
+            // Lanzar la actualización en Firestore
+            db.collection("users")
+                    .document(user.getUid())
+                    .update(updates)
+                    .addOnSuccessListener(aVoid -> {
+
+                        // Mostrar mensaje de confirmación
+                        Toast.makeText(getContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+
+                    })
+
+                    // Manejar errores
+                    .addOnFailureListener(e -> {
+                        Log.e("ProfileFragment", "Error actualizando perfil", e);
+                    });
+
+        });
+
     }
 
     private void showLogoutDialog() {
