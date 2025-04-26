@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
+import com.example.vetra_fitnessapp_tfg.utils.Permission;
 import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -26,6 +27,8 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import com.bumptech.glide.Glide;
+
 
 public class ProfileFragment extends Fragment {
 
@@ -34,6 +37,7 @@ public class ProfileFragment extends Fragment {
     private GoogleSignInClient googleClient;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private Permission cameraPermission;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,6 +45,8 @@ public class ProfileFragment extends Fragment {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        cameraPermission = new Permission(getActivity(), new String[]{android.Manifest.permission.CAMERA} , 1);
 
         // Inicializa FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
@@ -71,7 +77,11 @@ public class ProfileFragment extends Fragment {
                 .get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
 
-                    // Escribir los datos del usuario en los campos de texto
+                    // Mostrar los datos del usuario en la interfaz
+                    Glide.with(this)
+                            .load(doc.getString("profile_photo_url"))
+                            .placeholder(R.drawable.ic_profile_picture)
+                            .into(binding.profileImage);
                     binding.editTextUserName.setText(doc.getString("username"));
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
@@ -173,7 +183,10 @@ public class ProfileFragment extends Fragment {
 
         // Acciones del diálogo
         MaterialButton buttonTakePhoto = dialogView.findViewById(R.id.buttonTakePhoto);
-        buttonTakePhoto.setOnClickListener(v -> dialog.dismiss());
+        buttonTakePhoto.setOnClickListener(v -> {
+            dialog.dismiss();
+            cameraPermission.requestPermission();
+        });
 
         MaterialButton buttonSelectGallery = dialogView.findViewById(R.id.buttonSelectGallery);
         buttonSelectGallery.setOnClickListener(v -> dialog.dismiss());
@@ -286,6 +299,12 @@ public class ProfileFragment extends Fragment {
 
         return true;
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Permission.handlePermissionsResult(requireActivity(), requestCode, permissions, grantResults);
     }
 
 

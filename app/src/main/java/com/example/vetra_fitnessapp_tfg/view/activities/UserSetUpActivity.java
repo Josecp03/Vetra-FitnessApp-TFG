@@ -6,13 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
-import com.example.vetra_fitnessapp_tfg.StepValidator;
+import com.example.vetra_fitnessapp_tfg.utils.StepValidator;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityUserSetUpBinding;
 import com.example.vetra_fitnessapp_tfg.view.fragments.BodyMetricsFragment;
 import com.example.vetra_fitnessapp_tfg.view.fragments.CalorieGoalFragment;
@@ -22,6 +20,8 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Map;
 import java.util.HashMap;
 import com.google.firebase.firestore.FirebaseFirestore;
+import android.net.Uri;
+
 
 
 public class UserSetUpActivity extends AppCompatActivity {
@@ -184,20 +184,29 @@ public class UserSetUpActivity extends AppCompatActivity {
 
     private void saveAllToFirebase() {
 
+        // Obtener el usuario actual
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+        // Guardar en una variable la foto de perfil
+        Uri photoUri = user.getPhotoUrl();
+        String photoUrl = (photoUri != null) ? photoUri.toString() : "";
+
+        // Crear un mapa con los datos
         Map<String, Object> datos = new HashMap<>();
 
-        datos.put("username", user.getDisplayName());
+        // Guardar los datos en el mapa
         datos.put("email", user.getEmail());
+        datos.put("username", user.getDisplayName());
         datos.put("real_name", firstName);
         datos.put("last_name", lastName);
-        datos.put("gender", gender);
         datos.put("age", age);
+        datos.put("gender", gender);
         datos.put("height", height);
         datos.put("weight", weight);
         datos.put("user_calories", calorieGoal);
+        datos.put("profile_photo_url", photoUrl);
 
+        // Guardar los datos en Firebase
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())
@@ -225,6 +234,7 @@ public class UserSetUpActivity extends AppCompatActivity {
 
                 })
 
+                // Manejar el error
                 .addOnFailureListener(e -> {
                     Log.e("UserSetUpActivity", "Error al guardar los datos en Firebase", e);
                 });
