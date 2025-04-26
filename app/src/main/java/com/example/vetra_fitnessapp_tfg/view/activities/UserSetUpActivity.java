@@ -33,11 +33,10 @@ public class UserSetUpActivity extends AppCompatActivity {
             new BodyMetricsFragment(),
             new CalorieGoalFragment()
     };
-
-    // Datos temporales
     public String firstName, lastName, gender;
     public int age, height, calorieGoal;
     public double weight;
+    private boolean profileCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,6 +196,9 @@ public class UserSetUpActivity extends AppCompatActivity {
                 .set(datos)
                 .addOnSuccessListener(unused -> {
 
+                    // Marcamos que ya completó el flujo
+                    profileCompleted = true;
+
                     // Guardar el estado del perfil en SharedPreferences
                     SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
                     prefs.edit().putBoolean("isProfileComplete", true).apply();
@@ -218,6 +220,19 @@ public class UserSetUpActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e("UserSetUpActivity", "Error al guardar los datos en Firebase", e);
                 });
+
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Si el usuario sale antes de completar el setup, resetear el flag
+        if (!profileCompleted) {
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            prefs.edit().putBoolean("isProfileComplete", false).apply();
+        }
 
     }
 
