@@ -80,4 +80,5 @@
     <string name="insert_prompt">Insert prompt</string>
     <string name="generate_with_ai">Generate with AI</string>
     <string name="default_web_client_id">1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com</string>
+    <string name="name">Name</string>
 </resources>

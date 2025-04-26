@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
 
                     // Escribir los datos del usuario en los campos de texto
-                    binding.editTextFirstName.setText(doc.getString("real_name"));
+                    binding.editTextUserName.setText(doc.getString("username"));
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
@@ -88,8 +88,13 @@ public class ProfileFragment extends Fragment {
         // Listener para guardar los cambios
         binding.buttonSaveChanges.setOnClickListener(v -> {
 
+            // Comprobar que los campos no estén vacíos
+            if (!validateProfileFields()) {
+                return;
+            }
+
             // Guardar en variables los datos de la interfaz
-            String newFirstName = binding.editTextFirstName.getText().toString().trim();
+            String newUserName = binding.editTextUserName.getText().toString().trim();
             String ageStr = binding.editTextAge.getText().toString().trim();
             String heightStr = binding.editTextHeight.getText().toString().trim();
             String weightStr = binding.editTextWeight.getText().toString().trim();
@@ -97,7 +102,7 @@ public class ProfileFragment extends Fragment {
 
             // Preparar el Map con los campos a actualizar
             Map<String,Object> updates = new HashMap<>();
-            updates.put("real_name", newFirstName);
+            updates.put("username", newUserName);
             updates.put("age", Integer.parseInt(ageStr));
             updates.put("height", Integer.parseInt(heightStr));
             updates.put("weight", Double.parseDouble(weightStr));
@@ -258,6 +263,28 @@ public class ProfileFragment extends Fragment {
             requireActivity().finish();
 
         });
+
+    }
+
+    private boolean validateProfileFields() {
+
+        // Guardar en variables los datos de la interfaz
+        String fn = binding.editTextUserName.getText().toString().trim();
+        String age = binding.editTextAge.getText().toString().trim();
+        String weight = binding.editTextWeight.getText().toString().trim();
+        String height = binding.editTextHeight.getText().toString().trim();
+        String calories = binding.editTextCalorieGoal.getText().toString().trim();
+
+        // Comprobar si los campos están vacíos
+        if (fn.isEmpty() || age.isEmpty() || weight.isEmpty() || height.isEmpty() || calories.isEmpty()) {
+
+            // Mostrar mensaje de error al usuario
+            Toast.makeText(getContext(), "Please complete all fields before saving", Toast.LENGTH_SHORT).show();
+            return false;
+
+        }
+
+        return true;
 
     }
 
