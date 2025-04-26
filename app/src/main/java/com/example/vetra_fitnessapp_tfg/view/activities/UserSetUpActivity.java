@@ -1,5 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
+import com.example.vetra_fitnessapp_tfg.StepValidator;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityUserSetUpBinding;
 import com.example.vetra_fitnessapp_tfg.view.fragments.BodyMetricsFragment;
 import com.example.vetra_fitnessapp_tfg.view.fragments.CalorieGoalFragment;
@@ -60,9 +62,6 @@ public class UserSetUpActivity extends AppCompatActivity {
             // Solo retrocedemos si no estamos en el primer paso
             if (currentStep > 0) {
 
-                // Guardamos los datos del paso actual antes de cambiar
-                saveStepData(currentStep);
-
                 // Bajamos un paso y mostramos el fragmento anterior
                 currentStep--;
                 showStep(currentStep);
@@ -73,6 +72,22 @@ public class UserSetUpActivity extends AppCompatActivity {
 
         // Listener para el botón de siguiente
         binding.buttonNext.setOnClickListener(v -> {
+
+            // Buscar el fragmento actual
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+
+            // Comprobar si el fragmento actual implementa StepValidator
+            if (f instanceof StepValidator) {
+
+                // Si lo hace, llamar a la función correspodniente
+                boolean ok = ((StepValidator) f).validateFields();
+
+                // Si no pasa la validación, no guardamos ni avanzamos
+                if (!ok) {
+                    return;
+                }
+
+            }
 
             // Guardamos los datos del paso actual antes de cambiar
             saveStepData(currentStep);
@@ -90,9 +105,11 @@ public class UserSetUpActivity extends AppCompatActivity {
                 saveAllToFirebase();
 
             }
+
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void showStep(int stepIndex) {
 
         // Cargar el fragmento correspondiente al índice
