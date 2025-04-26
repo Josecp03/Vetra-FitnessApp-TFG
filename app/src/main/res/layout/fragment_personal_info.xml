@@ -193,7 +193,7 @@
                     android:includeFontPadding="false"
                     android:inputType="number|textNoSuggestions"
                     android:digits="0123456789"
-                    android:maxLength="3"
+                    android:maxLength="2"
                     android:textColor="@android:color/black"
                     android:textColorHint="@color/dark_gray"
                     android:textCursorDrawable="@drawable/custom_cursor"

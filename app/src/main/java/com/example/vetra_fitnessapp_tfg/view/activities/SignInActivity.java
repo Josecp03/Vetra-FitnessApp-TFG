@@ -196,19 +196,13 @@ public class SignInActivity extends AppCompatActivity {
                         // Comprobar el estado de la variable booleana
                         if (isNew) {
 
-                            // Mostrar mensaje de error
-                            Toast.makeText(this, "No account found. Please sign up first", Toast.LENGTH_SHORT).show();
-
-                            // Obtener el usuario autenticado por Google (aún existe en Firebase)
-                            FirebaseUser user = mAuth.getCurrentUser();
-
-                            // Eliminar el usuario
-                            user.delete();
+                            // Navegar a la la actividad correspondiente
+                            navigateToUserSetUpActivity();
 
                         } else {
 
                             // Navegar a la actividad principal
-                            navigatePostLogin();
+                            navigateToMainActivity();
 
                         }
 
@@ -255,7 +249,7 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
 
                         // Navegar a la actividad principal
-                        navigatePostLogin();
+                        navigateToMainActivity();
 
                     } else {
 
@@ -267,34 +261,6 @@ public class SignInActivity extends AppCompatActivity {
                 });
 
     }
-
-    private void navigatePostLogin() {
-
-        // Guardar el estado del perfil en SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        boolean isProfileComplete = prefs.getBoolean("isProfileComplete", false);
-
-        // Iniializar el intent
-        Intent intent;
-
-        // Comprobar el estado del perfil
-        if (isProfileComplete) {
-            intent = new Intent(this, MainActivity.class);
-        } else {
-            intent = new Intent(this, UserSetUpActivity.class);
-        }
-
-        // Limpiar el back-stack para que no pueda volver a SignIn
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        // Lanzar el intent
-        startActivity(intent);
-
-        // Finalizar la actividad
-        finish();
-
-    }
-
 
     private void navigateToSignUpActivity() {
 
@@ -309,22 +275,34 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+    private void navigateToUserSetUpActivity() {
+
+        // Crear intent para navegar a SignUpActivity
+        Intent intent = new Intent(SignInActivity.this, UserSetUpActivity.class);
+
+        // Lanzar el intent
+        startActivity(intent);
+
+        // Aplicar animación de transición
+        overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
+
+    }
+
+    private void navigateToMainActivity() {
+
+        // Crear intent para navegar a SignUpActivity
+        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+
+        // Lanzar el intent
+        startActivity(intent);
+
+        // Aplicar animación de transición
+        overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
+
+    }
+
     public static boolean isEmailValid(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Comprobar si el usuario ya está autenticado
-        if (mAuth.getCurrentUser() != null) {
-
-            // Navegar a la actividad correspondiente
-            navigatePostLogin();
-
-        }
-    }
-
 
 }
