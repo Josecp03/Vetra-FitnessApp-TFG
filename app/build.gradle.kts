@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation (libs.firebase.firestore)
     implementation(libs.glide)
+    implementation ("com.google.firebase:firebase-storage:20.3.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

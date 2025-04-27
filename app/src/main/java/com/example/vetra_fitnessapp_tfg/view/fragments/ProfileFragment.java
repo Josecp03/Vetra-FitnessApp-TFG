@@ -2,11 +2,17 @@ package com.example.vetra_fitnessapp_tfg.view.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
@@ -24,20 +30,32 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 import android.util.Log;
 import android.widget.Toast;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import android.app.Activity;
+
 
 
 public class ProfileFragment extends Fragment {
 
+    private static final int RC_CAMERA = 1001;
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleClient;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private FirebaseFirestore db;
+    private FirebaseUser user;
     private Permission cameraPermission;
+    private Uri cameraImageUri;
+    private StorageReference storageRef;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,10 +64,13 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-        cameraPermission = new Permission(getActivity(), new String[]{android.Manifest.permission.CAMERA} , 1);
+        cameraPermission = new Permission(getActivity(), new String[]{android.Manifest.permission.CAMERA} , RC_CAMERA);
 
-        // Inicializa FirebaseAuth
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference();
 
         // Inicializa GoogleSignInClient
         GoogleSignInOptions googleOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -185,7 +206,14 @@ public class ProfileFragment extends Fragment {
         MaterialButton buttonTakePhoto = dialogView.findViewById(R.id.buttonTakePhoto);
         buttonTakePhoto.setOnClickListener(v -> {
             dialog.dismiss();
-            cameraPermission.requestPermission();
+
+            // Comprobar si ya tiene le permiso
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                cameraPermission.requestPermission();
+            }
+
         });
 
         MaterialButton buttonSelectGallery = dialogView.findViewById(R.id.buttonSelectGallery);
@@ -305,7 +333,84 @@ public class ProfileFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Permission.handlePermissionsResult(requireActivity(), requestCode, permissions, grantResults);
+
+        // Si era la petición de cámara y el usuario concedió todos los permisos, abrimos cámara
+        if (requestCode == RC_CAMERA) {
+            boolean allGranted = true;
+            for (int r : grantResults) {
+                if (r != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            if (allGranted) {
+                openCamera();
+            }
+        }
+
     }
 
+    private void openCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photoFile;
+        try {
+            photoFile = createTempImageFile();
+        } catch (IOException e) {
+            Log.e("ProfileFragment", "Error creando archivo de imagen", e);
+            return;
+        }
+
+        cameraImageUri = FileProvider.getUriForFile(requireContext(),
+                requireContext().getPackageName() + ".fileprovider",
+                photoFile);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+        startActivityForResult(cameraIntent, RC_CAMERA);
+    }
+
+    private File createTempImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "IMG_" + timeStamp + "_";
+        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RC_CAMERA && resultCode == Activity.RESULT_OK && cameraImageUri != null) {
+            uploadImageToFirebase(cameraImageUri);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void uploadImageToFirebase(Uri uri) {
+        StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
+        photoRef.putFile(uri)
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) throw task.getException();
+                    return photoRef.getDownloadUrl();
+                })
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String url = task.getResult().toString();
+                        updateProfilePhotoUrl(url);
+                    } else {
+                        Toast.makeText(getContext(), "Error subiendo foto", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateProfilePhotoUrl(String url) {
+        Map<String,Object> upd = new HashMap<>();
+        upd.put("profile_photo_url", url);
+        db.collection("users").document(user.getUid())
+                .update(upd)
+                .addOnSuccessListener(a -> {
+                    Glide.with(this).load(url).into(binding.profileImage);
+                    Toast.makeText(getContext(), "Foto actualizada", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error guardando URL", Toast.LENGTH_SHORT).show();
+                });
+    }
 
 }
