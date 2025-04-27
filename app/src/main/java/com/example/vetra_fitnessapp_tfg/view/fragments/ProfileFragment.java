@@ -1,23 +1,28 @@
 package com.example.vetra_fitnessapp_tfg.view.fragments;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
-import com.example.vetra_fitnessapp_tfg.utils.Permission;
 import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -26,10 +31,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
-import android.util.Log;
-import android.widget.Toast;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -38,23 +44,19 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import com.bumptech.glide.Glide;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import android.app.Activity;
-
-
 
 public class ProfileFragment extends Fragment {
 
     private static final int RC_CAMERA = 1001;
+    private static final int RC_GALLERY = 1002;
+
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleClient;
     private FirebaseFirestore db;
     private FirebaseUser user;
-    private Permission cameraPermission;
     private Uri cameraImageUri;
+    private Uri pendingImageUri = null;
     private StorageReference storageRef;
 
     @Override
@@ -64,26 +66,23 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-        cameraPermission = new Permission(getActivity(), new String[]{android.Manifest.permission.CAMERA} , RC_CAMERA);
-
-        // Firebase
+        // Firebase setup
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
 
-        // Inicializa GoogleSignInClient
+        // Google SignIn
         GoogleSignInOptions googleOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleClient = GoogleSignIn.getClient(requireContext(), googleOptions);
 
-        // Listener para el botón de logut
+        // Button listeners
         binding.buttonLogOut.setOnClickListener(v -> showLogoutDialog());
-
-        // Listener para el botón de cambiar foto
         binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
+        binding.buttonSaveChanges.setOnClickListener(v -> saveProfileChanges());
 
         return view;
     }
@@ -91,14 +90,12 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        loadUserProfile();
+    }
 
-        // Leer perfil de Firestore
-        db.collection("users")
-                .document(user.getUid())
-                .get()
+    private void loadUserProfile() {
+        db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
-
-                    // Mostrar los datos del usuario en la interfaz
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
@@ -108,263 +105,180 @@ public class ProfileFragment extends Fragment {
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
                     binding.editTextCalorieGoal.setText(String.valueOf(doc.getLong("user_calories")));
-
                 })
-
-                // Manejar errores
-                .addOnFailureListener(e -> {
-                    Log.e("ProfileFragment", "Error leyendo perfil", e);
-                });
-
-        // Listener para guardar los cambios
-        binding.buttonSaveChanges.setOnClickListener(v -> {
-
-            // Comprobar que los campos no estén vacíos
-            if (!validateProfileFields()) {
-                return;
-            }
-
-            // Guardar en variables los datos de la interfaz
-            String newUserName = binding.editTextUserName.getText().toString().trim();
-            String ageStr = binding.editTextAge.getText().toString().trim();
-            String heightStr = binding.editTextHeight.getText().toString().trim();
-            String weightStr = binding.editTextWeight.getText().toString().trim();
-            String caloriesStr = binding.editTextCalorieGoal.getText().toString().trim();
-
-            // Preparar el Map con los campos a actualizar
-            Map<String,Object> updates = new HashMap<>();
-            updates.put("username", newUserName);
-            updates.put("age", Integer.parseInt(ageStr));
-            updates.put("height", Integer.parseInt(heightStr));
-            updates.put("weight", Double.parseDouble(weightStr));
-            updates.put("user_calories", Integer.parseInt(caloriesStr));
-
-            // Lanzar la actualización en Firestore
-            db.collection("users")
-                    .document(user.getUid())
-                    .update(updates)
-                    .addOnSuccessListener(aVoid -> {
-
-                        // Mostrar mensaje de confirmación
-                        Toast.makeText(getContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
-
-                    })
-
-                    // Manejar errores
-                    .addOnFailureListener(e -> {
-                        Log.e("ProfileFragment", "Error actualizando perfil", e);
-                    });
-
-        });
-
+                .addOnFailureListener(e -> Log.e("ProfileFragment", "Error reading profile", e));
     }
 
     private void showLogoutDialog() {
-
-        // Inflar el binding del diálogo
         DialogLogoutBinding dialogBinding = DialogLogoutBinding.inflate(getLayoutInflater());
-
-        // Crear un BottomSheetDialog con un tema personalizado
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme
-        );
-
-        // Asignar la vista al diálogo
-        bottomSheetDialog.setContentView(dialogBinding.getRoot());
-
-        // Ajustar fondo transparente
-        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
-        // Referenciar al botón Log out dentro del diálogo
-        dialogBinding.buttonLogoutConfirm.setOnClickListener(v -> {
-
-            // Lógica para cerrar sesión
-            logout();
-
-        });
-
-        // Mostrar el diálogo
-        bottomSheetDialog.show();
-
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        dialog.setContentView(dialogBinding.getRoot());
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+        dialogBinding.buttonLogoutConfirm.setOnClickListener(v -> logout());
+        dialog.show();
     }
-
 
     private void showChangePictureDialog() {
-
-        // Inflar la vista del diálogo
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_change_picture, null);
-
-        // Crear el BottomSheetDialog
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista inflada al diálogo
         dialog.setContentView(dialogView);
-
-        // Ajustar fondo transparente
         Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
 
-        // Acciones del diálogo
-        MaterialButton buttonTakePhoto = dialogView.findViewById(R.id.buttonTakePhoto);
-        buttonTakePhoto.setOnClickListener(v -> {
+        MaterialButton btnCamera = dialogView.findViewById(R.id.buttonTakePhoto);
+        btnCamera.setOnClickListener(v -> {
             dialog.dismiss();
-
-            // Comprobar si ya tiene le permiso
-            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
             } else {
-                cameraPermission.requestPermission();
+                requestPermissions(
+                        new String[]{android.Manifest.permission.CAMERA}, RC_CAMERA);
             }
-
         });
 
-        MaterialButton buttonSelectGallery = dialogView.findViewById(R.id.buttonSelectGallery);
-        buttonSelectGallery.setOnClickListener(v -> dialog.dismiss());
-
-        MaterialButton buttonInsertLink = dialogView.findViewById(R.id.buttonInsertLink);
-        buttonInsertLink.setOnClickListener(v -> {
+        MaterialButton btnGallery = dialogView.findViewById(R.id.buttonSelectGallery);
+        btnGallery.setOnClickListener(v -> {
             dialog.dismiss();
-            showExternalLinkDialog();
+            String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    ? android.Manifest.permission.READ_MEDIA_IMAGES
+                    : android.Manifest.permission.READ_EXTERNAL_STORAGE;
+            if (ContextCompat.checkSelfPermission(requireContext(), perm)
+                    == PackageManager.PERMISSION_GRANTED) {
+                openGallery();
+            } else {
+                requestPermissions(new String[]{perm}, RC_GALLERY);
+            }
         });
 
-        MaterialButton buttonGenerateAi = dialogView.findViewById(R.id.buttonGenerateAi);
-        buttonGenerateAi.setOnClickListener(v -> {
+        MaterialButton btnDelete = dialogView.findViewById(R.id.buttonDeletePhoto);
+        btnDelete.setOnClickListener(v -> {
             dialog.dismiss();
-            showPromptAIDialog();
+            deleteProfilePhoto();
         });
 
-        MaterialButton buttonDeletePhoto = dialogView.findViewById(R.id.buttonDeletePhoto);
-        buttonDeletePhoto.setOnClickListener(v -> dialog.dismiss());
-
-        // Mostrar el diálogo
         dialog.show();
-
-    }
-
-    private void showExternalLinkDialog() {
-
-        // Inflar la vista personalizada del diálogo desde el layout XML
-        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_external_link, null);
-
-        // Crear un BottomSheetDialog con un tema personalizado
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista inflada al diálogo
-        bottomSheetDialog.setContentView(dialogView);
-
-        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
-        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
-        // Mostrar el diálogo
-        bottomSheetDialog.show();
-
-        // Obtener la vista del bottom sheet
-        View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-
-        // Forzar que ocupe toda la altura de la pantalla
-        bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-    }
-
-    private void showPromptAIDialog() {
-
-        // Inflar la vista personalizada del diálogo desde el layout XML
-        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_ai, null);
-
-        // Crear un BottomSheetDialog con un tema personalizado
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista inflada al diálogo
-        bottomSheetDialog.setContentView(dialogView);
-
-        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
-        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
-        // Mostrar el diálogo
-        bottomSheetDialog.show();
-
-        // Obtener la vista del bottom sheet
-        View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-
-        // Forzar que ocupe toda la altura de la pantalla
-        bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
-
-    }
-
-    private void logout() {
-
-        // Cerrar sesión de Firebase
-        mAuth.signOut();
-
-        // Cerrar sesión de Google
-        googleClient.signOut().addOnCompleteListener(requireActivity(), task -> {
-
-            // Cerrar la actividad y volver a la pantalla de inicio de sesión
-            Intent intent = new Intent(requireActivity(), SignInActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            requireActivity().finish();
-
-        });
-
-    }
-
-    private boolean validateProfileFields() {
-
-        // Guardar en variables los datos de la interfaz
-        String fn = binding.editTextUserName.getText().toString().trim();
-        String age = binding.editTextAge.getText().toString().trim();
-        String weight = binding.editTextWeight.getText().toString().trim();
-        String height = binding.editTextHeight.getText().toString().trim();
-        String calories = binding.editTextCalorieGoal.getText().toString().trim();
-
-        // Comprobar si los campos están vacíos
-        if (fn.isEmpty() || age.isEmpty() || weight.isEmpty() || height.isEmpty() || calories.isEmpty()) {
-
-            // Mostrar mensaje de error al usuario
-            Toast.makeText(getContext(), "Please complete all fields before saving", Toast.LENGTH_SHORT).show();
-            return false;
-
-        }
-
-        return true;
-
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Permission.handlePermissionsResult(requireActivity(), requestCode, permissions, grantResults);
-
-        // Si era la petición de cámara y el usuario concedió todos los permisos, abrimos cámara
-        if (requestCode == RC_CAMERA) {
-            boolean allGranted = true;
-            for (int r : grantResults) {
-                if (r != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
-                }
-            }
-            if (allGranted) {
-                openCamera();
+        boolean allGranted = true;
+        for (int r : grantResults) {
+            if (r != PackageManager.PERMISSION_GRANTED) {
+                allGranted = false;
+                break;
             }
         }
-
+        if (requestCode == RC_CAMERA && allGranted) {
+            openCamera();
+        } else if (requestCode == RC_GALLERY && allGranted) {
+            openGallery();
+        }
     }
 
     private void openCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(requireContext().getPackageManager()) == null) {
+            Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show();
+            return;
+        }
         File photoFile;
         try {
             photoFile = createTempImageFile();
         } catch (IOException e) {
-            Log.e("ProfileFragment", "Error creando archivo de imagen", e);
+            Log.e("ProfileFragment", "Error creating file", e);
+            Toast.makeText(requireContext(), "Cannot create image file", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        cameraImageUri = FileProvider.getUriForFile(requireContext(),
+        cameraImageUri = FileProvider.getUriForFile(
+                requireContext(),
                 requireContext().getPackageName() + ".fileprovider",
                 photoFile);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
-        startActivityForResult(cameraIntent, RC_CAMERA);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(intent, RC_CAMERA);
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+            startActivityForResult(intent, RC_GALLERY);
+        } else {
+            Toast.makeText(requireContext(), "No gallery app found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_CAMERA && resultCode == Activity.RESULT_OK && cameraImageUri != null) {
+            pendingImageUri = cameraImageUri;
+            binding.profileImage.setImageURI(pendingImageUri);
+        } else if (requestCode == RC_GALLERY && resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                pendingImageUri = uri;
+                binding.profileImage.setImageURI(pendingImageUri);
+            }
+        }
+    }
+
+    private void saveProfileChanges() {
+        if (!validateProfileFields()) return;
+        Map<String,Object> updates = new HashMap<>();
+        updates.put("username", binding.editTextUserName.getText().toString().trim());
+        updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
+        updates.put("height", Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
+        updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
+        updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
+
+        if (pendingImageUri != null) {
+            StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
+            photoRef.putFile(pendingImageUri)
+                    .continueWithTask(task -> {
+                        if (!task.isSuccessful()) throw task.getException();
+                        return photoRef.getDownloadUrl();
+                    })
+                    .addOnSuccessListener(downloadUri -> {
+                        updates.put("profile_photo_url", downloadUri.toString());
+                        pendingImageUri = null;
+                        applyFirestoreUpdates(updates);
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error uploading photo", Toast.LENGTH_SHORT).show());
+        } else {
+            applyFirestoreUpdates(updates);
+        }
+    }
+
+    private void applyFirestoreUpdates(Map<String, Object> updates) {
+        db.collection("users").document(user.getUid())
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ProfileFragment", "Error updating profile", e);
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void deleteProfilePhoto() {
+        StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
+        photoRef.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Map<String,Object> updates = new HashMap<>();
+                    updates.put("profile_photo_url", null);
+                    applyFirestoreUpdates(updates);
+                    binding.profileImage.setImageResource(R.drawable.ic_profile_picture);
+                })
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error deleting photo", Toast.LENGTH_SHORT).show());
     }
 
     private File createTempImageFile() throws IOException {
@@ -374,43 +288,25 @@ public class ProfileFragment extends Fragment {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_CAMERA && resultCode == Activity.RESULT_OK && cameraImageUri != null) {
-            uploadImageToFirebase(cameraImageUri);
+    private boolean validateProfileFields() {
+        if (binding.editTextUserName.getText().toString().trim().isEmpty()
+                || binding.editTextAge.getText().toString().trim().isEmpty()
+                || binding.editTextWeight.getText().toString().trim().isEmpty()
+                || binding.editTextHeight.getText().toString().trim().isEmpty()
+                || binding.editTextCalorieGoal.getText().toString().trim().isEmpty()) {
+            Toast.makeText(requireContext(), "Please complete all fields before saving", Toast.LENGTH_SHORT).show();
+            return false;
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        return true;
     }
 
-    private void uploadImageToFirebase(Uri uri) {
-        StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
-        photoRef.putFile(uri)
-                .continueWithTask(task -> {
-                    if (!task.isSuccessful()) throw task.getException();
-                    return photoRef.getDownloadUrl();
-                })
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String url = task.getResult().toString();
-                        updateProfilePhotoUrl(url);
-                    } else {
-                        Toast.makeText(getContext(), "Error subiendo foto", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void logout() {
+        mAuth.signOut();
+        googleClient.signOut().addOnCompleteListener(requireActivity(), task -> {
+            Intent intent = new Intent(requireActivity(), SignInActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            requireActivity().finish();
+        });
     }
-
-    private void updateProfilePhotoUrl(String url) {
-        Map<String,Object> upd = new HashMap<>();
-        upd.put("profile_photo_url", url);
-        db.collection("users").document(user.getUid())
-                .update(upd)
-                .addOnSuccessListener(a -> {
-                    Glide.with(this).load(url).into(binding.profileImage);
-                    Toast.makeText(getContext(), "Foto actualizada", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error guardando URL", Toast.LENGTH_SHORT).show();
-                });
-    }
-
 }
