@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -164,6 +165,7 @@ public class ProfileFragment extends Fragment {
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         boolean allGranted = true;
         for (int r : grantResults) {
             if (r != PackageManager.PERMISSION_GRANTED) {
@@ -171,12 +173,41 @@ public class ProfileFragment extends Fragment {
                 break;
             }
         }
-        if (requestCode == RC_CAMERA && allGranted) {
-            openCamera();
-        } else if (requestCode == RC_GALLERY && allGranted) {
-            openGallery();
+
+        if (requestCode == RC_CAMERA) {
+            if (allGranted) {
+                openCamera();
+            } else if (!shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                // Permiso denegado permanentemente: vamos a ajustes
+                Toast.makeText(requireContext(),
+                        "Enable app permissions in Settings",
+                        Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", requireContext().getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }
+        else if (requestCode == RC_GALLERY) {
+            String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    ? android.Manifest.permission.READ_MEDIA_IMAGES
+                    : android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
+            if (allGranted) {
+                openGallery();
+            } else if (!shouldShowRequestPermissionRationale(perm)) {
+                // Permiso denegado permanentemente: vamos a ajustes
+                Toast.makeText(requireContext(),
+                        "Enable app permissions in Settings",
+                        Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", requireContext().getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
         }
     }
+
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
