@@ -49,6 +49,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public class ProfileFragment extends Fragment {
 
     private static final int RC_CAMERA = 1001;
@@ -62,6 +64,7 @@ public class ProfileFragment extends Fragment {
     private Uri cameraImageUri;
     private Uri pendingImageUri = null;
     private StorageReference storageRef;
+    private boolean shouldDeletePhoto = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -279,12 +282,13 @@ public class ProfileFragment extends Fragment {
         updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
+        // Caso 1: hay nueva foto
         if (pendingImageUri != null) {
+            // Como antes: compressImage(), putBytes(), getDownloadUrl()…
             try {
                 byte[] compressed = compressImage(pendingImageUri);
                 StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
 
-                // Notificar al usuario en inglés
                 Toast.makeText(requireContext(), "Uploading photo...", Toast.LENGTH_SHORT).show();
                 binding.buttonSaveChanges.setEnabled(false);
 
@@ -296,9 +300,8 @@ public class ProfileFragment extends Fragment {
                         .addOnSuccessListener(downloadUri -> {
                             updates.put("profile_photo_url", downloadUri.toString());
                             pendingImageUri = null;
-                            applyFirestoreUpdates(updates);
-                            binding.buttonSaveChanges.setEnabled(true);
-                            Toast.makeText(requireContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
+                            shouldDeletePhoto = false;  // ya no eliminar
+                            finalizeSave(updates, photoRef);
                         })
                         .addOnFailureListener(e -> {
                             binding.buttonSaveChanges.setEnabled(true);
@@ -310,10 +313,43 @@ public class ProfileFragment extends Fragment {
                 Log.e("ProfileFragment", "Error compressing image", e);
                 Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
             }
+
+            // Caso 2: ni nueva foto, ni borrado
+        } else if (!shouldDeletePhoto) {
+            finalizeSave(updates, null);
+
+            // Caso 3: solo borrar foto
         } else {
-            applyFirestoreUpdates(updates);
+            updates.put("profile_photo_url", null);
+            binding.buttonSaveChanges.setEnabled(false);
+            finalizeSave(updates, storageRef.child("profile_photos/" + user.getUid() + ".jpg"));
         }
     }
+
+    private void finalizeSave(Map<String,Object> updates, @Nullable StorageReference photoRef) {
+        db.collection("users").document(user.getUid())
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    // Si marca borrado: lo hacemos también en Storage
+                    if (shouldDeletePhoto && photoRef != null) {
+                        photoRef.delete();
+                    }
+                    // Si el Fragment sigue activo, actualizamos UI y toast
+                    if (isAdded()) {
+                        binding.buttonSaveChanges.setEnabled(true);
+                        Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show();
+                    }
+                    shouldDeletePhoto = false;
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) {
+                        binding.buttonSaveChanges.setEnabled(true);
+                        Toast.makeText(getContext(), "Error saving changes", Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("ProfileFragment", "Error updating profile", e);
+                });
+    }
+
 
     private void applyFirestoreUpdates(Map<String, Object> updates) {
         db.collection("users").document(user.getUid())
@@ -331,15 +367,11 @@ public class ProfileFragment extends Fragment {
 
 
     private void deleteProfilePhoto() {
-        StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
-        photoRef.delete()
-                .addOnSuccessListener(aVoid -> {
-                    Map<String,Object> updates = new HashMap<>();
-                    updates.put("profile_photo_url", null);
-                    applyFirestoreUpdates(updates);
-                    binding.profileImage.setImageResource(R.drawable.ic_profile_picture);
-                })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error deleting photo", Toast.LENGTH_SHORT).show());
+        // Marcamos para borrar al guardar, actualizamos UI
+        shouldDeletePhoto = true;
+        pendingImageUri = null;
+        binding.profileImage.setImageResource(R.drawable.ic_profile_picture);
+        Toast.makeText(requireContext(), "Photo will be deleted when you save changes", Toast.LENGTH_SHORT).show();
     }
 
     private File createTempImageFile() throws IOException {

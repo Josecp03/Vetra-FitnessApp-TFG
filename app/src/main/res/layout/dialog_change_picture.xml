@@ -55,20 +55,6 @@
         app:iconTint="@null" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonInsertLink"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:fontFamily="@font/goldman"
-        android:includeFontPadding="false"
-        android:text="@string/insert_external_link"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        app:backgroundTint="@color/dark_gray"
-        app:iconTint="@null" />
-
-    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonGenerateAi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
