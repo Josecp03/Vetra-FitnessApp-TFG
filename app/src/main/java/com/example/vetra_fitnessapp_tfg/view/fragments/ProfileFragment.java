@@ -3,6 +3,7 @@ package com.example.vetra_fitnessapp_tfg.view.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +37,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -178,7 +181,6 @@ public class ProfileFragment extends Fragment {
             if (allGranted) {
                 openCamera();
             } else if (!shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-                // Permiso denegado permanentemente: vamos a ajustes
                 Toast.makeText(requireContext(),
                         "Enable app permissions in Settings",
                         Toast.LENGTH_LONG).show();
@@ -187,16 +189,13 @@ public class ProfileFragment extends Fragment {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
-        }
-        else if (requestCode == RC_GALLERY) {
+        } else if (requestCode == RC_GALLERY) {
             String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                     ? android.Manifest.permission.READ_MEDIA_IMAGES
                     : android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
             if (allGranted) {
                 openGallery();
             } else if (!shouldShowRequestPermissionRationale(perm)) {
-                // Permiso denegado permanentemente: vamos a ajustes
                 Toast.makeText(requireContext(),
                         "Enable app permissions in Settings",
                         Toast.LENGTH_LONG).show();
@@ -207,7 +206,6 @@ public class ProfileFragment extends Fragment {
             }
         }
     }
-
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -245,20 +243,35 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_CAMERA && resultCode == Activity.RESULT_OK && cameraImageUri != null) {
-            pendingImageUri = cameraImageUri;
-            binding.profileImage.setImageURI(pendingImageUri);
+        if (requestCode == RC_CAMERA && resultCode == Activity.RESULT_OK) {
+            if (cameraImageUri != null) {
+                pendingImageUri = cameraImageUri;
+                Glide.with(this)
+                        .load(pendingImageUri)
+                        .centerCrop()
+                        .into(binding.profileImage);
+            } else if (data != null && data.getExtras() != null) {
+                Bitmap thumb = data.getExtras().getParcelable("data");
+                if (thumb != null) {
+                    binding.profileImage.setImageBitmap(thumb);
+                    pendingImageUri = null;
+                }
+            }
         } else if (requestCode == RC_GALLERY && resultCode == Activity.RESULT_OK && data != null) {
             Uri uri = data.getData();
             if (uri != null) {
                 pendingImageUri = uri;
-                binding.profileImage.setImageURI(pendingImageUri);
+                Glide.with(this)
+                        .load(pendingImageUri)
+                        .centerCrop()
+                        .into(binding.profileImage);
             }
         }
     }
 
     private void saveProfileChanges() {
         if (!validateProfileFields()) return;
+
         Map<String,Object> updates = new HashMap<>();
         updates.put("username", binding.editTextUserName.getText().toString().trim());
         updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
@@ -267,18 +280,36 @@ public class ProfileFragment extends Fragment {
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
         if (pendingImageUri != null) {
-            StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
-            photoRef.putFile(pendingImageUri)
-                    .continueWithTask(task -> {
-                        if (!task.isSuccessful()) throw task.getException();
-                        return photoRef.getDownloadUrl();
-                    })
-                    .addOnSuccessListener(downloadUri -> {
-                        updates.put("profile_photo_url", downloadUri.toString());
-                        pendingImageUri = null;
-                        applyFirestoreUpdates(updates);
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(requireContext(), "Error uploading photo", Toast.LENGTH_SHORT).show());
+            try {
+                byte[] compressed = compressImage(pendingImageUri);
+                StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
+
+                // Notificar al usuario en inglés
+                Toast.makeText(requireContext(), "Uploading photo...", Toast.LENGTH_SHORT).show();
+                binding.buttonSaveChanges.setEnabled(false);
+
+                photoRef.putBytes(compressed)
+                        .continueWithTask(task -> {
+                            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+                            return photoRef.getDownloadUrl();
+                        })
+                        .addOnSuccessListener(downloadUri -> {
+                            updates.put("profile_photo_url", downloadUri.toString());
+                            pendingImageUri = null;
+                            applyFirestoreUpdates(updates);
+                            binding.buttonSaveChanges.setEnabled(true);
+                            Toast.makeText(requireContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            binding.buttonSaveChanges.setEnabled(true);
+                            Toast.makeText(requireContext(), "Error uploading photo", Toast.LENGTH_SHORT).show();
+                            Log.e("ProfileFragment", "Upload failed", e);
+                        });
+
+            } catch (IOException e) {
+                Log.e("ProfileFragment", "Error compressing image", e);
+                Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
+            }
         } else {
             applyFirestoreUpdates(updates);
         }
@@ -288,9 +319,7 @@ public class ProfileFragment extends Fragment {
         db.collection("users").document(user.getUid())
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
-                    }
+                    // Toast de "Profile updated!" eliminado
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ProfileFragment", "Error updating profile", e);
@@ -299,6 +328,7 @@ public class ProfileFragment extends Fragment {
                     }
                 });
     }
+
 
     private void deleteProfilePhoto() {
         StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
@@ -340,4 +370,24 @@ public class ProfileFragment extends Fragment {
             requireActivity().finish();
         });
     }
+
+    private byte[] compressImage(Uri uri) throws IOException {
+        // 1. Cargar el Bitmap original desde el Uri
+        Bitmap original = MediaStore.Images.Media.getBitmap(
+                requireContext().getContentResolver(), uri
+        );
+
+        // 2. Calcular tamaño objetivo (800px de ancho)
+        int targetWidth = 800;
+        int targetHeight = original.getHeight() * targetWidth / original.getWidth();
+
+        // 3. Escalar
+        Bitmap scaled = Bitmap.createScaledBitmap(original, targetWidth, targetHeight, true);
+
+        // 4. Comprimir a JPEG al 80%
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        scaled.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+        return baos.toByteArray();
+    }
+
 }
