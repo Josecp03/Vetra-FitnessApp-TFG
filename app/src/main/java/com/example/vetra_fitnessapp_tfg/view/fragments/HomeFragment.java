@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentHomeBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,6 +38,52 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        binding.buttonMyNutrition.setOnClickListener(v -> {
+
+            // Reemplazar el fragmento actual con el fragmento de Workouts
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main, new NutritionFragment())
+                    .addToBackStack(null)
+                    .commit();
+
+            // Actualizar la vista de la barra de navegación
+            BottomNavigationView nav = requireActivity().findViewById(R.id.nav_view);
+            nav.setSelectedItemId(R.id.navigation_nutrition);
+
+        });
+
+        binding.buttonMyWorkouts.setOnClickListener(v -> {
+
+            // Reemplazar el fragmento actual con el fragmento de Workouts
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main, new WorkoutFragment())
+                    .addToBackStack(null)
+                    .commit();
+
+            // Actualizar la vista de la barra de navegación
+            BottomNavigationView nav = requireActivity().findViewById(R.id.nav_view);
+            nav.setSelectedItemId(R.id.navigation_workouts);
+
+        });
+
+        binding.buttonMyChatbot.setOnClickListener(v -> {
+
+            // Reemplazar el fragmento actual con el fragmento de Workouts
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main, new ChatbotFragment())
+                    .addToBackStack(null)
+                    .commit();
+
+            // Actualizar la vista de la barra de navegación
+            BottomNavigationView nav = requireActivity().findViewById(R.id.nav_view);
+            nav.setSelectedItemId(R.id.navigation_chatgpt);
+
+        });
+
 
         // Leer perfil de Firestore
         db.collection("users")
