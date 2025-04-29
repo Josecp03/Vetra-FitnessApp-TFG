@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.fragments.BodyMetricsFragment"
+    android:background="@android:color/transparent">
+
+    <!-- LinearLayout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:ignore="UselessParent">
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:text="@string/body_metrics"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/black"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Height -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <FrameLayout
+                android:id="@+id/circleContainerHeight"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_background"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="33dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/height_icon"
+                    android:src="@drawable/ic_height" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/rectangleContainerHeight"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="-30dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_rectangle_background"
+                android:elevation="0dp"
+                android:paddingStart="4dp"
+                tools:ignore="RtlSymmetry">
+
+                <EditText
+                    android:id="@+id/editTextHeight"
+                    android:layout_width="230dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="50dp"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
+                    android:hint="@string/height"
+                    android:includeFontPadding="false"
+                    android:inputType="number|textNoSuggestions"
+                    android:digits="0123456789"
+                    android:maxLength="3"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/dark_gray"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textSize="14sp"
+                    tools:ignore="TextFields" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/unitHeight"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="80dp"
+                android:background="@drawable/unit_background"
+                android:fontFamily="@font/goldman"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/cm"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Weight -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <FrameLayout
+                android:id="@+id/circleContainerWeight"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_background"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="33dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/weight_icon"
+                    android:src="@drawable/ic_weight" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/rectangleContainerWeight"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="-30dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_rectangle_background"
+                android:elevation="0dp"
+                android:paddingStart="4dp"
+                tools:ignore="RtlSymmetry">
+
+                <EditText
+                    android:id="@+id/editTextWeight"
+                    android:layout_width="78dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="50dp"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
+                    android:hint="@string/weight"
+                    android:includeFontPadding="false"
+                    android:inputType="numberDecimal|textNoSuggestions"
+                    android:digits="0123456789."
+                    android:maxLength="4"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/dark_gray"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textSize="14sp"
+                    tools:ignore="TextFields" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/unitWeight"
+                android:layout_width="80dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="80dp"
+                android:background="@drawable/unit_background"
+                android:fontFamily="@font/goldman"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/kg"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

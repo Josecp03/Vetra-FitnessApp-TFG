@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.fragments.PersonalInfoFragment"
+    android:background="@android:color/transparent">
+
+    <!-- LinearLayout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:text="@string/personal_information"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/black"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- First name -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/circleContainerFirtsName"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_background"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="33dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/personal_information_icon"
+                    android:src="@drawable/ic_names" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/rectangleContainerFirstName"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="-30dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_rectangle_background"
+                android:elevation="0dp"
+                android:paddingStart="4dp"
+                tools:ignore="RtlSymmetry">
+
+                <EditText
+                    android:id="@+id/editTextFirstName"
+                    android:layout_width="230dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="50dp"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
+                    android:hint="@string/first_name"
+                    android:includeFontPadding="false"
+                    android:inputType="text|textNoSuggestions"
+                    android:maxLength="20"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/dark_gray"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textSize="14sp"
+                    tools:ignore="TextFields" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Last name -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/circleContainerLastName"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_background"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="33dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/personal_information_icon"
+                    android:src="@drawable/ic_names" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/rectangleContainerLastName"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="-30dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_rectangle_background"
+                android:elevation="0dp"
+                android:paddingStart="4dp"
+                tools:ignore="RtlSymmetry">
+
+                <EditText
+                    android:id="@+id/editTextSecondName"
+                    android:layout_width="230dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="50dp"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
+                    android:hint="@string/last_name"
+                    android:includeFontPadding="false"
+                    android:inputType="text|textNoSuggestions"
+                    android:maxLength="40"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/dark_gray"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textSize="14sp"
+                    tools:ignore="TextFields" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Age -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/circleContainerAge"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/circle_background"
+                android:elevation="1dp">
+
+                <ImageView
+                    android:layout_width="38dp"
+                    android:layout_height="31dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/age_icon"
+                    android:src="@drawable/ic_age" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/rectangleContainerAge"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="-30dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_rectangle_background"
+                android:elevation="0dp"
+                android:paddingStart="4dp"
+                tools:ignore="RtlSymmetry">
+
+                <EditText
+                    android:id="@+id/editTextAge"
+                    android:layout_width="230dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="50dp"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/goldman"
+                    android:gravity="center_vertical"
+                    android:hint="@string/age"
+                    android:includeFontPadding="false"
+                    android:inputType="number|textNoSuggestions"
+                    android:digits="0123456789"
+                    android:maxLength="2"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/dark_gray"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textSize="14sp"
+                    tools:ignore="TextFields" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Gender Selection -->
+        <LinearLayout
+            android:id="@+id/genderContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="16dp"
+            android:baselineAligned="false"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:id="@+id/optionMan"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/gender_selector_background"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/goldman"
+                    android:text="@string/man"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/checkMan"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="@string/check_icon"
+                    android:src="@drawable/ic_selector"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/optionWoman"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/gender_selector_background"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/goldman"
+                    android:text="@string/woman"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/checkWoman"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="@string/check_icon"
+                    android:src="@drawable/ic_selector"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

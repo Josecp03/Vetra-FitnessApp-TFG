@@ -7,19 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.vetra_fitnessapp_tfg.ui.home.HomeFragment"
+        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.vetra_fitnessapp_tfg.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_workouts"
+        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.WorkoutFragment"
+        android:label="@string/workouts"
+        tools:layout="@layout/fragment_workout" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.vetra_fitnessapp_tfg.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_chatgpt"
+        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.ChatbotFragment"
+        android:label="@string/chatbot"
+        tools:layout="@layout/fragment_chatbot" />
+
+    <fragment
+        android:id="@+id/navigation_nutrition"
+        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.NutritionFragment"
+        android:label="@string/nutrition"
+        tools:layout="@layout/fragment_nutrition" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.ProfileFragment"
+        android:label="@string/profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

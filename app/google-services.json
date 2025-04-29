@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1028343963760",
+    "project_id": "vetra-28db4",
+    "storage_bucket": "vetra-28db4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028343963760:android:36739d3fafa0fdd29e54b5",
+        "android_client_info": {
+          "package_name": "com.example.vetra_fitnessapp_tfg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028343963760-06u7l1gejp5iidc6nvfuqtt1d30isnlr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vetra_fitnessapp_tfg",
+            "certificate_hash": "1880246dca3ca1a5061ce0aa3c9bb47bc71d10e2"
+          }
+        },
+        {
+          "client_id": "1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE_U3QBfBWXf6-fJP2ADsvxNzvIiRsY8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
