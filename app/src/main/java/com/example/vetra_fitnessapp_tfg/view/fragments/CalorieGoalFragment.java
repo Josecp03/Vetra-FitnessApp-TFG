@@ -40,6 +40,13 @@ public class CalorieGoalFragment extends Fragment implements StepValidator {
             return false;
         }
 
+        // Comprobar que sea una cantidad realista
+        if (Integer.parseInt(c) > 30000) {
+            Toast.makeText(getContext(), "Please enter a reasonable calorie amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+
         return true;
 
     }

@@ -23,10 +23,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import java.util.Objects;
-import android.util.Patterns;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -44,7 +42,6 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

@@ -39,7 +39,6 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -83,10 +82,10 @@ public class SignUpActivity extends AppCompatActivity {
         String username = binding.editTextUserName.getText().toString().trim();
 
         // Comprobar que los campos no estén vacíos
-        if (email.isEmpty() || pass.isEmpty()) {
+        if (email.isEmpty() || pass.isEmpty() || username.isEmpty()) {
 
             // Mostrar un mensaje de error
-            Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Email, username and password are required", Toast.LENGTH_SHORT).show();
             return;
 
         }

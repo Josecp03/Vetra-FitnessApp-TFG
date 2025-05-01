@@ -22,9 +22,6 @@ public class BodyMetricsFragment extends Fragment implements StepValidator {
                              Bundle savedInstanceState) {
         binding = FragmentBodyMetricsBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-
-
         return view;
     }
 
@@ -41,16 +38,26 @@ public class BodyMetricsFragment extends Fragment implements StepValidator {
             return false;
         }
 
+        // Comprobar que sea una altura realista
+        if (Integer.parseInt(h) > 250) {
+            Toast.makeText(getContext(), "Please enter a reasonable height", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Comprobar que sea un peso realista
+        if (Double.parseDouble(w) > 300) {
+            Toast.makeText(getContext(), "Please enter a reasonable weight", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         return true;
 
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public int getHeightValue() {
         return Integer.parseInt(binding.editTextHeight.getText().toString().trim());
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public double getWeightValue() {
         return Double.parseDouble(binding.editTextWeight.getText().toString().trim());
     }
