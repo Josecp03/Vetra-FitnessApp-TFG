@@ -1,0 +1,18 @@
+package com.example.vetra_fitnessapp_tfg.network;
+
+import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+
+public interface ExerciseApiService {
+    @GET("exercises/bodyPartList")
+    Call<List<String>> getBodyPartList();
+
+    @GET("exercises/bodyPart/{group}")
+    Call<List<Exercise>> getExercisesByGroup(@Path("group") String group);
+
+    @GET("exercises")
+    Call<List<Exercise>> getAllExercises();
+}
