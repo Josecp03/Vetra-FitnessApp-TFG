@@ -57,7 +57,6 @@ public class ProfileFragment extends Fragment {
 
     private static final int RC_CAMERA = 1001;
     private static final int RC_GALLERY = 1002;
-
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleClient;

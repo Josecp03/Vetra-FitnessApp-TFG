@@ -81,4 +81,12 @@
     <string name="generate_with_ai">Generate with AI</string>
     <string name="default_web_client_id">1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com</string>
     <string name="name">Name</string>
+    <string name="routine_name">Routine Name</string>
+    <string name="new_routine">New Routine</string>
+    <string name="discard">Discard</string>
+    <string name="add_exercise">Add exercise</string>
+    <string name="new_exercise">New exercise</string>
+    <string name="all_the_equipment">All the equipment</string>
+    <string name="all_the_muscles">All the muscles</string>
+    <string name="popular_exercises">Popular exercises</string>
 </resources>
