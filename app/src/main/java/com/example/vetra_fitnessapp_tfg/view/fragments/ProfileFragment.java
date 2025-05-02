@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,11 +39,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -403,23 +405,46 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
+        InputStream input = requireContext().getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei = new ExifInterface(input);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
     private byte[] compressImage(Uri uri) throws IOException {
-        // 1. Cargar el Bitmap original desde el Uri
         Bitmap original = MediaStore.Images.Media.getBitmap(
                 requireContext().getContentResolver(), uri
         );
 
-        // 2. Calcular tamaño objetivo (800px de ancho)
+        // Aplica corrección de orientación
+        Bitmap rotated = rotateImageIfRequired(original, uri);
+
         int targetWidth = 800;
-        int targetHeight = original.getHeight() * targetWidth / original.getWidth();
+        int targetHeight = rotated.getHeight() * targetWidth / rotated.getWidth();
 
-        // 3. Escalar
-        Bitmap scaled = Bitmap.createScaledBitmap(original, targetWidth, targetHeight, true);
+        Bitmap scaled = Bitmap.createScaledBitmap(rotated, targetWidth, targetHeight, true);
 
-        // 4. Comprimir a JPEG al 80%
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         scaled.compress(Bitmap.CompressFormat.JPEG, 80, baos);
         return baos.toByteArray();
+    }
+
+
+    private Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
 }
