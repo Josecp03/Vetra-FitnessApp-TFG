@@ -89,4 +89,8 @@
     <string name="all_the_equipment">All the equipment</string>
     <string name="all_the_muscles">All the muscles</string>
     <string name="popular_exercises">Popular exercises</string>
+    <string name="save_rotine_to_make_changes_later_you_ll_need_to_create_a_new_one">Save rotine? To make changes later, you´ll need to create a new one.</string>
+    <string name="save_rotine">Save Rotine</string>
+    <string name="are_you_sure_you_want_to_discard_this_routine_all_progress_will_be_lost">Are you sure you want to discard this routine? All progress will be lost.</string>
+    <string name="discard_routine">Discard Routine</string>
 </resources>

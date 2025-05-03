@@ -2,6 +2,9 @@ package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +15,12 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityNewRoutineBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
+import com.example.vetra_fitnessapp_tfg.databinding.DialogDiscardRoutineBinding;
+import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
+import com.example.vetra_fitnessapp_tfg.databinding.DialogSaveRoutineBinding;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.Objects;
 
 public class NewRoutineActivity extends AppCompatActivity {
 
@@ -36,5 +45,62 @@ public class NewRoutineActivity extends AppCompatActivity {
 
         });
 
+        binding.buttonSave.setOnClickListener(v-> showSaveRoutineDialog());
+        binding.buttonDiscard.setOnClickListener(v-> showDiscardRoutineDialog());
+
+
     }
+
+    private void showSaveRoutineDialog() {
+
+        // Inflar el binding del diálogo
+        DialogSaveRoutineBinding dialogBinding = DialogSaveRoutineBinding.inflate(getLayoutInflater());
+
+        // Crear un BottomSheetDialog con un tema personalizado
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+
+        // Asignar la vista al diálogo
+        bottomSheetDialog.setContentView(dialogBinding.getRoot());
+
+        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
+        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Listener para el botón de guardar rutina
+        dialogBinding.buttonSaveRotineConfirm.setOnClickListener(v -> {
+
+
+
+        });
+
+        // Mostrar el diálogo
+        bottomSheetDialog.show();
+
+    }
+
+    private void showDiscardRoutineDialog() {
+
+        // Inflar el binding del diálogo
+        DialogDiscardRoutineBinding dialogBinding = DialogDiscardRoutineBinding.inflate(getLayoutInflater());
+
+        // Crear un BottomSheetDialog con un tema personalizado
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
+
+        // Asignar la vista al diálogo
+        bottomSheetDialog.setContentView(dialogBinding.getRoot());
+
+        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
+        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Listener para el botón de guardar rutina
+        dialogBinding.buttonDiscardRoutineConfirm.setOnClickListener(v -> {
+
+
+
+        });
+
+        // Mostrar el diálogo
+        bottomSheetDialog.show();
+
+    }
+
 }
