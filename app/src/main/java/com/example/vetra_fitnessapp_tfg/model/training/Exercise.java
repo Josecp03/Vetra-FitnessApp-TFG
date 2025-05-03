@@ -1,8 +1,9 @@
 package com.example.vetra_fitnessapp_tfg.model.training;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Exercise {
+public class Exercise implements Serializable {
 
     private String id;
     private String name;
