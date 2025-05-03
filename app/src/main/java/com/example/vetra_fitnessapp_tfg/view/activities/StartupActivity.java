@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.vetra_fitnessapp_tfg.MainActivity;
+import com.example.vetra_fitnessapp_tfg.utils.Prefs;
+import com.example.vetra_fitnessapp_tfg.view.activities.training.NewRoutineActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -14,6 +16,14 @@ public class StartupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Prefs.isRoutineInProgress(this)) {
+            Intent i = new Intent(this, NewRoutineActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
+            finish();
+            return;
+        }
 
         // Obtener el usuario actual de Firebase Auth
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

@@ -1,5 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,8 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityExerciseSelectionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        binding.buttonBack.setOnClickListener(v-> finish());
 
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseAdapter(
@@ -53,4 +56,8 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
 }

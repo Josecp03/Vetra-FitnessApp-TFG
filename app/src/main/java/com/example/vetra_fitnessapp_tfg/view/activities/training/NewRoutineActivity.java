@@ -1,5 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogDiscardRoutineBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogSaveRoutineBinding;
+import com.example.vetra_fitnessapp_tfg.utils.Prefs;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.Objects;
@@ -31,6 +33,9 @@ public class NewRoutineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNewRoutineBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Marcamos que estamos creando rutina
+        Prefs.setRoutineInProgress(this, true);
 
         binding.buttonAddExercise.setOnClickListener(v -> {
 
@@ -68,7 +73,9 @@ public class NewRoutineActivity extends AppCompatActivity {
         // Listener para el botón de guardar rutina
         dialogBinding.buttonSaveRotineConfirm.setOnClickListener(v -> {
 
-
+            Prefs.setRoutineInProgress(this, false);
+            bottomSheetDialog.dismiss();
+            finish();
 
         });
 
@@ -95,6 +102,9 @@ public class NewRoutineActivity extends AppCompatActivity {
         dialogBinding.buttonDiscardRoutineConfirm.setOnClickListener(v -> {
 
 
+            Prefs.setRoutineInProgress(this, false);
+            bottomSheetDialog.dismiss();
+            finish();
 
         });
 
@@ -102,5 +112,14 @@ public class NewRoutineActivity extends AppCompatActivity {
         bottomSheetDialog.show();
 
     }
+
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        // NO llamar a super → bloquea el botón “Atrás” mientras estamos creando rutina
+    }
+
+
+
 
 }
