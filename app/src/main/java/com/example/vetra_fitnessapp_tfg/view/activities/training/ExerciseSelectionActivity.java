@@ -38,12 +38,10 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     private ExerciseSelectionController controller;
     private ExerciseAdapter adapter;
 
-    // Para mantener la selección entre aperturas
-    private String selectedMuscle   = "All the muscles";
-    private String selectedEquipment= "All the equipment";
+    private String selectedMuscle = "All the muscles";
+    private String selectedEquipment = "All the equipment";
 
-    // Referencias UI de los filtros
-    private TextView   tvOptionMuscles, tvOptionEquipment;
+    private TextView tvOptionMuscles, tvOptionEquipment;
     private LinearLayout optionMuscles, optionEquipment;
 
     @Override
@@ -54,11 +52,10 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         controller = new ExerciseSelectionController();
 
-        // RecyclerView de populares
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseAdapter(
                 new ArrayList<>(),
-                ex -> { /* añadir a rutina */ },
+                ex -> { /* add to routine */ },
                 ex -> {
                     Intent i = new Intent(this, ExerciseDetailActivity.class);
                     i.putExtra("exercise", ex);
@@ -67,25 +64,20 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
         binding.rvPopularExercises.setAdapter(adapter);
 
-        // toolbar filters
-        tvOptionMuscles    = binding.tvOptionMuscles;
-        optionMuscles      = binding.optionMuscles;
-        tvOptionEquipment  = binding.tvOptionEquipment;
-        optionEquipment    = binding.optionEquipment;
+        tvOptionMuscles = binding.tvOptionMuscles;
+        optionMuscles = binding.optionMuscles;
+        tvOptionEquipment = binding.tvOptionEquipment;
+        optionEquipment = binding.optionEquipment;
 
-        // quitamos font padding
         tvOptionMuscles.setIncludeFontPadding(false);
         tvOptionEquipment.setIncludeFontPadding(false);
 
-        // estado inicial de ambos
         refreshAllFilters();
 
-        // listeners para abrir diálogos
         optionMuscles.setOnClickListener(v -> showSelectorDialog(
-                /* tipo */       "muscle",
-                /* lista */      controller::loadTargetList,
-                /* seleccionado */ selectedMuscle,
-                /* al seleccionar */
+                "muscle",
+                controller::loadTargetList,
+                selectedMuscle,
                 sel -> {
                     selectedMuscle = sel;
                     refreshAllFilters();
@@ -104,28 +96,24 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         binding.buttonBack.setOnClickListener(v -> finish());
 
-        // cargamos la lista completa (sin límite)
         controller.loadPopularExercises(Integer.MAX_VALUE, 0,
                 new Callback<List<Exercise>>() {
                     @Override
-                    public void onResponse(Call<List<Exercise>> call,
-                                           Response<List<Exercise>> res) {
+                    public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
                         if (res.isSuccessful() && res.body() != null) {
                             adapter.getItems().clear();
                             adapter.getItems().addAll(res.body());
                             adapter.notifyDataSetChanged();
                         }
                     }
-                    @Override public void onFailure(Call<List<Exercise>> c, Throwable t) {
+                    @Override public void onFailure(Call<List<Exercise>> call, Throwable t) {
                         Log.e("ExerciseSel", "Error loading", t);
                     }
                 }
         );
     }
 
-    /** Refresca ambos botones en toolbar (fondo y texto negro) */
     private void refreshAllFilters() {
-        // músculo
         optionMuscles.setBackgroundResource(
                 selectedMuscle.equals("All the muscles")
                         ? R.drawable.gender_selector_background
@@ -134,7 +122,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionMuscles.setText(selectedMuscle);
         tvOptionMuscles.setTextColor(Color.BLACK);
 
-        // equipamiento
         optionEquipment.setBackgroundResource(
                 selectedEquipment.equals("All the equipment")
                         ? R.drawable.gender_selector_background
@@ -144,14 +131,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionEquipment.setTextColor(Color.BLACK);
     }
 
-    /**
-     * Muestra un BottomSheet para elegir target o equipment.
-     *
-     * @param type      "muscle" o "equipment" (no usado para UI, solo para logs)
-     * @param loader    función controller.loadTargetList o loadEquipmentList
-     * @param current   valor actualmente seleccionado
-     * @param onSelect  callback con la cadena elegida
-     */
     private void showSelectorDialog(
             String type,
             java.util.function.Consumer<Callback<List<String>>> loader,
@@ -160,6 +139,16 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     ) {
         View dlg = getLayoutInflater()
                 .inflate(R.layout.dialog_exercise_selector, null, false);
+
+        // Dinámico: cambiar título
+        TextView tvTitle = dlg.findViewById(R.id.textDialogMuscleGroupTitle);
+        tvTitle.setIncludeFontPadding(false);
+        if ("muscle".equals(type)) {
+            tvTitle.setText(R.string.muscle_group);
+        } else {
+            tvTitle.setText(R.string.equipment);
+        }
+
         BottomSheetDialog sheet = new BottomSheetDialog(
                 this, R.style.BottomSheetDialogTheme);
         sheet.setContentView(dlg);
@@ -170,11 +159,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         sheet.setCancelable(false);
 
         List<MaterialButton> btnList = new ArrayList<>();
-
-        // estilos
-        final int selBg     = getColor(R.color.white);
-        final int selText   = getColor(R.color.dark_gray);
-        final int unselBg   = getColor(R.color.dark_gray);
+        final int selBg = getColor(R.color.white);
+        final int selText = getColor(R.color.dark_gray);
+        final int unselBg = getColor(R.color.dark_gray);
         final int unselText = getColor(R.color.white);
 
         Typeface goldman = ResourcesCompat.getFont(this, R.font.goldman);
@@ -184,7 +171,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
         lp.setMargins(0, 0, 0, dpToPx(8));
 
-        // botón “All the ...”
         String allLabel = type.equals("muscle")
                 ? "All the muscles"
                 : "All the equipment";
@@ -199,29 +185,25 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         allBtn.setIncludeFontPadding(false);
         allBtn.setTextSize(16);
         if (allLabel.equals(current)) {
-            allBtn.setBackgroundTintList(
-                    ColorStateList.valueOf(selBg));
+            allBtn.setBackgroundTintList(ColorStateList.valueOf(selBg));
             allBtn.setTextColor(selText);
         } else {
-            allBtn.setBackgroundTintList(
-                    ColorStateList.valueOf(unselBg));
+            allBtn.setBackgroundTintList(ColorStateList.valueOf(unselBg));
             allBtn.setTextColor(unselText);
         }
         ll.addView(allBtn);
         btnList.add(allBtn);
 
-        // cargar lista real
         loader.accept(new Callback<List<String>>() {
             @Override
-            public void onResponse(
-                    Call<List<String>> call, Response<List<String>> res) {
+            public void onResponse(Call<List<String>> call, Response<List<String>> res) {
                 sheet.setCancelable(true);
-                if (!res.isSuccessful() || res.body()==null) {
-                    sheet.dismiss(); return;
+                if (!res.isSuccessful() || res.body() == null) {
+                    sheet.dismiss();
+                    return;
                 }
                 for (String raw : res.body()) {
-                    String label = raw.substring(0,1).toUpperCase()
-                            + raw.substring(1);
+                    String label = raw.substring(0,1).toUpperCase() + raw.substring(1);
                     MaterialButton btn = new MaterialButton(
                             ExerciseSelectionActivity.this, null,
                             com.google.android.material.R.attr.materialButtonStyle
@@ -232,28 +214,24 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                     btn.setAllCaps(false);
                     btn.setIncludeFontPadding(false);
                     btn.setTextSize(16);
+
                     if (label.equals(current)) {
-                        btn.setBackgroundTintList(
-                                ColorStateList.valueOf(selBg));
+                        btn.setBackgroundTintList(ColorStateList.valueOf(selBg));
                         btn.setTextColor(selText);
                     } else {
-                        btn.setBackgroundTintList(
-                                ColorStateList.valueOf(unselBg));
+                        btn.setBackgroundTintList(ColorStateList.valueOf(unselBg));
                         btn.setTextColor(unselText);
                     }
                     ll.addView(btn);
                     btnList.add(btn);
                 }
-                // listener común
                 for (MaterialButton b : btnList) {
                     b.setOnClickListener(v -> {
                         for (MaterialButton o : btnList) {
-                            o.setBackgroundTintList(
-                                    ColorStateList.valueOf(unselBg));
+                            o.setBackgroundTintList(ColorStateList.valueOf(unselBg));
                             o.setTextColor(unselText);
                         }
-                        b.setBackgroundTintList(
-                                ColorStateList.valueOf(selBg));
+                        b.setBackgroundTintList(ColorStateList.valueOf(selBg));
                         b.setTextColor(selText);
 
                         onSelect.accept(b.getText().toString());
@@ -261,7 +239,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                     });
                 }
             }
-            @Override public void onFailure(Call<List<String>> c, Throwable t) {
+
+            @Override
+            public void onFailure(Call<List<String>> call, Throwable t) {
                 sheet.setCancelable(true);
                 sheet.dismiss();
             }
@@ -286,7 +266,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     }
 
     private int dpToPx(int dp) {
-        return Math.round(dp * getResources()
-                .getDisplayMetrics().density);
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }
