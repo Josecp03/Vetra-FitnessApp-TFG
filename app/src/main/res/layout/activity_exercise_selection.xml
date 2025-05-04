@@ -58,6 +58,7 @@
         app:layout_constraintTop_toBottomOf="@id/toolbarNewRoutine">
 
         <LinearLayout
+            android:id="@+id/optionEquipment"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
@@ -65,6 +66,7 @@
             android:gravity="center">
 
             <TextView
+                android:id="@+id/tvOptionEquipment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/goldman"
@@ -84,6 +86,7 @@
             android:gravity="center">
 
             <TextView
+                android:id="@+id/tvOptionMuscles"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/goldman"

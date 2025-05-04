@@ -20,4 +20,8 @@ public class ExerciseSelectionController {
         repo.fetchPopularExercises(limit, offset).enqueue(cb);
     }
 
+    public void loadEquipmentList(Callback<List<String>> cb) {
+        repo.fetchEquipmentList().enqueue(cb);
+    }
+
 }

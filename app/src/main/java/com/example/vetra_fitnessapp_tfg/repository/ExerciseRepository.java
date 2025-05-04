@@ -25,4 +25,8 @@ public class ExerciseRepository {
         return api.getAllExercises(limit, offset);
     }
 
+    public Call<List<String>> fetchEquipmentList() {
+        return api.getEquipmentList();
+    }
+
 }
