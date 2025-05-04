@@ -1,6 +1,6 @@
-// view/adapters/training/RoutineExerciseAdapter.java
 package com.example.vetra_fitnessapp_tfg.view.adapters.training;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +19,7 @@ import com.example.vetra_fitnessapp_tfg.model.training.RoutineExercise;
 
 import java.util.List;
 
-public class RoutineExerciseAdapter
-        extends RecyclerView.Adapter<RoutineExerciseAdapter.VH> {
-
+public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExerciseAdapter.VH> {
     private final List<RoutineExercise> items;
 
     public RoutineExerciseAdapter(List<RoutineExercise> items) {
@@ -39,28 +37,48 @@ public class RoutineExerciseAdapter
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
 
-        // nombre + thumb
+        // Cabecera: imagen + nombre
         h.tvName.setText(re.getExercise().getName());
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
 
-        // cascada: limpias y vuelves a inflar cada set
+        // Limpiamos contenedor de series
         h.llSets.removeAllViews();
+
+        // --- Fila de encabezado Set / kg / Reps ---
+        View header = LayoutInflater.from(h.llSets.getContext())
+                .inflate(R.layout.item_routine_set, h.llSets, false);
+        TextView tvSetH = header.findViewById(R.id.tvSetNumber);
+        TextView tvWgtH = header.findViewById(R.id.tvWeight);
+        TextView tvRepsH= header.findViewById(R.id.tvReps);
+        tvSetH.setText("Set");
+        tvWgtH.setText("kg");
+        tvRepsH.setText("Reps");
+        // fondo transparente para header
+        header.setBackgroundColor(Color.TRANSPARENT);
+        h.llSets.addView(header);
+
+        // Inflar cada set existente
         for (ExerciseSet set : re.getSets()) {
             View row = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_routine_set, h.llSets, false);
-            ((TextView)row.findViewById(R.id.tvSetNumber))
-                    .setText(String.valueOf(set.getSetNumber()));
-            ((TextView)row.findViewById(R.id.tvWeight))
-                    .setText(String.valueOf(set.getWeight()));
-            ((TextView)row.findViewById(R.id.tvReps))
-                    .setText(String.valueOf(set.getReps()));
+            TextView tvNum = row.findViewById(R.id.tvSetNumber);
+            TextView tvW   = row.findViewById(R.id.tvWeight);
+            TextView tvR   = row.findViewById(R.id.tvReps);
+            tvNum.setText(String.valueOf(set.getSetNumber()));
+            tvW.setText(String.valueOf(set.getWeight()));
+            tvR.setText(String.valueOf(set.getReps()));
+
+            // Fila par → fondo blanco
+            if (set.getSetNumber() % 2 == 0) {
+                row.setBackgroundColor(Color.WHITE);
+            }
             h.llSets.addView(row);
         }
 
-        // añadir nueva serie
+        // Botón "+ Add set"
         h.btnAddSet.setOnClickListener(v -> {
             re.addSet();
             notifyItemChanged(pos);
@@ -77,9 +95,9 @@ public class RoutineExerciseAdapter
 
         VH(View item) {
             super(item);
-            ivThumb   = item.findViewById(R.id.ivExerciseThumb);
-            tvName    = item.findViewById(R.id.tvExerciseName);
-            llSets    = item.findViewById(R.id.llSetsContainer);
+            ivThumb = item.findViewById(R.id.ivExerciseThumb);
+            tvName  = item.findViewById(R.id.tvExerciseName);
+            llSets  = item.findViewById(R.id.llSetsContainer);
             btnAddSet = item.findViewById(R.id.btnAddSet);
         }
     }

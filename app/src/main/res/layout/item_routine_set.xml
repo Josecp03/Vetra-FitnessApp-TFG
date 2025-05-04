@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -8,24 +9,34 @@
     <TextView
         android:id="@+id/tvSetNumber"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="1"
-        android:gravity="center"/>
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:textColor="@color/black"
+        android:text="1" />
 
     <TextView
         android:id="@+id/tvWeight"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="0"
-        android:gravity="center"/>
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:textColor="@color/black"
+        android:text="0" />
 
     <TextView
         android:id="@+id/tvReps"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="0"
-        android:gravity="center"/>
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:textColor="@color/black"
+        android:text="0" />
+
 </LinearLayout>
