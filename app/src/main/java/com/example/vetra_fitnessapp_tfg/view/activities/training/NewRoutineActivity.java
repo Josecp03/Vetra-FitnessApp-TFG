@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
@@ -20,14 +21,22 @@ import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogDiscardRoutineBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogSaveRoutineBinding;
+import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
+import com.example.vetra_fitnessapp_tfg.model.training.RoutineExercise;
 import com.example.vetra_fitnessapp_tfg.utils.Prefs;
+import com.example.vetra_fitnessapp_tfg.view.adapters.training.RoutineExerciseAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class NewRoutineActivity extends AppCompatActivity {
 
     private ActivityNewRoutineBinding binding;
+    private List<RoutineExercise> exercises = new ArrayList<>();
+    private RoutineExerciseAdapter routineAdapter;
+    private static final int REQ_SELECT_EX = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +47,24 @@ public class NewRoutineActivity extends AppCompatActivity {
         // Marcamos que estamos creando rutina
         Prefs.setRoutineInProgress(this, true);
 
+        // RecyclerView de rutina
+        binding.rvRoutineExercises.setLayoutManager(new LinearLayoutManager(this));
+        routineAdapter = new RoutineExerciseAdapter(exercises);
+        binding.rvRoutineExercises.setAdapter(routineAdapter);
+
+        // 2) Botón “Add exercise” → lanzamos selector con startActivityForResult
         binding.buttonAddExercise.setOnClickListener(v -> {
-
-            // Crear intent para navegar a ExerciseSelectionActivity
-            Intent i = new Intent(NewRoutineActivity.this, ExerciseSelectionActivity.class);
-
-            // Lanzar el intent
-            startActivity(i);
-
-            // Aplicar animación de transición
-            overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
+            Intent i = new Intent(this, ExerciseSelectionActivity.class);
+            startActivityForResult(i, REQ_SELECT_EX);
+            overridePendingTransition(
+                    R.anim.slide_in_right_fade,
+                    R.anim.slide_out_left_fade
+            );
         });
 
-        binding.buttonSave.setOnClickListener(v-> showSaveRoutineDialog());
-        binding.buttonDiscard.setOnClickListener(v-> showDiscardRoutineDialog());
+        // 3) Guardar / descartar… (igual que antes)
+        binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
+        binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
 
 
     }
@@ -131,6 +143,23 @@ public class NewRoutineActivity extends AppCompatActivity {
         // NO llamar a super → bloquea el botón “Atrás” mientras estamos creando rutina
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_SELECT_EX
+                && resultCode == RESULT_OK
+                && data != null) {
+
+            // recuperamos el Exercise que devolvió ExerciseSelectionActivity
+            Exercise ex = (Exercise) data
+                    .getSerializableExtra("selected_exercise");
+            if (ex != null) {
+                // lo envolvemos en RoutineExercise (viene con 1 set ya inicializado)
+                exercises.add(new RoutineExercise(ex));
+                routineAdapter.notifyItemInserted(exercises.size() - 1);
+            }
+        }
+    }
 
 
 

@@ -24,4 +24,11 @@ public class ExerciseSelectionController {
         repo.fetchEquipmentList().enqueue(cb);
     }
 
+    public void loadExercisesByTarget(String target, int limit, int offset, Callback<List<Exercise>> cb) {
+        repo.fetchExercisesByTarget(target, limit, offset).enqueue(cb);
+    }
+    public void loadExercisesByEquipment(String type, int limit, int offset, Callback<List<Exercise>> cb) {
+        repo.fetchExercisesByEquipment(type, limit, offset).enqueue(cb);
+    }
+
 }

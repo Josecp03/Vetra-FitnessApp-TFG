@@ -25,4 +25,19 @@ public interface ExerciseApiService {
             @Query("limit") int limit,
             @Query("offset") int offset
     );
+
+    @GET("exercises/target/{target}")
+    Call<List<Exercise>> getExercisesByTarget(
+            @Path("target") String target,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
+    @GET("exercises/equipment/{type}")
+    Call<List<Exercise>> getExercisesByEquipment(
+            @Path("type") String type,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
 }

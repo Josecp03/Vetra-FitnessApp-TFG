@@ -29,4 +29,12 @@ public class ExerciseRepository {
         return api.getEquipmentList();
     }
 
+    public Call<List<Exercise>> fetchExercisesByTarget(String target, int limit, int offset) {
+        return api.getExercisesByTarget(target, limit, offset);
+    }
+    public Call<List<Exercise>> fetchExercisesByEquipment(String type, int limit, int offset) {
+        return api.getExercisesByEquipment(type, limit, offset);
+    }
+
+
 }
