@@ -9,15 +9,20 @@ import retrofit2.Call;
 public class ExerciseRepository {
     private final ExerciseApiService api = RetrofitClient.getService();
 
-    public Call<List<String>> fetchMuscleGroups() {
+    public Call<List<String>> fetchBodyPartList() {
         return api.getBodyPartList();
+    }
+
+    public Call<List<String>> fetchTargetList() {
+        return api.getTargetList();
     }
 
     public Call<List<Exercise>> fetchExercisesByGroup(String group) {
         return api.getExercisesByGroup(group);
     }
 
-    public Call<List<Exercise>> fetchPopularExercises() {
-        return api.getAllExercises();
+    public Call<List<Exercise>> fetchPopularExercises(int limit, int offset) {
+        return api.getAllExercises(limit, offset);
     }
+
 }

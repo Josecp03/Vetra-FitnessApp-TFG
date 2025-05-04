@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityNewRoutineBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
@@ -104,6 +105,15 @@ public class NewRoutineActivity extends AppCompatActivity {
 
             Prefs.setRoutineInProgress(this, false);
             bottomSheetDialog.dismiss();
+
+            Intent i = new Intent(this, MainActivity.class);
+
+            i.putExtra("fragment_to_open", R.id.navigation_workouts);
+            // Limpia el stack si quieres que no queden pantallas anteriores
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+            startActivity(i);
+
             finish();
 
         });
@@ -112,6 +122,8 @@ public class NewRoutineActivity extends AppCompatActivity {
         bottomSheetDialog.show();
 
     }
+
+
 
     @SuppressLint("MissingSuperCall")
     @Override

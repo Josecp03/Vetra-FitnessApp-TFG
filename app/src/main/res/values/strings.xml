@@ -93,4 +93,5 @@
     <string name="save_rotine">Save Rotine</string>
     <string name="are_you_sure_you_want_to_discard_this_routine_all_progress_will_be_lost">Are you sure you want to discard this routine? All progress will be lost.</string>
     <string name="discard_routine">Discard Routine</string>
+    <string name="muscle_group">Muscle Group</string>
 </resources>

@@ -8,15 +8,16 @@ import retrofit2.Callback;
 public class ExerciseSelectionController {
     private final ExerciseRepository repo = new ExerciseRepository();
 
-    public void loadMuscleGroups(Callback<List<String>> cb) {
-        repo.fetchMuscleGroups().enqueue(cb);
-    }
-
     public void loadExercisesByGroup(String group, Callback<List<Exercise>> cb) {
         repo.fetchExercisesByGroup(group).enqueue(cb);
     }
 
-    public void loadPopularExercises(Callback<List<Exercise>> cb) {
-        repo.fetchPopularExercises().enqueue(cb);
+    public void loadTargetList(Callback<List<String>> cb) {
+        repo.fetchTargetList().enqueue(cb);
     }
+
+    public void loadPopularExercises(int limit, int offset, Callback<List<Exercise>> cb) {
+        repo.fetchPopularExercises(limit, offset).enqueue(cb);
+    }
+
 }
