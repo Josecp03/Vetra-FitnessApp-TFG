@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
@@ -20,7 +21,8 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingEnd="16dp">
+            android:paddingEnd="16dp"
+            tools:ignore="RtlSymmetry">
 
             <ImageButton
                 android:id="@+id/buttonBack"
@@ -52,7 +54,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:weightSum="2"
+        android:weightSum="7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbarNewRoutine">
@@ -61,7 +63,7 @@
             android:id="@+id/optionEquipment"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:background="@drawable/gender_selector_background"
             android:gravity="center">
 
@@ -72,8 +74,9 @@
                 android:fontFamily="@font/goldman"
                 android:includeFontPadding="false"
                 android:text="@string/all_the_equipment"
+                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -81,7 +84,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginStart="8dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:background="@drawable/gender_selector_background"
             android:gravity="center">
 
@@ -92,9 +95,28 @@
                 android:fontFamily="@font/goldman"
                 android:includeFontPadding="false"
                 android:text="@string/all_the_muscles"
+                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/optionSearch"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/filter_selected"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSearch"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/icono_de_b_squeda" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <View
