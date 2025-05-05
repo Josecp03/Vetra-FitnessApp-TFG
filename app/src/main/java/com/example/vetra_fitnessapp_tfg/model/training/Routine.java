@@ -1,13 +1,19 @@
 // com/example/vetra_fitnessapp_tfg/model/training/Routine.java
 package com.example.vetra_fitnessapp_tfg.model.training;
 
+import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.List;
 
+@IgnoreExtraProperties
 public class Routine {
 
     private String routineId;
     private String userId;
+
+    @PropertyName("routine_name")
     private String routineName;
+
     private List<RoutineExercise> exercises;
 
     public Routine() { }
@@ -21,7 +27,6 @@ public class Routine {
         this.exercises    = exercises;
     }
 
-    // getters / setters normales
     public String getRoutineId() {
         return routineId;
     }
@@ -36,9 +41,11 @@ public class Routine {
         this.userId = userId;
     }
 
+    @PropertyName("routine_name")
     public String getRoutineName() {
         return routineName;
     }
+    @PropertyName("routine_name")
     public void setRoutineName(String routineName) {
         this.routineName = routineName;
     }
@@ -50,7 +57,7 @@ public class Routine {
         this.exercises = exercises;
     }
 
-    // Aliases para conveniencia (si en algún momento querías usar r.setId(...))
+    // Alias para conveniencia si en algún sitio usas r.setId(...)
     public String getId() {
         return routineId;
     }
