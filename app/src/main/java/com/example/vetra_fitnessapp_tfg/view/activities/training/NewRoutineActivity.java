@@ -3,23 +3,16 @@ package com.example.vetra_fitnessapp_tfg.view.activities.training;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityNewRoutineBinding;
-import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogDiscardRoutineBinding;
-import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogSaveRoutineBinding;
 import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
 import com.example.vetra_fitnessapp_tfg.model.training.RoutineExercise;
@@ -33,10 +26,12 @@ import java.util.Objects;
 
 public class NewRoutineActivity extends AppCompatActivity {
 
+    private static final int REQ_SELECT_EX    = 1001;
+    private static final int MAX_EXERCISES    = 20;
+
     private ActivityNewRoutineBinding binding;
-    private List<RoutineExercise> exercises = new ArrayList<>();
+    private final List<RoutineExercise> exercises = new ArrayList<>();
     private RoutineExerciseAdapter routineAdapter;
-    private static final int REQ_SELECT_EX = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +47,15 @@ public class NewRoutineActivity extends AppCompatActivity {
         routineAdapter = new RoutineExerciseAdapter(exercises);
         binding.rvRoutineExercises.setAdapter(routineAdapter);
 
-        // 2) Botón “Add exercise” → lanzamos selector con startActivityForResult
+        // Botón “Add exercise”
         binding.buttonAddExercise.setOnClickListener(v -> {
-            Intent i = new Intent(this, ExerciseSelectionActivity.class);
+            if (exercises.size() >= MAX_EXERCISES) {
+                Toast.makeText(this,
+                        "Maximum of " + MAX_EXERCISES + " exercises allowed.",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent i = new Intent(NewRoutineActivity.this, ExerciseSelectionActivity.class);
             startActivityForResult(i, REQ_SELECT_EX);
             overridePendingTransition(
                     R.anim.slide_in_right_fade,
@@ -62,85 +63,67 @@ public class NewRoutineActivity extends AppCompatActivity {
             );
         });
 
-        // 3) Guardar / descartar… (igual que antes)
-        binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
+        // Botón “Save”
+        binding.buttonSave.setOnClickListener(v -> {
+            String name = binding.editTextText.getText()
+                    .toString().trim();
+            if (name.isEmpty()) {
+                Toast.makeText(this,
+                        "Please enter a name for your routine",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showSaveRoutineDialog();
+        });
+
+        // Botón “Discard”
         binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
-
-
     }
 
     private void showSaveRoutineDialog() {
-
-        // Inflar el binding del diálogo
-        DialogSaveRoutineBinding dialogBinding = DialogSaveRoutineBinding.inflate(getLayoutInflater());
-
-        // Crear un BottomSheetDialog con un tema personalizado
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista al diálogo
+        DialogSaveRoutineBinding dialogBinding =
+                DialogSaveRoutineBinding.inflate(getLayoutInflater());
+        BottomSheetDialog bottomSheetDialog =
+                new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
         bottomSheetDialog.setContentView(dialogBinding.getRoot());
+        Objects.requireNonNull(bottomSheetDialog.getWindow())
+                .setBackgroundDrawableResource(android.R.color.transparent);
 
-        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
-        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
-        // Listener para el botón de guardar rutina
         dialogBinding.buttonSaveRotineConfirm.setOnClickListener(v -> {
-
             Prefs.setRoutineInProgress(this, false);
             bottomSheetDialog.dismiss();
             finish();
-
         });
 
-        // Mostrar el diálogo
         bottomSheetDialog.show();
-
     }
 
     private void showDiscardRoutineDialog() {
-
-        // Inflar el binding del diálogo
-        DialogDiscardRoutineBinding dialogBinding = DialogDiscardRoutineBinding.inflate(getLayoutInflater());
-
-        // Crear un BottomSheetDialog con un tema personalizado
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista al diálogo
+        DialogDiscardRoutineBinding dialogBinding =
+                DialogDiscardRoutineBinding.inflate(getLayoutInflater());
+        BottomSheetDialog bottomSheetDialog =
+                new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
         bottomSheetDialog.setContentView(dialogBinding.getRoot());
+        Objects.requireNonNull(bottomSheetDialog.getWindow())
+                .setBackgroundDrawableResource(android.R.color.transparent);
 
-        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
-        Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
-        // Listener para el botón de guardar rutina
         dialogBinding.buttonDiscardRoutineConfirm.setOnClickListener(v -> {
-
-
             Prefs.setRoutineInProgress(this, false);
             bottomSheetDialog.dismiss();
-
             Intent i = new Intent(this, MainActivity.class);
-
             i.putExtra("fragment_to_open", R.id.navigation_workouts);
-            // Limpia el stack si quieres que no queden pantallas anteriores
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
             startActivity(i);
-
             finish();
-
         });
 
-        // Mostrar el diálogo
         bottomSheetDialog.show();
-
     }
-
-
 
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        // NO llamar a super → bloquea el botón “Atrás” mientras estamos creando rutina
+        // Bloqueamos el botón Atrás mientras creamos rutina
     }
 
     @Override
@@ -150,17 +133,18 @@ public class NewRoutineActivity extends AppCompatActivity {
                 && resultCode == RESULT_OK
                 && data != null) {
 
-            // recuperamos el Exercise que devolvió ExerciseSelectionActivity
-            Exercise ex = (Exercise) data
-                    .getSerializableExtra("selected_exercise");
+            if (exercises.size() >= MAX_EXERCISES) {
+                Toast.makeText(this,
+                        "You can add up to " + MAX_EXERCISES + " exercises",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Exercise ex = (Exercise) data.getSerializableExtra("selected_exercise");
             if (ex != null) {
-                // lo envolvemos en RoutineExercise (viene con 1 set ya inicializado)
                 exercises.add(new RoutineExercise(ex));
                 routineAdapter.notifyItemInserted(exercises.size() - 1);
             }
         }
     }
-
-
-
 }

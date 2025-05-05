@@ -104,18 +104,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:ems="10"
             android:autofillHints=""
+            android:backgroundTint="@color/black"
+            android:ems="10"
             android:fontFamily="@font/goldman"
             android:hint="@string/routine_name"
             android:includeFontPadding="false"
             android:inputType="text|textNoSuggestions"
             android:maxLength="35"
-            android:textCursorDrawable="@drawable/custom_cursor"
-            android:textColor="@color/dark_gray"
-            tools:ignore="TextFields"
+            android:textColor="@color/black"
             android:textColorHint="@color/dark_gray"
-            android:backgroundTint="@color/black"/>
+            android:textCursorDrawable="@drawable/custom_cursor"
+            tools:ignore="TextFields" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddExercise"
