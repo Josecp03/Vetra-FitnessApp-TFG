@@ -13,6 +13,11 @@ public class RoutineExercise {
         sets.add(new ExerciseSet(1, 0, 0));
     }
 
+    // CONSTRUCTOR VACÍO OBLIGATORIO
+    public RoutineExercise() {
+        // Firestore lo necesita
+    }
+
     public Exercise getExercise() {
         return exercise;
     }

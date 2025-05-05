@@ -99,4 +99,5 @@
     <string name="once_deleted_this_exercise_cannot_be_recovered">Once deleted, this exercise cannot be recovered.</string>
     <string name="delete_exercise">Delete Exercise</string>
     <string name="icono_de_tres_puntos_horizontales_que_representa_un_men">Icono de tres puntos horizontales que representa un menú</string>
+    <string name="start_routine">Start Routine</string>
 </resources>

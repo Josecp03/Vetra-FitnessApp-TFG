@@ -2,40 +2,49 @@ package com.example.vetra_fitnessapp_tfg.view.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.vetra_fitnessapp_tfg.R;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentWorkoutBinding;
+import com.example.vetra_fitnessapp_tfg.controller.training.RoutineController;
+import com.example.vetra_fitnessapp_tfg.model.training.Routine;
 import com.example.vetra_fitnessapp_tfg.view.activities.training.NewRoutineActivity;
+import com.example.vetra_fitnessapp_tfg.view.adapters.training.RoutineAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorkoutFragment extends Fragment {
-
     private FragmentWorkoutBinding binding;
-
+    private final List<Routine>     routines   = new ArrayList<>();
+    private RoutineAdapter          adapter;
+    private final RoutineController controller = new RoutineController();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentWorkoutBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
+    public View onCreateView(LayoutInflater inf, ViewGroup cont, Bundle b) {
+        binding = FragmentWorkoutBinding.inflate(inf, cont, false);
 
-        binding.buttonAddRoutine.setOnClickListener(v->{
+        // 1) Botón “Add New Routine”
+        binding.buttonAddRoutine.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), NewRoutineActivity.class))
+        );
 
-            // Crear intent para navegar a NewRoutineActivity
-            Intent intent = new Intent(requireActivity(), NewRoutineActivity.class);
+        // 2) RecyclerView de mis rutinas
+        adapter = new RoutineAdapter(routines);
+        binding.rvMyRoutines.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvMyRoutines.setAdapter(adapter);
 
-            // Lanzar el intent
-            startActivity(intent);
-
-            // Aplicar animación de transición
-            requireActivity().overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
+        // 3) Cargar desde Firestore
+        controller.loadUserRoutines(list -> {
+            routines.clear();
+            routines.addAll(list);
+            adapter.notifyDataSetChanged();
         });
 
-        return view;
-
+        return binding.getRoot();
     }
 }

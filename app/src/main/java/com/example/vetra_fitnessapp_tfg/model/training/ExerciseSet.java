@@ -12,6 +12,11 @@ public class ExerciseSet {
         this.reps = reps;
     }
 
+    // CONSTRUCTOR VACÍO OBLIGATORIO
+    public ExerciseSet() {
+        // Firestore lo necesita
+    }
+
     public int getSetNumber() {
         return setNumber;
     }
