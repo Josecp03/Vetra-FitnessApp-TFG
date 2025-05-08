@@ -1,19 +1,13 @@
-// com/example/vetra_fitnessapp_tfg/model/training/Routine.java
 package com.example.vetra_fitnessapp_tfg.model.training;
 
-import com.google.firebase.firestore.PropertyName;
-import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.io.Serializable;
 import java.util.List;
 
-@IgnoreExtraProperties
-public class Routine {
+public class Routine implements Serializable {
 
     private String routineId;
     private String userId;
-
-    @PropertyName("routine_name")
     private String routineName;
-
     private List<RoutineExercise> exercises;
 
     public Routine() { }
@@ -21,10 +15,10 @@ public class Routine {
     public Routine(String routineId, String userId,
                    String routineName,
                    List<RoutineExercise> exercises) {
-        this.routineId    = routineId;
-        this.userId       = userId;
-        this.routineName  = routineName;
-        this.exercises    = exercises;
+        this.routineId   = routineId;
+        this.userId      = userId;
+        this.routineName = routineName;
+        this.exercises   = exercises;
     }
 
     public String getRoutineId() {
@@ -41,11 +35,9 @@ public class Routine {
         this.userId = userId;
     }
 
-    @PropertyName("routine_name")
     public String getRoutineName() {
         return routineName;
     }
-    @PropertyName("routine_name")
     public void setRoutineName(String routineName) {
         this.routineName = routineName;
     }
@@ -57,7 +49,7 @@ public class Routine {
         this.exercises = exercises;
     }
 
-    // Alias para conveniencia si en algún sitio usas r.setId(...)
+    // alias para comodidad
     public String getId() {
         return routineId;
     }

@@ -27,6 +27,10 @@ public class Exercise implements Serializable {
         this.instructions = instructions;
     }
 
+    public Exercise() {
+
+    }
+
     public String getId() {
         return id;
     }

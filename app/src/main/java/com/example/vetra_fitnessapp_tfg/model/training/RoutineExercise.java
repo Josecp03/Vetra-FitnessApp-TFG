@@ -1,27 +1,25 @@
 package com.example.vetra_fitnessapp_tfg.model.training;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoutineExercise {
+public class RoutineExercise implements Serializable {
 
     private Exercise exercise;
     private List<ExerciseSet> sets = new ArrayList<>();
+
+    // Constructor vacío para Firestore / Serializable
+    public RoutineExercise() { }
 
     public RoutineExercise(Exercise exercise) {
         this.exercise = exercise;
         sets.add(new ExerciseSet(1, 0, 0));
     }
 
-    // CONSTRUCTOR VACÍO OBLIGATORIO
-    public RoutineExercise() {
-        // Firestore lo necesita
-    }
-
     public Exercise getExercise() {
         return exercise;
     }
-
     public void setExercise(Exercise exercise) {
         this.exercise = exercise;
     }
@@ -29,14 +27,12 @@ public class RoutineExercise {
     public List<ExerciseSet> getSets() {
         return sets;
     }
-
     public void setSets(List<ExerciseSet> sets) {
         this.sets = sets;
     }
 
     public void addSet() {
-        int next = sets.size()+1;
+        int next = sets.size() + 1;
         sets.add(new ExerciseSet(next, 0, 0));
     }
-
 }
