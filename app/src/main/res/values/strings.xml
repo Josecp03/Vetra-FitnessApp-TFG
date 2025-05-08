@@ -101,4 +101,6 @@
     <string name="icono_de_tres_puntos_horizontales_que_representa_un_men">Icono de tres puntos horizontales que representa un menú</string>
     <string name="start_routine">Start Routine</string>
     <string name="finish">Finish</string>
+    <string name="delete_routine">Delete routine</string>
+    <string name="once_deleted_this_routine_cannot_be_recovered">Once deleted, this routine cannot be recovered.</string>
 </resources>

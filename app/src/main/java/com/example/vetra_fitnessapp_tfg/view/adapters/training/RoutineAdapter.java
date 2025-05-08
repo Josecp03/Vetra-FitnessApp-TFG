@@ -12,12 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.model.training.Routine;
 import com.example.vetra_fitnessapp_tfg.view.activities.training.StartRoutineActivity;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
 public class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.VH> {
     private final List<Routine> items;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public RoutineAdapter(List<Routine> items) {
         this.items = items;
@@ -34,26 +37,61 @@ public class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.VH> {
     public void onBindViewHolder(@NonNull VH h, int pos) {
         Routine r = items.get(pos);
         h.tvName.setText(r.getRoutineName());
+
         h.btnStart.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), StartRoutineActivity.class);
-            // aquí paso el objeto entero
             i.putExtra(StartRoutineActivity.EXTRA_ROUTINE, r);
             v.getContext().startActivity(i);
         });
+
+        h.btnMenu.setOnClickListener(v -> showOptionsDialog(h, pos));
+
+        h.itemView.setOnLongClickListener(v -> {
+            showOptionsDialog(h, pos);
+            return true;
+        });
     }
 
-    @Override public int getItemCount() {
+    @Override
+    public int getItemCount() {
         return items.size();
     }
 
+    private void showOptionsDialog(VH h, int pos) {
+        View dlg = LayoutInflater.from(h.itemView.getContext())
+                .inflate(R.layout.dialog_delete_routine, null);
+        BottomSheetDialog sheet = new BottomSheetDialog(
+                h.itemView.getContext(), R.style.BottomSheetDialogTheme
+        );
+        sheet.setContentView(dlg);
+        sheet.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        TextView tvTitle = dlg.findViewById(R.id.textTitleDeleteRoutine);
+        tvTitle.setText(items.get(pos).getRoutineName());
+
+        MaterialButton btnDelete = dlg.findViewById(R.id.buttonDeleteRoutineConfirm);
+        btnDelete.setOnClickListener(x -> {
+            db.collection("routines")
+                    .document(items.get(pos).getId())
+                    .delete();
+            items.remove(pos);
+            notifyItemRemoved(pos);
+            sheet.dismiss();
+        });
+
+        sheet.show();
+    }
+
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvName;
+        TextView       tvName;
         MaterialButton btnStart;
+        View           btnMenu;
 
         VH(View item) {
             super(item);
             tvName   = item.findViewById(R.id.tvRoutineName);
             btnStart = item.findViewById(R.id.btnStartRoutine);
+            btnMenu  = item.findViewById(R.id.btnMenu);
         }
     }
 }
