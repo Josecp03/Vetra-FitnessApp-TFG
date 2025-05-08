@@ -1,3 +1,4 @@
+// com/example/vetra_fitnessapp_tfg/controller/training/RoutineController.java
 package com.example.vetra_fitnessapp_tfg.controller.training;
 
 import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
@@ -18,9 +19,6 @@ public class RoutineController {
     private final FirebaseFirestore db   = FirebaseFirestore.getInstance();
     private final FirebaseAuth      auth = FirebaseAuth.getInstance();
 
-    /**
-     * Carga todas las rutinas del usuario logueado y las pasa al callback onSuccess.
-     */
     public void loadUserRoutines(Consumer<List<Routine>> onSuccess) {
         String uid = auth.getCurrentUser().getUid();
 
@@ -31,13 +29,13 @@ public class RoutineController {
                     List<Routine> lista = new ArrayList<>();
 
                     for (QueryDocumentSnapshot doc : qs) {
-                        // 1) Cabecera de la rutina
+                        // Cabecera de la rutina
                         Routine r = new Routine();
                         r.setId(doc.getId());
                         r.setUserId(doc.getString("user_id"));
                         r.setRoutineName(doc.getString("routine_name"));
 
-                        // 2) Leer lista de ejercicios anidada
+                        // Leer lista de ejercicios anidada
                         List<RoutineExercise> reList = new ArrayList<>();
                         @SuppressWarnings("unchecked")
                         List<Map<String,Object>> exMaps =
@@ -57,21 +55,32 @@ public class RoutineController {
                                 ex.setGifUrl(url);
                                 ex.setTarget(muscle);
 
-                                // Construir el RoutineExercise
+                                // —— AÑADIDOS ——
+                                ex.setBodyPart((String) exMap.get("bodyPart"));
+                                ex.setEquipment((String) exMap.get("equipment"));
+
+                                @SuppressWarnings("unchecked")
+                                List<String> sec = (List<String>) exMap.get("secondaryMuscles");
+                                ex.setSecondaryMuscles(sec != null ? sec : new ArrayList<>());
+
+                                @SuppressWarnings("unchecked")
+                                List<String> ins = (List<String>) exMap.get("instructions");
+                                ex.setInstructions(ins != null ? ins : new ArrayList<>());
+                                // ————————
+
+                                // Construir RoutineExercise y sus sets
                                 RoutineExercise re = new RoutineExercise();
                                 re.setExercise(ex);
 
-                                // Leer sus sets
                                 @SuppressWarnings("unchecked")
                                 List<Map<String,Object>> setsMaps =
                                         (List<Map<String,Object>>) exMap.get("sets");
                                 List<ExerciseSet> sets = new ArrayList<>();
                                 if (setsMaps != null) {
                                     for (Map<String,Object> sm : setsMaps) {
-                                        // Firestore numéricos vienen como Long
-                                        int num   = ((Long)    sm.get("set_number")).intValue();
-                                        int w     = ((Long)    sm.get("weight")).intValue();
-                                        int reps  = ((Long)    sm.get("reps")).intValue();
+                                        int num   = ((Long) sm.get("set_number")).intValue();
+                                        int w     = ((Long) sm.get("weight")).intValue();
+                                        int reps  = ((Long) sm.get("reps")).intValue();
                                         sets.add(new ExerciseSet(num, w, reps));
                                     }
                                 }
@@ -85,10 +94,9 @@ public class RoutineController {
                         lista.add(r);
                     }
 
-                    // Si quieres ordenarlas:
+                    // Orden opcional
                     lista.sort((a,b) ->
-                            a.getRoutineName()
-                                    .compareToIgnoreCase(b.getRoutineName())
+                            a.getRoutineName().compareToIgnoreCase(b.getRoutineName())
                     );
 
                     onSuccess.accept(lista);

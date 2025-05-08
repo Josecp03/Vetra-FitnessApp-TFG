@@ -1,3 +1,4 @@
+// com/example/vetra_fitnessapp_tfg/view/activities/training/NewRoutineActivity.java
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.annotation.SuppressLint;
@@ -45,15 +46,15 @@ public class NewRoutineActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // Marcamos que estamos creando rutina
+        // Indicamos que hay rutina en progreso
         Prefs.setRoutineInProgress(this, true);
 
-        // RecyclerView de rutina
+        // RecyclerView
         binding.rvRoutineExercises.setLayoutManager(new LinearLayoutManager(this));
         routineAdapter = new RoutineExerciseAdapter(exercises);
         binding.rvRoutineExercises.setAdapter(routineAdapter);
 
-        // Botón “Add exercise”
+        // “Add exercise”
         binding.buttonAddExercise.setOnClickListener(v -> {
             if (exercises.size() >= 20) {
                 Toast.makeText(this, "You can add up to 20 exercises", Toast.LENGTH_SHORT).show();
@@ -66,7 +67,10 @@ public class NewRoutineActivity extends AppCompatActivity {
 
         // Guardar / descartar
         binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
-        binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
+        binding.buttonDiscard.setOnClickListener(v -> {
+            Prefs.setRoutineInProgress(this, false);
+            finish();
+        });
     }
 
     private void showSaveRoutineDialog() {
@@ -95,6 +99,13 @@ public class NewRoutineActivity extends AppCompatActivity {
                 exMap.put("exercise_photo_url", re.getExercise().getGifUrl());
                 exMap.put("muscle", toCamelCase(re.getExercise().getTarget()));
 
+                // —— AÑADIDOS ——
+                exMap.put("bodyPart",        re.getExercise().getBodyPart());
+                exMap.put("equipment",       re.getExercise().getEquipment());
+                exMap.put("secondaryMuscles", re.getExercise().getSecondaryMuscles());
+                exMap.put("instructions",    re.getExercise().getInstructions());
+                // ————————
+
                 List<Map<String,Object>> setsMap = new ArrayList<>();
                 for (ExerciseSet s : re.getSets()) {
                     Map<String,Object> sMap = new HashMap<>();
@@ -104,6 +115,7 @@ public class NewRoutineActivity extends AppCompatActivity {
                     setsMap.add(sMap);
                 }
                 exMap.put("sets", setsMap);
+
                 exList.add(exMap);
             }
             routine.put("exercises", exList);
@@ -127,17 +139,9 @@ public class NewRoutineActivity extends AppCompatActivity {
         bottomSheet.show();
     }
 
-    private void showDiscardRoutineDialog() {
-        // igual que antes…
-        Prefs.setRoutineInProgress(this, false);
-        finish();
-    }
-
     @SuppressLint("MissingSuperCall")
     @Override
-    public void onBackPressed() {
-        // bloquea atrás mientras creas
-    }
+    public void onBackPressed() { /* bloqueado durante creación */ }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -145,7 +149,6 @@ public class NewRoutineActivity extends AppCompatActivity {
         if (requestCode == REQ_SELECT_EX
                 && resultCode == RESULT_OK
                 && data != null) {
-
             Exercise ex = (Exercise) data.getSerializableExtra("selected_exercise");
             if (ex != null) {
                 exercises.add(new RoutineExercise(ex));

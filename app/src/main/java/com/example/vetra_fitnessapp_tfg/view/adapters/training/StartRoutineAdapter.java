@@ -1,5 +1,7 @@
+// com/example/vetra_fitnessapp_tfg/view/adapters/training/StartRoutineAdapter.java
 package com.example.vetra_fitnessapp_tfg.view.adapters.training;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.model.training.ExerciseSet;
 import com.example.vetra_fitnessapp_tfg.model.training.RoutineExercise;
+import com.example.vetra_fitnessapp_tfg.view.activities.training.ExerciseDetailActivity;
 
 import java.util.List;
 
@@ -49,7 +52,7 @@ public class StartRoutineAdapter
         // Limpiamos contenedor de sets
         h.llSets.removeAllViews();
 
-        // Para cada set:
+        // Para cada set…
         for (ExerciseSet s : re.getSets()) {
             View row = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_start_routine_set, h.llSets, false);
@@ -63,36 +66,33 @@ public class StartRoutineAdapter
             tvW  .setText(String.valueOf(s.getWeight()));
             tvR  .setText(String.valueOf(s.getReps()));
 
-            // 1) Filas pares fondo blanco
+            // Filas pares → fondo blanco
             if (s.getSetNumber() % 2 == 0) {
                 row.setBackgroundColor(Color.WHITE);
             } else {
-                // impares: fondo transparente (o gris, según tu drawable)
                 row.setBackgroundColor(Color.TRANSPARENT);
             }
 
-            // 2) Toggle checkbox + pintar fila de verde_success
+            // Toggle checkbox + pintar fila de verde
             ivC.setOnClickListener(v -> {
                 boolean done = ivC.isSelected();
                 ivC.setSelected(!done);
 
-                int bg;
-                if (!done) {
-                    // ahora marcado → verde_success
-                    bg = ContextCompat.getColor(
-                            row.getContext(), R.color.green_success
-                    );
-                } else {
-                    // desmarcado → volvemos al fondo par/impar
-                    bg = (s.getSetNumber() % 2 == 0)
-                            ? Color.WHITE
-                            : Color.TRANSPARENT;
-                }
+                int bg = !done
+                        ? ContextCompat.getColor(row.getContext(), R.color.green_success)
+                        : (s.getSetNumber() % 2 == 0 ? Color.WHITE : Color.TRANSPARENT);
                 row.setBackgroundColor(bg);
             });
 
             h.llSets.addView(row);
         }
+
+        // —— AÑADIDO: click para ver detalle completo ——
+        h.itemView.setOnClickListener(v -> {
+            Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
+            i.putExtra("exercise", re.getExercise());
+            v.getContext().startActivity(i);
+        });
     }
 
     @Override public int getItemCount() {
@@ -100,8 +100,8 @@ public class StartRoutineAdapter
     }
 
     static class VH extends RecyclerView.ViewHolder {
-        ImageView   ivThumb;
-        TextView    tvName;
+        ImageView    ivThumb;
+        TextView     tvName;
         LinearLayout llSets;
 
         VH(View item) {
