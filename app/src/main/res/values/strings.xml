@@ -103,4 +103,8 @@
     <string name="finish">Finish</string>
     <string name="delete_routine">Delete routine</string>
     <string name="once_deleted_this_routine_cannot_be_recovered">Once deleted, this routine cannot be recovered.</string>
+    <string name="discard_execution_routine">Discard Execution Routine</string>
+    <string name="this_will_erase_all_your_progress_continue">This will erase all your progress. Continue?</string>
+    <string name="finish_routine">Finish Routine</string>
+    <string name="finish_routine_restarting_later_means_starting_from_the_beginning">Finish routine? Restarting later means starting from the beginning.</string>
 </resources>
