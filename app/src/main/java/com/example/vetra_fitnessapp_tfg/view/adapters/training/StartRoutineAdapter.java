@@ -1,4 +1,3 @@
-// com/example/vetra_fitnessapp_tfg/view/adapters/training/StartRoutineAdapter.java
 package com.example.vetra_fitnessapp_tfg.view.adapters.training;
 
 import android.content.Intent;
@@ -6,6 +5,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,52 +42,64 @@ public class StartRoutineAdapter
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
 
-        // Cabecera: thumbnail + nombre
+        // 1) Cabecera: thumbnail + nombre
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
         h.tvName.setText(re.getExercise().getName());
 
-        // Limpiamos contenedor de sets
+        // 2) Limpiamos contenedor de sets
         h.llSets.removeAllViews();
 
-        // Para cada set…
+        // 3) Para cada set…
         for (ExerciseSet s : re.getSets()) {
             View row = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_start_routine_set, h.llSets, false);
 
-            TextView tvNum = row.findViewById(R.id.tvSetNumber);
-            TextView tvW   = row.findViewById(R.id.tvWeight);
-            TextView tvR   = row.findViewById(R.id.tvReps);
-            ImageView ivC  = row.findViewById(R.id.ivCheck);
+            TextView tvNum   = row.findViewById(R.id.tvSetNumber);
+            EditText etW     = row.findViewById(R.id.etWeight);
+            EditText etR     = row.findViewById(R.id.etReps);
+            ImageView ivC    = row.findViewById(R.id.ivCheck);
 
             tvNum.setText(String.valueOf(s.getSetNumber()));
-            tvW  .setText(String.valueOf(s.getWeight()));
-            tvR  .setText(String.valueOf(s.getReps()));
+            etW.setText(String.valueOf(s.getWeight()));
+            etR.setText(String.valueOf(s.getReps()));
 
-            // Filas pares → fondo blanco
-            if (s.getSetNumber() % 2 == 0) {
-                row.setBackgroundColor(Color.WHITE);
-            } else {
-                row.setBackgroundColor(Color.TRANSPARENT);
-            }
+            // Actualizar modelo al perder foco
+            etW.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    String text = etW.getText().toString();
+                    s.setWeight(text.isEmpty() ? 0 : Integer.parseInt(text));
+                }
+            });
+            etR.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    String text = etR.getText().toString();
+                    s.setReps(text.isEmpty() ? 0 : Integer.parseInt(text));
+                }
+            });
 
-            // Toggle checkbox + pintar fila de verde
+            // 1) Filas pares → fondo blanco / impares → transparente
+            int baseBg = (s.getSetNumber() % 2 == 0)
+                    ? Color.WHITE
+                    : Color.TRANSPARENT;
+            row.setBackgroundColor(baseBg);
+
+            // 2) Toggle checkbox + pintar fila de verde_success
             ivC.setOnClickListener(v -> {
                 boolean done = ivC.isSelected();
                 ivC.setSelected(!done);
-
                 int bg = !done
                         ? ContextCompat.getColor(row.getContext(), R.color.green_success)
-                        : (s.getSetNumber() % 2 == 0 ? Color.WHITE : Color.TRANSPARENT);
+                        : baseBg;
                 row.setBackgroundColor(bg);
             });
 
             h.llSets.addView(row);
         }
 
-        // —— AÑADIDO: click para ver detalle completo ——
+        // 4) Click sobre todo el ítem → detalle completo
         h.itemView.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
@@ -95,7 +107,8 @@ public class StartRoutineAdapter
         });
     }
 
-    @Override public int getItemCount() {
+    @Override
+    public int getItemCount() {
         return items.size();
     }
 
