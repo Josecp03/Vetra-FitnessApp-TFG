@@ -1,7 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.utils;
 
 import android.util.Base64;
-import android.util.Log;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -34,30 +33,25 @@ public class KeyStoreManager {
 
     public String encrypt(String plainText) {
         try {
-
-            // Obtener la instancia del cipher con la transformación indicada
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
 
-            // Crear un vector de inicialización (IV) aleatorio de tamaño IV_SIZE
+            // IV aleatorio
             byte[] iv = new byte[IV_SIZE];
-            SecureRandom secureRandom = new SecureRandom();
-            secureRandom.nextBytes(iv);
+            SecureRandom sr = new SecureRandom();
+            sr.nextBytes(iv);
 
-            // Configurar el parámetro GCM con la longitud de etiqueta y el IV
             GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, spec);
 
-            // Encriptar el texto plano y obtener el texto cifrado
             byte[] cipherText = cipher.doFinal(plainText.getBytes("UTF-8"));
 
-            // Combinar el IV y el texto cifrado en un solo arreglo
-            int combinedLength = iv.length + cipherText.length;
-            byte[] combined = new byte[combinedLength];
+            // concatenar IV + ciphertext
+            byte[] combined = new byte[iv.length + cipherText.length];
             System.arraycopy(iv, 0, combined, 0, iv.length);
             System.arraycopy(cipherText, 0, combined, iv.length, cipherText.length);
 
-            // Codificar el resultado en Base64 para su representación como String
-            return Base64.encodeToString(combined, Base64.DEFAULT);
+            // Base64 SIN saltos de línea
+            return Base64.encodeToString(combined, Base64.NO_WRAP);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -65,30 +59,25 @@ public class KeyStoreManager {
     }
 
     public String decrypt(String cipherText) {
-
         try {
+            // Base64 SIN saltos de línea
+            byte[] combined = Base64.decode(cipherText, Base64.NO_WRAP);
 
-            // Decodificar el texto cifrado de Base64 a bytes
-            byte[] combined = Base64.decode(cipherText, Base64.DEFAULT);
-
-            // Extraer el IV de los primeros IV_SIZE bytes
+            // extraer IV
             byte[] iv = new byte[IV_SIZE];
             System.arraycopy(combined, 0, iv, 0, IV_SIZE);
 
-            // Calcular la longitud del texto cifrado real
-            int cipherTextLength = combined.length - IV_SIZE;
-            byte[] actualCipherText = new byte[cipherTextLength];
-            System.arraycopy(combined, IV_SIZE, actualCipherText, 0, cipherTextLength);
+            // extraer ciphertext real
+            int ctLen = combined.length - IV_SIZE;
+            byte[] actualCipherText = new byte[ctLen];
+            System.arraycopy(combined, IV_SIZE, actualCipherText, 0, ctLen);
 
-            // Obtener la instancia del cipher con la transformación indicada
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH, iv);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
 
-            // Desencriptar y obtener el texto plano en bytes
-            byte[] decryptedBytes = cipher.doFinal(actualCipherText);
-            return new String(decryptedBytes, "UTF-8");
-
+            byte[] plainBytes = cipher.doFinal(actualCipherText);
+            return new String(plainBytes, "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
             return null;

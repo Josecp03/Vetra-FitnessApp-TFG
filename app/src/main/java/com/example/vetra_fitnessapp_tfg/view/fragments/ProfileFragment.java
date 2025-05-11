@@ -108,18 +108,18 @@ public class ProfileFragment extends Fragment {
     private void loadUserProfile() {
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
-                    // Foto sin descifrar
+                    // 1) foto (sin cifrar)
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
 
-                    // Desencriptar el username antes de mostrar
+                    // 2) username descifrado
                     String encryptedUser = doc.getString("username");
                     String decryptedUser = keyStore.decrypt(encryptedUser);
                     binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
 
-                    // Campos numéricos sin cifrar
+                    // 3) el resto (edad, peso...) igual que antes
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
