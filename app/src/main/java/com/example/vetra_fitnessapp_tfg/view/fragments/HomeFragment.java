@@ -13,9 +13,11 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentHomeBinding;
+import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomeFragment extends Fragment {
@@ -23,6 +25,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private KeyStoreManager keyStore;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +33,8 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        keyStore = new KeyStoreManager();
 
         return view;
     }
@@ -89,18 +94,18 @@ public class HomeFragment extends Fragment {
         db.collection("users")
                 .document(user.getUid())
                 .get()
-                .addOnSuccessListener(doc -> {
-
-                    // Actualizar los campos de la interfaz con los datos del usuario
+                .addOnSuccessListener((DocumentSnapshot doc) -> {
+                    // Foto sin descifrar
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
-                    binding.usernameText.setText("Hello, " + doc.getString("username"));
 
+                    // Desencriptar y mostrar
+                    String encryptedUser = doc.getString("username");
+                    String decryptedUser = keyStore.decrypt(encryptedUser);
+                    binding.usernameText.setText("Hello, " + (decryptedUser != null ? decryptedUser : "there"));
                 })
-
-                // Manejar errores
                 .addOnFailureListener(e -> {
                     Log.e("HomeFragment", "Error leyendo usuario", e);
                     binding.usernameText.setText("Hello!");

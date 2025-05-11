@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
+import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
 import com.example.vetra_fitnessapp_tfg.utils.StepValidator;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityUserSetUpBinding;
 import com.example.vetra_fitnessapp_tfg.view.fragments.BodyMetricsFragment;
@@ -37,12 +38,15 @@ public class UserSetUpActivity extends AppCompatActivity {
     public String firstName, lastName, gender;
     public int age, height, calorieGoal;
     public double weight;
+    private KeyStoreManager keyStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityUserSetUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        keyStore = new KeyStoreManager();
 
         // Cargar el primer fragmento
         showStep(currentStep);
@@ -195,11 +199,11 @@ public class UserSetUpActivity extends AppCompatActivity {
 
         // Guardar los datos en el mapa
         datos.put("email", user.getEmail());
-        datos.put("username", user.getDisplayName());
-        datos.put("real_name", firstName);
-        datos.put("last_name", lastName);
+        datos.put("username", keyStore.encrypt(user.getDisplayName()));
+        datos.put("real_name", keyStore.encrypt(firstName));
+        datos.put("last_name", keyStore.encrypt(lastName));
         datos.put("age", age);
-        datos.put("gender", gender);
+        datos.put("gender", keyStore.encrypt(gender));
         datos.put("height", height);
         datos.put("weight", weight);
         datos.put("user_calories", calorieGoal);

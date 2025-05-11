@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
+import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
 import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -66,6 +67,7 @@ public class ProfileFragment extends Fragment {
     private Uri pendingImageUri = null;
     private StorageReference storageRef;
     private boolean shouldDeletePhoto = false;
+    private KeyStoreManager keyStore;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,6 +75,8 @@ public class ProfileFragment extends Fragment {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        keyStore   = new KeyStoreManager();
 
         // Firebase setup
         mAuth = FirebaseAuth.getInstance();
@@ -104,11 +108,18 @@ public class ProfileFragment extends Fragment {
     private void loadUserProfile() {
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
+                    // Foto sin descifrar
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
-                    binding.editTextUserName.setText(doc.getString("username"));
+
+                    // Desencriptar el username antes de mostrar
+                    String encryptedUser = doc.getString("username");
+                    String decryptedUser = keyStore.decrypt(encryptedUser);
+                    binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
+
+                    // Campos numéricos sin cifrar
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
@@ -277,15 +288,20 @@ public class ProfileFragment extends Fragment {
         if (!validateProfileFields()) return;
 
         Map<String,Object> updates = new HashMap<>();
-        updates.put("username", binding.editTextUserName.getText().toString().trim());
+
+        // 1) CIFRAMOS el username antes de guardarlo
+        String plainUser = binding.editTextUserName.getText().toString().trim();
+        String encryptedUser = keyStore.encrypt(plainUser);
+        updates.put("username", encryptedUser);
+
+        // 2) Campos no sensibles
         updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
         updates.put("height", Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
         updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
-        // Caso 1: hay nueva foto
+        // 3) Foto (igual que antes)
         if (pendingImageUri != null) {
-            // Como antes: compressImage(), putBytes(), getDownloadUrl()…
             try {
                 byte[] compressed = compressImage(pendingImageUri);
                 StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
@@ -301,7 +317,7 @@ public class ProfileFragment extends Fragment {
                         .addOnSuccessListener(downloadUri -> {
                             updates.put("profile_photo_url", downloadUri.toString());
                             pendingImageUri = null;
-                            shouldDeletePhoto = false;  // ya no eliminar
+                            shouldDeletePhoto = false;
                             finalizeSave(updates, photoRef);
                         })
                         .addOnFailureListener(e -> {
@@ -315,17 +331,15 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
             }
 
-            // Caso 2: ni nueva foto, ni borrado
         } else if (!shouldDeletePhoto) {
             finalizeSave(updates, null);
-
-            // Caso 3: solo borrar foto
         } else {
             updates.put("profile_photo_url", null);
             binding.buttonSaveChanges.setEnabled(false);
             finalizeSave(updates, storageRef.child("profile_photos/" + user.getUid() + ".jpg"));
         }
     }
+
 
     private void finalizeSave(Map<String,Object> updates, @Nullable StorageReference photoRef) {
         db.collection("users").document(user.getUid())
@@ -350,22 +364,6 @@ public class ProfileFragment extends Fragment {
                     Log.e("ProfileFragment", "Error updating profile", e);
                 });
     }
-
-
-    private void applyFirestoreUpdates(Map<String, Object> updates) {
-        db.collection("users").document(user.getUid())
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    // Toast de "Profile updated!" eliminado
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ProfileFragment", "Error updating profile", e);
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
 
     private void deleteProfilePhoto() {
         // Marcamos para borrar al guardar, actualizamos UI
