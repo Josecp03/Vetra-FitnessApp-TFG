@@ -107,12 +107,29 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="@font/goldman"
                 android:includeFontPadding="false"
-                android:text="Instructions:"
+                android:text="@string/instructions"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/llInstructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/goldman"
+                android:includeFontPadding="false"
+                android:text="@string/history"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/llHistory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

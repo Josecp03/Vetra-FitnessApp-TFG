@@ -86,11 +86,13 @@ public class StartRoutineAdapter
                     : Color.TRANSPARENT;
             row.setBackgroundColor(baseBg);
 
-            // 2) Toggle checkbox + pintar fila de verde_success
+            // 2) Toggle checkbox + marcar fila + persistir done en el modelo
             ivC.setOnClickListener(v -> {
                 boolean done = ivC.isSelected();
                 ivC.setSelected(!done);
-                int bg = !done
+                s.setDone(!done);
+
+                int bg = s.isDone()
                         ? ContextCompat.getColor(row.getContext(), R.color.green_success)
                         : baseBg;
                 row.setBackgroundColor(bg);

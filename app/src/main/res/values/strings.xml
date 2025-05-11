@@ -107,4 +107,6 @@
     <string name="this_will_erase_all_your_progress_continue">This will erase all your progress. Continue?</string>
     <string name="finish_routine">Finish Routine</string>
     <string name="finish_routine_restarting_later_means_starting_from_the_beginning">Finish routine? Restarting later means starting from the beginning.</string>
+    <string name="instructions">Instructions:</string>
+    <string name="history">History:</string>
 </resources>
