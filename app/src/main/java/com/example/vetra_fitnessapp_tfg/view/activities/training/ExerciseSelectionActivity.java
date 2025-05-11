@@ -43,6 +43,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
     private TextView tvOptionMuscles, tvOptionEquipment;
     private LinearLayout optionMuscles, optionEquipment, optionSearch;
+    private TextView tvHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,8 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         controller = new ExerciseSelectionController();
+
+        tvHeader = binding.tvHeader;
 
         // 1) RecyclerView: al pulsar '+', devolvemos el ejercicio y cerramos
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
@@ -161,6 +164,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
     /** Performs search based on selected filters */
     private void doSearch() {
+
+        updateHeaderText();
+
         boolean allMuscles = selectedMuscle.equals("All the muscles");
         boolean allEquip   = selectedEquipment.equals("All the equipment");
 
@@ -343,4 +349,23 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
+
+    private void updateHeaderText() {
+        boolean allMuscles = selectedMuscle.equals("All the muscles");
+        boolean allEquip   = selectedEquipment.equals("All the equipment");
+
+        if (allMuscles && allEquip) {
+            tvHeader.setText(getString(R.string.popular_exercises));
+        }
+        else if (!allMuscles && allEquip) {
+            tvHeader.setText("Exercises for " + selectedMuscle);
+        }
+        else if (allMuscles && !allEquip) {
+            tvHeader.setText("Exercises with " + selectedEquipment);
+        }
+        else {
+            tvHeader.setText("Exercises for " + selectedMuscle + " with " + selectedEquipment);
+        }
+    }
+
 }

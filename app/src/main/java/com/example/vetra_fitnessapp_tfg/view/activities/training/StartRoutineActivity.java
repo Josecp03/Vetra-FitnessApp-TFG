@@ -154,7 +154,7 @@ public class StartRoutineActivity extends AppCompatActivity {
             // 3) Subimos a exerciseHistory
             db.collection("exerciseHistory")
                     .add(entry)
-                    .addOnSuccessListener(docRef ->
+                    .addOnSuccessListener(docRef ->   
                             Log.d("StartRoutineActivity", "History ID=" + docRef.getId())
                     )
                     .addOnFailureListener(Throwable::printStackTrace);
