@@ -109,4 +109,5 @@
     <string name="finish_routine_restarting_later_means_starting_from_the_beginning">Finish routine? Restarting later means starting from the beginning.</string>
     <string name="instructions">Instructions:</string>
     <string name="history">History:</string>
+    <string name="ideal_weight">⚖️ Ideal weight</string>
 </resources>
