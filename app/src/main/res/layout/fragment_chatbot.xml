@@ -7,14 +7,29 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
 
-    <!-- 1) ScrollView de mensajes (invisible al inicio) -->
+    <!-- 0) Botón de Usage Limit -->
+    <ImageButton
+        android:id="@+id/btnUsageLimit"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="6dp"
+        android:src="@drawable/ic_usage_limit"
+        android:scaleType="centerInside"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/icono_de_uso_limite"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"/>
+
+    <!-- 1) ScrollView de mensajes -->
     <ScrollView
         android:id="@+id/scrollMessages"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
         android:overScrollMode="never"
-        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="100dp"
+        app:layout_constraintTop_toBottomOf="@id/btnUsageLimit"
         app:layout_constraintBottom_toTopOf="@+id/inputContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -27,7 +42,7 @@
             android:padding="16dp"/>
     </ScrollView>
 
-    <!-- 2) Sugerencias (siempre pegadas arriba del inputContainer) -->
+    <!-- 2) Contenedor de sugerencias -->
     <LinearLayout
         android:id="@+id/suggestionsContainer"
         android:layout_width="0dp"
@@ -35,164 +50,162 @@
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnUsageLimit"
         app:layout_constraintBottom_toTopOf="@+id/inputContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Título -->
-        <TextView
-            android:id="@+id/tvPrompt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="@font/goldman"
-            android:text="What can I help you?"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
+    <!-- Título -->
+    <TextView
+        android:id="@+id/tvPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:text="What can I help you?"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"/>
 
-        <!-- Primera fila -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="8dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSugSnack"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_margin="4dp"
-                android:background="@drawable/suggestion_background"
-                android:fontFamily="@font/goldman"
-                android:includeFontPadding="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="🍿 Low-cal snack"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="11sp"
-                app:backgroundTint="@null"
-                app:cornerRadius="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSugWeight"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_margin="4dp"
-                android:background="@drawable/suggestion_background"
-                android:fontFamily="@font/goldman"
-                android:includeFontPadding="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="⚖ Ideal weight"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="11sp"
-                app:backgroundTint="@null"
-                app:cornerRadius="20dp" />
-        </LinearLayout>
-
-        <!-- Segunda fila -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSugRoutine"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_margin="4dp"
-                android:background="@drawable/suggestion_background"
-                android:fontFamily="@font/goldman"
-                android:includeFontPadding="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="🏋️‍♀️ Beginner routine"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="11sp"
-                app:backgroundTint="@null"
-                app:cornerRadius="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSugMeal"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_margin="4dp"
-                android:background="@drawable/suggestion_background"
-                android:fontFamily="@font/goldman"
-                android:includeFontPadding="false"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="🥗 Healthy meal"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="11sp"
-                app:backgroundTint="@null"
-                app:cornerRadius="20dp" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- 3) Input + botones -->
+    <!-- Fila 1 de sugerencias -->
     <LinearLayout
-        android:id="@+id/inputContainer"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:gravity="center"
+        android:layout_marginBottom="8dp">
 
-        <EditText
-            android:id="@+id/etMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/input_background"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSugSnack"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/suggestion_background"
             android:fontFamily="@font/goldman"
-            android:gravity="center_vertical"
-            android:hint="Type a message to VetraGPT"
             android:includeFontPadding="false"
-            android:imeOptions="actionSend"
-            android:inputType="textMultiLine|textNoSuggestions"
-            android:maxLines="4"
-            android:minLines="1"
-            android:padding="12dp"
-            android:scrollbars="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="🍿 Low-cal snack"
+            android:textAllCaps="false"
             android:textColor="@color/black"
-            android:textColorHint="@color/dark_gray"
-            android:textSize="14sp"
-            android:importantForAutofill="no"
-            android:autofillHints=""
-            android:textCursorDrawable="@drawable/custom_cursor" />
+            android:textSize="11sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp"/>
 
-
-        <ImageButton
-            android:id="@+id/btnSend"
-            android:layout_width="41dp"
-            android:layout_height="41dp"
-            android:layout_marginStart="8dp"
-            android:padding="12dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_arrow_up"
-            android:background="@drawable/bg_circle_white"
-            android:contentDescription="Send"/>
-
-        <ImageButton
-            android:id="@+id/btnClear"
-            android:layout_width="41dp"
-            android:layout_height="41dp"
-            android:layout_marginStart="4dp"
-            android:padding="12dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_trash"
-            android:background="@drawable/bg_circle_red"
-            android:contentDescription="Clear"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSugWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/suggestion_background"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="⚖ Ideal weight"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="11sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp"/>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Fila 2 de sugerencias -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSugRoutine"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/suggestion_background"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="🏋️‍♀️ Beginner routine"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="11sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSugMeal"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/suggestion_background"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="🥗 Healthy meal"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="11sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="20dp"/>
+    </LinearLayout>
+    </LinearLayout>
+
+        <!-- 3) Input + botones -->
+    <LinearLayout
+    android:id="@+id/inputContainer"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <EditText
+        android:id="@+id/etMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/input_background"
+        android:fontFamily="@font/goldman"
+        android:gravity="center_vertical"
+        android:hint="Type a message to VetraGPT"
+        android:includeFontPadding="false"
+        android:imeOptions="actionSend"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:maxLines="4"
+        android:minLines="1"
+        android:padding="12dp"
+        android:scrollbars="vertical"
+        android:textColor="@color/black"
+        android:textColorHint="@color/dark_gray"
+        android:textSize="14sp"
+        android:importantForAutofill="no"
+        android:autofillHints=""
+        android:textCursorDrawable="@drawable/custom_cursor"/>
+
+    <ImageButton
+        android:id="@+id/btnSend"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="8dp"
+        android:padding="12dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_arrow_up"
+        android:background="@drawable/bg_circle_white"
+        android:contentDescription="Send"/>
+
+    <ImageButton
+        android:id="@+id/btnClear"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="4dp"
+        android:padding="12dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_trash"
+        android:background="@drawable/bg_circle_red"
+        android:contentDescription="Clear"/>
+    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>

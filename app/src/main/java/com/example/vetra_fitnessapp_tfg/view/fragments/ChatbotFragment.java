@@ -49,26 +49,30 @@ public class ChatbotFragment extends Fragment {
         binding = FragmentChatbotBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Inicialización
         keyStore = new KeyStoreManager();
         db = FirebaseFirestore.getInstance();
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Estado inicial: ocultamos la zona de mensajes
+        // Estado inicial: ocultamos mensajes
         binding.scrollMessages.setVisibility(View.GONE);
         binding.messagesContainer.setVisibility(View.GONE);
 
-        // Cargamos datos de perfil y luego habilitamos sugerencias
+        // Carga datos y habilita sugerencias
         loadUserData();
 
-        // Envío manual por EditText
+        // Enviar texto manual
         binding.btnSend.setOnClickListener(v -> {
             String msg = binding.etMessage.getText().toString().trim();
             if (TextUtils.isEmpty(msg)) return;
             showMessage(msg);
         });
 
-        // Ahora el botón de Clear abre el diálogo
+        // Abrir diálogo de clear chat
         binding.btnClear.setOnClickListener(v -> showClearChatDialog());
+
+        // Abrir diálogo de usage limit
+        binding.btnUsageLimit.setOnClickListener(v -> showUsageLimitDialog());
 
         return root;
     }
@@ -93,6 +97,14 @@ public class ChatbotFragment extends Fragment {
         binding.btnSugWeight.setOnClickListener(v -> showMessage(buildIdealWeightPrompt()));
         binding.btnSugRoutine.setOnClickListener(v -> showMessage(buildRoutinePrompt()));
         binding.btnSugMeal.setOnClickListener(v -> showMessage(buildMealPrompt()));
+    }
+
+    private void showUsageLimitDialog() {
+        View dlg = getLayoutInflater().inflate(R.layout.dialog_usage_limit, null);
+        BottomSheetDialog d = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        d.setContentView(dlg);
+        d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        d.show();
     }
 
     private void showClearChatDialog() {
