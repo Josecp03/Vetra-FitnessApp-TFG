@@ -110,4 +110,6 @@
     <string name="instructions">Instructions:</string>
     <string name="history">History:</string>
     <string name="ideal_weight">⚖️ Ideal weight</string>
+    <string name="clear_chat">Clear Chat</string>
+    <string name="one_selected_this_chat_cannot_be_recovered">One selected, this chat cannot be recovered.</string>
 </resources>
