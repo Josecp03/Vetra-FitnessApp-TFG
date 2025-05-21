@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.text.LineBreaker;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
@@ -25,6 +27,8 @@ import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import okhttp3.Call;
@@ -42,9 +46,13 @@ public class ChatbotFragment extends Fragment {
     private double weight;
     private String gender;
 
-    // Referencia al Call activo y a la burbuja de carga
+    // Para cancelar peticiones si salimos
     private Call currentCall;
+    // Burbuja de “Loading…”
     private TextView loadingBubble;
+
+    // Límite leído de Firestore
+    private long chatCount = 0;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,35 +65,12 @@ public class ChatbotFragment extends Fragment {
         db        = FirebaseFirestore.getInstance();
         uid       = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Ocultar UI de chat al inicio
+        // ocultamos la UI de chat hasta que haya interacción
         binding.scrollMessages.setVisibility(View.GONE);
         binding.messagesContainer.setVisibility(View.GONE);
 
         loadUserData();
-
-        binding.btnSend.setOnClickListener(v -> {
-            String msg = binding.etMessage.getText().toString().trim();
-            if (TextUtils.isEmpty(msg)) return;
-            postUserMessage(msg);
-            startLoading();
-            currentCall = apiClient.sendMessage(msg, new ChatApiClient.Callback() {
-                @Override public void onSuccess(String response) {
-                    if (!isAdded()) return;                      // <<-- Evita actualizar UI si ya no está
-                    stopLoading();
-                    showBotBubble(response);
-                }
-                @Override public void onError(Exception e) {
-                    if (!isAdded()) return;
-                    stopLoading();
-                    showBotBubble("Error: " + e.getMessage());
-                }
-            });
-        });
-
-        binding.btnClear.setOnClickListener(v -> showClearChatDialog());
-        binding.btnUsageLimit.setOnClickListener(v -> showUsageLimitDialog());
-
-        setupSuggestionButtons();
+        setupButtons();
 
         return root;
     }
@@ -93,7 +78,7 @@ public class ChatbotFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // cancelar la petición en vuelo
+        // cancelar la llamada si estamos fuera
         if (currentCall != null && !currentCall.isCanceled()) {
             currentCall.cancel();
         }
@@ -104,63 +89,119 @@ public class ChatbotFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists()) return;
+                    // datos básicos
                     age         = doc.getLong("age").intValue();
                     height      = doc.getLong("height").intValue();
                     weight      = doc.getDouble("weight");
                     calorieGoal = doc.getLong("user_calories").intValue();
                     gender      = keyStore.decrypt(doc.getString("gender"));
-                    // sugerencias
+
+                    // leemos el contador actual
+                    chatCount = doc.contains("limit_chat") ? doc.getLong("limit_chat") : 0L;
+                    checkLimit(chatCount);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("ChatbotFragment", "Error loading user data", e);
                 });
     }
 
-    private void setupSuggestionButtons() {
-        binding.btnSugSnack.setOnClickListener(v -> handleSuggestion(
-                String.format("VetraGPT, I’m targeting %d kcal/day. Suggest a quick snack under 150 kcal that’s high in protein and easy to prepare.", calorieGoal)
-        ));
-        binding.btnSugWeight.setOnClickListener(v -> handleSuggestion(
-                String.format("Hello VetraGPT, as a %d-year-old %s, %d cm tall, what’s my ideal weight range according to standard health guidelines?", age, gender, height)
-        ));
-        binding.btnSugRoutine.setOnClickListener(v -> handleSuggestion(
-                String.format("Hey VetraGPT, I’m a %d-year-old %s, %.1f kg, and new to workouts. I can train 3×30 min/week. Suggest a simple full-body beginner routine.", age, gender, weight)
-        ));
-        binding.btnSugMeal.setOnClickListener(v -> handleSuggestion(
-                String.format("VetraGPT, I have a daily goal of %d kcal. Recommend a balanced dinner under 600 kcal with ≥ 25 g protein and plenty of veggies.", calorieGoal)
-        ));
+    private void setupButtons() {
+        binding.btnSend.setOnClickListener(v ->
+                sendMessage(binding.etMessage.getText().toString().trim())
+        );
+        binding.btnClear.setOnClickListener(v -> showClearChatDialog());
+        binding.btnUsageLimit.setOnClickListener(v -> showUsageLimitDialog());
+
+        binding.btnSugSnack.setOnClickListener(v ->
+                sendMessage(String.format(
+                        "VetraGPT, I’m targeting %d kcal/day. Suggest a quick snack under 150 kcal that’s high in protein and easy to prepare.",
+                        calorieGoal))
+        );
+        binding.btnSugWeight.setOnClickListener(v ->
+                sendMessage(String.format(
+                        "Hello VetraGPT, as a %d-year-old %s, %d cm tall, what’s my ideal weight range?",
+                        age, gender, height))
+        );
+        binding.btnSugRoutine.setOnClickListener(v ->
+                sendMessage(String.format(
+                        "Hey VetraGPT, I’m a %d-year-old %s, %.1f kg, new to workouts. I can train 3×30 min/week. Suggest a beginner routine.",
+                        age, gender, weight))
+        );
+        binding.btnSugMeal.setOnClickListener(v ->
+                sendMessage(String.format(
+                        "VetraGPT, I have a daily goal of %d kcal. Recommend a dinner under 600 kcal with ≥25 g protein and veggies.",
+                        calorieGoal))
+        );
     }
 
-    private void handleSuggestion(String prompt) {
-        postUserMessage(prompt);
+    private void sendMessage(String msg) {
+        if (TextUtils.isEmpty(msg) || chatCount >= 20) return;
+
+        // mostramos el mensaje del usuario
+        binding.suggestionsContainer.setVisibility(View.GONE);
+        binding.scrollMessages.setVisibility(View.VISIBLE);
+        binding.messagesContainer.setVisibility(View.VISIBLE);
+        showMessageBubble(msg, Gravity.END, R.drawable.user_bubble_background, Color.WHITE);
+
+        // bloqueamos UI y mostramos “Loading…”
         startLoading();
-        currentCall = apiClient.sendMessage(prompt, new ChatApiClient.Callback() {
+
+        // disparar la petición al API
+        currentCall = apiClient.sendMessage(msg, new ChatApiClient.Callback() {
             @Override public void onSuccess(String response) {
                 if (!isAdded()) return;
                 stopLoading();
                 showBotBubble(response);
+                incrementChatCounter();
             }
             @Override public void onError(Exception e) {
                 if (!isAdded()) return;
                 stopLoading();
                 showBotBubble("Error: " + e.getMessage());
+                incrementChatCounter();
             }
         });
     }
 
-    private void postUserMessage(String msg) {
-        binding.suggestionsContainer.setVisibility(View.GONE);
-        binding.scrollMessages.setVisibility(View.VISIBLE);
-        binding.messagesContainer.setVisibility(View.VISIBLE);
-        showMessageBubble(msg, Gravity.END, R.drawable.user_bubble_background, Color.WHITE);
+    private void incrementChatCounter() {
+        DocumentReference ref = db.collection("users").document(uid);
+        db.runTransaction(tx -> {
+            DocumentSnapshot snap = tx.get(ref);
+            long current = snap.contains("limit_chat") ? snap.getLong("limit_chat") : 0L;
+            long updated = current + 1;
+            tx.update(ref, "limit_chat", updated);
+            return updated;
+        }).addOnSuccessListener(newCount -> {
+            chatCount = newCount;
+            checkLimit(chatCount);
+        }).addOnFailureListener(e -> {
+            Log.w("ChatbotFragment", "Error incrementing chat limit", e);
+        });
+    }
+
+    /**
+     * Habilita o deshabilita el chat según el contador.
+     */
+    private void checkLimit(long count) {
+        boolean blocked = count >= 20;
+        // EditText
+        binding.etMessage.setEnabled(!blocked);
+        binding.etMessage.setHint(blocked
+                ? "Request limit reached"
+                : "Type a message to VetraGPT");
+        // Botón de enviar
+        binding.btnSend.setEnabled(!blocked);
+        // (opcional) también podrías desactivar sugerencias:
+        setSuggestionsEnabled(!blocked);
     }
 
     private void startLoading() {
-        // bloquear UI
         binding.btnSend.setEnabled(false);
         binding.btnClear.setEnabled(false);
         binding.btnUsageLimit.setEnabled(false);
         binding.etMessage.setEnabled(false);
         setSuggestionsEnabled(false);
 
-        // crear burbuja “Loading…”
         loadingBubble = new TextView(requireContext());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -172,7 +213,6 @@ public class ChatbotFragment extends Fragment {
 
         int maxW = (int)(getResources().getDisplayMetrics().widthPixels * .66f);
         loadingBubble.setMaxWidth(maxW);
-
         loadingBubble.setBackground(null);
         loadingBubble.setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12));
         loadingBubble.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.goldman));
@@ -196,7 +236,6 @@ public class ChatbotFragment extends Fragment {
             binding.messagesContainer.removeView(loadingBubble);
             loadingBubble = null;
         }
-        // restaurar UI
         binding.btnSend.setEnabled(true);
         binding.btnClear.setEnabled(true);
         binding.btnUsageLimit.setEnabled(true);
@@ -205,7 +244,10 @@ public class ChatbotFragment extends Fragment {
     }
 
     private void setSuggestionsEnabled(boolean enabled) {
-        for (int id : new int[]{ R.id.btnSugSnack, R.id.btnSugWeight, R.id.btnSugRoutine, R.id.btnSugMeal }) {
+        for (int id : new int[]{
+                R.id.btnSugSnack, R.id.btnSugWeight,
+                R.id.btnSugRoutine, R.id.btnSugMeal
+        }) {
             binding.getRoot().findViewById(id).setEnabled(enabled);
         }
     }
@@ -267,6 +309,8 @@ public class ChatbotFragment extends Fragment {
             binding.scrollMessages.setVisibility(View.GONE);
             binding.messagesContainer.setVisibility(View.GONE);
             binding.suggestionsContainer.setVisibility(View.VISIBLE);
+            // Restablecer hint y estado sólo si aún no llegó al límite
+            checkLimit(chatCount);
             dlg.dismiss();
         });
         dlg.show();
