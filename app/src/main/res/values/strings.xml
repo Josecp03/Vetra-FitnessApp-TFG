@@ -112,7 +112,7 @@
     <string name="ideal_weight">⚖️ Ideal weight</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="one_selected_this_chat_cannot_be_recovered">One selected, this chat cannot be recovered.</string>
-    <string name="you_can_make_up_to_100_requests_per_month_stay_mindful_and_make_each_one_count">You cannot make more than 20 requests per month. Stay mindful and make each one count!</string>
+    <string name="you_can_make_up_to_100_requests_per_month_stay_mindful_and_make_each_one_count">You cannot make more than 100 requests per month. Stay mindful and make each one count!</string>
     <string name="icono_de_uso_limite">Icono de uso limite</string>
     <string name="usage_limit">Usage Limit</string>
 </resources>

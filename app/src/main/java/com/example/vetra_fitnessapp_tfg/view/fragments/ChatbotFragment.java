@@ -135,7 +135,7 @@ public class ChatbotFragment extends Fragment {
     }
 
     private void sendMessage(String msg) {
-        if (TextUtils.isEmpty(msg) || chatCount >= 20) return;
+        if (TextUtils.isEmpty(msg) || chatCount >= 100) return;
 
         // mostramos el mensaje del usuario
         binding.suggestionsContainer.setVisibility(View.GONE);
@@ -183,7 +183,7 @@ public class ChatbotFragment extends Fragment {
      * Habilita o deshabilita el chat según el contador.
      */
     private void checkLimit(long count) {
-        boolean blocked = count >= 20;
+        boolean blocked = count >= 100;
         // EditText
         binding.etMessage.setEnabled(!blocked);
         binding.etMessage.setHint(blocked
