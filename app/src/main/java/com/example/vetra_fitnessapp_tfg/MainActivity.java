@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_home,
                 R.id.navigation_workouts,
                 R.id.navigation_chatgpt,
-                R.id.navigation_nutrition,
                 R.id.navigation_profile
         ).build();
 
@@ -75,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
                 titleText.setText("Workouts");
             } else if (id == R.id.navigation_chatgpt) {
                 titleText.setText("Chatbot");
-            } else if (id == R.id.navigation_nutrition) {
-                titleText.setText("Nutrition");
             } else if (id == R.id.navigation_profile) {
                 titleText.setText("Profile");
             }

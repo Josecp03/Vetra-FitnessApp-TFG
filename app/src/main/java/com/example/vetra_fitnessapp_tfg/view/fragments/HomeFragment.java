@@ -44,21 +44,6 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonMyNutrition.setOnClickListener(v -> {
-
-            // Reemplazar el fragmento actual con el fragmento de Workouts
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.main, new NutritionFragment())
-                    .addToBackStack(null)
-                    .commit();
-
-            // Actualizar la vista de la barra de navegación
-            BottomNavigationView nav = requireActivity().findViewById(R.id.nav_view);
-            nav.setSelectedItemId(R.id.navigation_nutrition);
-
-        });
-
         binding.buttonMyWorkouts.setOnClickListener(v -> {
 
             // Reemplazar el fragmento actual con el fragmento de Workouts

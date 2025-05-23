@@ -66,37 +66,8 @@
         </LinearLayout>
 
         <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="16dp"
-            android:background="@color/black" />
 
         <!-- Botón: My Nutrition -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonMyNutrition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:fontFamily="@font/goldman"
-            android:includeFontPadding="false"
-            android:text="@string/my_nutrition"
-            android:textAlignment="textStart"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            app:backgroundTint="@color/black"
-            app:cornerRadius="10dp"
-            app:icon="@drawable/ic_go_to"
-            app:iconGravity="textStart"
-            app:iconPadding="10dp"
-            app:iconSize="24dp"
-            app:iconTint="@null"
-            app:strokeColor="@android:color/black"
-            app:strokeWidth="2dp" />
 
         <!-- Divider -->
         <View

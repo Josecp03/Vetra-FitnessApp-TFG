@@ -24,12 +24,6 @@
         tools:layout="@layout/fragment_chatbot" />
 
     <fragment
-        android:id="@+id/navigation_nutrition"
-        android:name="com.example.vetra_fitnessapp_tfg.view.fragments.NutritionFragment"
-        android:label="@string/nutrition"
-        tools:layout="@layout/fragment_nutrition" />
-
-    <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.vetra_fitnessapp_tfg.view.fragments.ProfileFragment"
         android:label="@string/profile"
