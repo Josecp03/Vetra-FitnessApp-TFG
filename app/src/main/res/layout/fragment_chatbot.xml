@@ -177,6 +177,7 @@
         android:inputType="textMultiLine|textNoSuggestions"
         android:maxLines="4"
         android:minLines="1"
+        android:maxLength="500"
         android:padding="12dp"
         android:scrollbars="vertical"
         android:textColor="@color/black"
