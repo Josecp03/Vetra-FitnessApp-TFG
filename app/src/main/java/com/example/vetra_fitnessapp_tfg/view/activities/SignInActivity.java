@@ -100,7 +100,7 @@ public class SignInActivity extends AppCompatActivity {
 
             }
 
-            // Recuperar la contraseña envianod un correo al usuario
+            // Recuperar la contraseña enviando un correo al usuario
             resetPassword(email, bottomSheetDialog);
 
         });
