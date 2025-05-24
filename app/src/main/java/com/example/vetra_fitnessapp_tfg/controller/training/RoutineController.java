@@ -22,28 +22,25 @@ public class RoutineController {
     public void loadUserRoutines(Consumer<List<Routine>> onSuccess) {
         String uid = auth.getCurrentUser().getUid();
 
-        db.collection("routines")
-                .whereEqualTo("user_id", uid)
+        db.collection("users")
+                .document(uid)
+                .collection("routines")
                 .get()
                 .addOnSuccessListener(qs -> {
                     List<Routine> lista = new ArrayList<>();
 
                     for (QueryDocumentSnapshot doc : qs) {
-                        // Cabecera de la rutina
                         Routine r = new Routine();
                         r.setId(doc.getId());
-                        r.setUserId(doc.getString("user_id"));
+                        r.setUserId(uid);
                         r.setRoutineName(doc.getString("routine_name"));
 
-                        // Leer lista de ejercicios anidada
                         List<RoutineExercise> reList = new ArrayList<>();
                         @SuppressWarnings("unchecked")
-                        List<Map<String,Object>> exMaps =
-                                (List<Map<String,Object>>) doc.get("exercises");
+                        List<Map<String,Object>> exMaps = (List<Map<String,Object>>) doc.get("exercises");
 
                         if (exMaps != null) {
                             for (Map<String,Object> exMap : exMaps) {
-                                // Construir el objeto Exercise
                                 String exId   = (String) exMap.get("exercise_id");
                                 String exName = (String) exMap.get("exercise_name");
                                 String url    = (String) exMap.get("exercise_photo_url");
@@ -55,7 +52,6 @@ public class RoutineController {
                                 ex.setGifUrl(url);
                                 ex.setTarget(muscle);
 
-                                // —— AÑADIDOS ——
                                 ex.setBodyPart((String) exMap.get("bodyPart"));
                                 ex.setEquipment((String) exMap.get("equipment"));
 
@@ -66,15 +62,12 @@ public class RoutineController {
                                 @SuppressWarnings("unchecked")
                                 List<String> ins = (List<String>) exMap.get("instructions");
                                 ex.setInstructions(ins != null ? ins : new ArrayList<>());
-                                // ————————
 
-                                // Construir RoutineExercise y sus sets
                                 RoutineExercise re = new RoutineExercise();
                                 re.setExercise(ex);
 
                                 @SuppressWarnings("unchecked")
-                                List<Map<String,Object>> setsMaps =
-                                        (List<Map<String,Object>>) exMap.get("sets");
+                                List<Map<String,Object>> setsMaps = (List<Map<String,Object>>) exMap.get("sets");
                                 List<ExerciseSet> sets = new ArrayList<>();
                                 if (setsMaps != null) {
                                     for (Map<String,Object> sm : setsMaps) {
@@ -85,20 +78,14 @@ public class RoutineController {
                                     }
                                 }
                                 re.setSets(sets);
-
                                 reList.add(re);
                             }
                         }
-
                         r.setExercises(reList);
                         lista.add(r);
                     }
 
-                    // Orden opcional
-                    lista.sort((a,b) ->
-                            a.getRoutineName().compareToIgnoreCase(b.getRoutineName())
-                    );
-
+                    lista.sort((a,b) -> a.getRoutineName().compareToIgnoreCase(b.getRoutineName()));
                     onSuccess.accept(lista);
                 })
                 .addOnFailureListener(Throwable::printStackTrace);

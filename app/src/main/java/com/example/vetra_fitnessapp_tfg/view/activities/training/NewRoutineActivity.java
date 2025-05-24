@@ -1,4 +1,3 @@
-// com/example/vetra_fitnessapp_tfg/view/activities/training/NewRoutineActivity.java
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.annotation.SuppressLint;
@@ -86,9 +85,9 @@ public class NewRoutineActivity extends AppCompatActivity {
                 return;
             }
 
-            // Construir documento
+            String uid = auth.getCurrentUser().getUid();
+            // Construir documento de rutina sin user_id (se guarda en subcolección)
             Map<String,Object> routine = new HashMap<>();
-            routine.put("user_id", auth.getCurrentUser().getUid());
             routine.put("routine_name", name);
 
             List<Map<String,Object>> exList = new ArrayList<>();
@@ -99,29 +98,29 @@ public class NewRoutineActivity extends AppCompatActivity {
                 exMap.put("exercise_photo_url", re.getExercise().getGifUrl());
                 exMap.put("muscle", toCamelCase(re.getExercise().getTarget()));
 
-                // —— AÑADIDOS ——
+                // Campos adicionales
                 exMap.put("bodyPart",        re.getExercise().getBodyPart());
                 exMap.put("equipment",       re.getExercise().getEquipment());
                 exMap.put("secondaryMuscles", re.getExercise().getSecondaryMuscles());
                 exMap.put("instructions",    re.getExercise().getInstructions());
-                // ————————
 
                 List<Map<String,Object>> setsMap = new ArrayList<>();
                 for (ExerciseSet s : re.getSets()) {
                     Map<String,Object> sMap = new HashMap<>();
                     sMap.put("set_number", s.getSetNumber());
-                    sMap.put("weight", s.getWeight());
-                    sMap.put("reps", s.getReps());
+                    sMap.put("weight",     s.getWeight());
+                    sMap.put("reps",       s.getReps());
                     setsMap.add(sMap);
                 }
                 exMap.put("sets", setsMap);
-
                 exList.add(exMap);
             }
             routine.put("exercises", exList);
 
-            // Guardar en Firestore
-            db.collection("routines")
+            // Guardar en Firestore bajo users/{uid}/routines
+            db.collection("users")
+                    .document(uid)
+                    .collection("routines")
                     .add(routine)
                     .addOnSuccessListener(docRef -> {
                         Prefs.setRoutineInProgress(this, false);

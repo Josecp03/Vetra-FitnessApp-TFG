@@ -27,11 +27,13 @@ public class StartupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1) Si hay rutina en progreso, recuperamos su ID y la cargamos
         if (Prefs.isRoutineInProgress(this)) {
             String routineId = Prefs.getCurrentRoutineId(this);
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             if (routineId != null) {
                 FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(uid)
                         .collection("routines")
                         .document(routineId)
                         .get()
@@ -40,8 +42,6 @@ public class StartupActivity extends AppCompatActivity {
                 return;
             }
         }
-
-        // 2) Flujo normal (login → perfil → main)
         proceedNormalFlow();
     }
 
@@ -57,7 +57,7 @@ public class StartupActivity extends AppCompatActivity {
         // Mapeamos snapshot a Routine
         Routine r = new Routine();
         r.setId(doc.getId());
-        r.setUserId(doc.getString("user_id"));
+        r.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
         r.setRoutineName(doc.getString("routine_name"));
 
         // ejercicios anidados

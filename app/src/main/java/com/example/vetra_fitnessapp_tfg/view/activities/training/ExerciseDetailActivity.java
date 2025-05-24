@@ -128,8 +128,9 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
                 .collection("exerciseHistory")
-                .whereEqualTo("user_id", uid)
                 .whereEqualTo("exercise_id", exerciseId)
                 .orderBy("date", Query.Direction.DESCENDING)
                 .get()

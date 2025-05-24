@@ -135,7 +135,6 @@ public class StartRoutineActivity extends AppCompatActivity {
 
             // 2) Construimos el Map con campos snake_case
             Map<String,Object> entry = new HashMap<>();
-            entry.put("user_id",            uid);
             entry.put("exercise_id",        re.getExercise().getId());
             entry.put("exercise_name",      re.getExercise().getName());
             entry.put("exercise_photo_url", re.getExercise().getGifUrl());
@@ -152,9 +151,11 @@ public class StartRoutineActivity extends AppCompatActivity {
             entry.put("sets", setsList);
 
             // 3) Subimos a exerciseHistory
-            db.collection("exerciseHistory")
+            db.collection("users")
+                    .document(uid)
+                    .collection("exerciseHistory")
                     .add(entry)
-                    .addOnSuccessListener(docRef ->   
+                    .addOnSuccessListener(docRef ->
                             Log.d("StartRoutineActivity", "History ID=" + docRef.getId())
                     )
                     .addOnFailureListener(Throwable::printStackTrace);

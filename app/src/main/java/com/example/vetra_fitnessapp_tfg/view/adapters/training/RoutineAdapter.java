@@ -14,6 +14,7 @@ import com.example.vetra_fitnessapp_tfg.model.training.Routine;
 import com.example.vetra_fitnessapp_tfg.view.activities.training.StartRoutineActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -21,6 +22,8 @@ import java.util.List;
 public class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.VH> {
     private final List<Routine> items;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseAuth      auth = FirebaseAuth.getInstance();
+
 
     public RoutineAdapter(List<Routine> items) {
         this.items = items;
@@ -45,11 +48,7 @@ public class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.VH> {
         });
 
         h.btnMenu.setOnClickListener(v -> showOptionsDialog(h, pos));
-
-        h.itemView.setOnLongClickListener(v -> {
-            showOptionsDialog(h, pos);
-            return true;
-        });
+        h.itemView.setOnLongClickListener(v -> { showOptionsDialog(h, pos); return true; });
     }
 
     @Override
@@ -58,27 +57,22 @@ public class RoutineAdapter extends RecyclerView.Adapter<RoutineAdapter.VH> {
     }
 
     private void showOptionsDialog(VH h, int pos) {
+        BottomSheetDialog sheet = new BottomSheetDialog(h.itemView.getContext(), R.style.BottomSheetDialogTheme);
         View dlg = LayoutInflater.from(h.itemView.getContext())
                 .inflate(R.layout.dialog_delete_routine, null);
-        BottomSheetDialog sheet = new BottomSheetDialog(
-                h.itemView.getContext(), R.style.BottomSheetDialogTheme
-        );
         sheet.setContentView(dlg);
-        sheet.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-        TextView tvTitle = dlg.findViewById(R.id.textTitleDeleteRoutine);
-        tvTitle.setText(items.get(pos).getRoutineName());
-
         MaterialButton btnDelete = dlg.findViewById(R.id.buttonDeleteRoutineConfirm);
         btnDelete.setOnClickListener(x -> {
-            db.collection("routines")
+            String uid = auth.getCurrentUser().getUid();
+            db.collection("users")
+                    .document(uid)
+                    .collection("routines")
                     .document(items.get(pos).getId())
                     .delete();
             items.remove(pos);
             notifyItemRemoved(pos);
             sheet.dismiss();
         });
-
         sheet.show();
     }
 
