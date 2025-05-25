@@ -2,14 +2,11 @@ package com.example.vetra_fitnessapp_tfg.model.training;
 
 import java.io.Serializable;
 
-/**
- * Representa una serie dentro de la rutina y su estado (hecha o no).
- */
 public class ExerciseSet implements Serializable {
     private int setNumber;
     private int weight;
     private int reps;
-    private boolean done; // Nueva propiedad
+    private boolean done;
 
     public ExerciseSet() { }
 

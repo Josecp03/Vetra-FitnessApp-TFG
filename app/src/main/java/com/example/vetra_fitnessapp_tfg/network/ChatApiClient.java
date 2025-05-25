@@ -29,7 +29,6 @@ public class ChatApiClient {
     private static final String URL     = "https://chatgpt-42.p.rapidapi.com/chat";
     private static final String API_KEY = "440d48ca01mshb9178145c398148p1c905ajsn498799d4ab35";
 
-    // Cliente con timeouts extendidos
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(50, TimeUnit.SECONDS)
@@ -38,18 +37,15 @@ public class ChatApiClient {
 
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    /**
-     * Envía el mensaje y devuelve el Call para poder cancelarlo desde el fragment.
-     */
+
     public Call sendMessage(String prompt, @NonNull Callback cb) {
-        // 1) Escape de comillas y limpieza de saltos de línea
+
         String escaped = prompt.replace("\"", "\\\"")
                 .replace("\n", " ")
                 .replace("\r", " ")
                 .replaceAll(" {2,}", " ")
                 .trim();
 
-        // 2) Construcción del JSON
         String body = "{\"messages\":[{\"role\":\"user\",\"content\":\""
                 + escaped + "\"}],\"model\":\"gpt-4o-mini\"}";
 
@@ -80,7 +76,6 @@ public class ChatApiClient {
                             .getJSONObject("message")
                             .getString("content");
 
-                    // Limpieza Markdown + LaTeX
                     String clean = content
                             .replaceAll("(?m)^\\s*#{1,6}\\s*", "")
                             .replaceAll("(\\*\\*|__)(.*?)\\1", "$2")

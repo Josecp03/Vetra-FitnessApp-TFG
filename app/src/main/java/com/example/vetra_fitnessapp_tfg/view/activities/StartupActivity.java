@@ -47,33 +47,28 @@ public class StartupActivity extends AppCompatActivity {
 
     private void onRoutineDocument(DocumentSnapshot doc) {
         if (!doc.exists()) {
-            // si falla, borramos flag y seguimos normal
             Prefs.setRoutineInProgress(this, false);
             Prefs.setCurrentRoutineId(this, null);
             proceedNormalFlow();
             return;
         }
 
-        // Mapeamos snapshot a Routine
         Routine r = new Routine();
         r.setId(doc.getId());
         r.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
         r.setRoutineName(doc.getString("routine_name"));
 
-        // ejercicios anidados
         List<RoutineExercise> reList = new ArrayList<>();
         @SuppressWarnings("unchecked")
         List<Map<String,Object>> exMaps =
                 (List<Map<String,Object>>) doc.get("exercises");
         if (exMaps != null) {
             for (Map<String,Object> exMap : exMaps) {
-                // Exercise básico
                 Exercise ex = new Exercise();
                 ex.setId((String) exMap.get("exercise_id"));
                 ex.setName((String) exMap.get("exercise_name"));
                 ex.setGifUrl((String) exMap.get("exercise_photo_url"));
                 ex.setTarget((String) exMap.get("muscle"));
-                // extra campos opcionales si los tienes guardados
                 ex.setBodyPart((String) exMap.get("bodyPart"));
                 ex.setEquipment((String) exMap.get("equipment"));
                 @SuppressWarnings("unchecked")
@@ -83,7 +78,6 @@ public class StartupActivity extends AppCompatActivity {
                 List<String> ins = (List<String>) exMap.get("instructions");
                 ex.setInstructions(ins != null ? ins : new ArrayList<>());
 
-                // RoutineExercise con sus sets
                 RoutineExercise re = new RoutineExercise();
                 re.setExercise(ex);
                 List<ExerciseSet> sets = new ArrayList<>();
@@ -104,7 +98,6 @@ public class StartupActivity extends AppCompatActivity {
         }
         r.setExercises(reList);
 
-        // Lanzamos StartRoutineActivity con la rutina cargada
         Intent i = new Intent(this, StartRoutineActivity.class)
                 .putExtra(StartRoutineActivity.EXTRA_ROUTINE, r)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -113,17 +106,14 @@ public class StartupActivity extends AppCompatActivity {
     }
 
     private void proceedNormalFlow() {
-        // usuario Firebase
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
-            // ir a sign in
             startActivity(new Intent(this, SignInActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish();
             return;
         }
 
-        // perfil en Firestore
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())

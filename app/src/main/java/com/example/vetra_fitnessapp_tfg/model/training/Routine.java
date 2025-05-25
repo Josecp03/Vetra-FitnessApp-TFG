@@ -49,7 +49,6 @@ public class Routine implements Serializable {
         this.exercises = exercises;
     }
 
-    // alias para comodidad
     public String getId() {
         return routineId;
     }

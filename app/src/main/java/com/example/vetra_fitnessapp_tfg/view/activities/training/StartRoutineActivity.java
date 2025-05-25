@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityStartRoutineBinding;
-import com.example.vetra_fitnessapp_tfg.model.training.ExerciseHistoryEntry;
 import com.example.vetra_fitnessapp_tfg.model.training.ExerciseHistoryEntry.SetRecord;
 import com.example.vetra_fitnessapp_tfg.model.training.ExerciseSet;
 import com.example.vetra_fitnessapp_tfg.model.training.Routine;
@@ -42,7 +41,6 @@ public class StartRoutineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 1) Recuperar rutina y marcar en progreso
         routine = (Routine) getIntent().getSerializableExtra(EXTRA_ROUTINE);
         if (routine == null) {
             startActivity(new Intent(this, StartupActivity.class)
@@ -56,16 +54,12 @@ public class StartRoutineActivity extends AppCompatActivity {
         binding = ActivityStartRoutineBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Título
         binding.tvRoutineTitle.setText(routine.getRoutineName());
 
-        // Botón “Discard”
         binding.btnDiscardRoutine.setOnClickListener(v -> showDiscardDialog());
 
-        // Botón “Finish” (guarda historial + sale)
         binding.btnFinishRoutine.setOnClickListener(v -> showFinishDialog());
 
-        // RecyclerView
         adapter = new StartRoutineAdapter(routine.getExercises());
         binding.rvStartRoutine.setLayoutManager(new LinearLayoutManager(this));
         binding.rvStartRoutine.setAdapter(adapter);
@@ -109,7 +103,7 @@ public class StartRoutineActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        // bloqueado mientras haya rutina en progreso
+
     }
 
     private void saveHistory() {
@@ -120,7 +114,6 @@ public class StartRoutineActivity extends AppCompatActivity {
                 : "";
 
         for (RoutineExercise re : routine.getExercises()) {
-            // 1) Sólo las series hechas
             List<SetRecord> doneSets = new ArrayList<>();
             for (ExerciseSet s : re.getSets()) {
                 if (s.isDone()) {
@@ -133,7 +126,6 @@ public class StartRoutineActivity extends AppCompatActivity {
             }
             if (doneSets.isEmpty()) continue;
 
-            // 2) Construimos el Map con campos snake_case
             Map<String,Object> entry = new HashMap<>();
             entry.put("exercise_id",        re.getExercise().getId());
             entry.put("exercise_name",      re.getExercise().getName());
@@ -150,7 +142,6 @@ public class StartRoutineActivity extends AppCompatActivity {
             }
             entry.put("sets", setsList);
 
-            // 3) Subimos a exerciseHistory
             db.collection("users")
                     .document(uid)
                     .collection("exerciseHistory")

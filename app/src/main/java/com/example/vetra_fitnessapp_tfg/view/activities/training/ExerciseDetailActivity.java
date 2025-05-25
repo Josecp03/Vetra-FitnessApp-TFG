@@ -35,22 +35,17 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         binding = ActivityExerciseDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 1) Grab the exercise
         Exercise ex = (Exercise) getIntent().getSerializableExtra("exercise");
         String title = toCamelCase(ex.getName());
 
-        // 2) Toolbar back button
         binding.buttonBack.setOnClickListener(v -> finish());
 
-        // 3) Header title
         binding.tvDetailTitle.setText(title);
         binding.tvDetailTitle.setTypeface(ResourcesCompat.getFont(this, R.font.goldman));
         binding.tvDetailTitle.setTextColor(ContextCompat.getColor(this, R.color.white));
 
-        // 4) GIF
         Glide.with(this).load(ex.getGifUrl()).into(binding.ivDetail);
 
-        // 5) Name / target / secondary
         binding.tvDetailName.setText(title);
         binding.tvDetailName.setTypeface(ResourcesCompat.getFont(this, R.font.goldman));
         binding.tvDetailName.setTextColor(ContextCompat.getColor(this, R.color.black));
@@ -64,10 +59,8 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         binding.tvDetailSecondary.setTypeface(ResourcesCompat.getFont(this, R.font.goldman));
         binding.tvDetailSecondary.setTextColor(ContextCompat.getColor(this, R.color.black));
 
-        // 6) Instructions list
         buildInstructions(ex.getInstructions());
 
-        // 7) **Now** load the history under the “History” header
         loadHistory(
                 ex.getId(),
                 ex.getGifUrl(),
@@ -88,7 +81,6 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(0, marginDp, 0, marginDp);
 
-            // step number
             TextView tvNum = new TextView(this);
             LinearLayout.LayoutParams numLp = new LinearLayout.LayoutParams(circleDp, circleDp);
             tvNum.setLayoutParams(numLp);
@@ -103,7 +95,6 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             bg.setColor(ContextCompat.getColor(this, R.color.black));
             tvNum.setBackground(bg);
 
-            // instruction text
             TextView tvStep = new TextView(this);
             LinearLayout.LayoutParams stepLp = new LinearLayout.LayoutParams(
                     0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
@@ -161,7 +152,6 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                             View row = LayoutInflater.from(this)
                                     .inflate(R.layout.item_routine_set, ll, false);
 
-                            // alternamos el fondo: filas pares (i+1)%2==0 blancas
                             if ((i + 1) % 2 == 0) {
                                 row.setBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
                             } else {

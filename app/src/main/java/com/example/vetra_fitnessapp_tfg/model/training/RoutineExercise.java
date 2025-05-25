@@ -9,7 +9,6 @@ public class RoutineExercise implements Serializable {
     private Exercise exercise;
     private List<ExerciseSet> sets = new ArrayList<>();
 
-    // Constructor vacío para Firestore / Serializable
     public RoutineExercise() { }
 
     public RoutineExercise(Exercise exercise) {

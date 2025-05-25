@@ -114,18 +114,15 @@ public class ProfileFragment extends Fragment {
     private void loadUserProfile() {
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
-                    // 1) foto (sin cifrar)
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
 
-                    // 2) username descifrado
                     String encryptedUser = doc.getString("username");
                     String decryptedUser = keyStore.decrypt(encryptedUser);
                     binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
 
-                    // 3) el resto (edad, peso...) igual que antes
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
@@ -295,18 +292,15 @@ public class ProfileFragment extends Fragment {
 
         Map<String,Object> updates = new HashMap<>();
 
-        // 1) CIFRAMOS el username antes de guardarlo
         String plainUser = binding.editTextUserName.getText().toString().trim();
         String encryptedUser = keyStore.encrypt(plainUser);
         updates.put("username", encryptedUser);
 
-        // 2) Campos no sensibles
         updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
         updates.put("height", Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
         updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
-        // 3) Foto (igual que antes)
         if (pendingImageUri != null) {
             try {
                 byte[] compressed = compressImage(pendingImageUri);
@@ -351,11 +345,9 @@ public class ProfileFragment extends Fragment {
         db.collection("users").document(user.getUid())
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    // Si marca borrado: lo hacemos también en Storage
                     if (shouldDeletePhoto && photoRef != null) {
                         photoRef.delete();
                     }
-                    // Si el Fragment sigue activo, actualizamos UI y toast
                     if (isAdded()) {
                         binding.buttonSaveChanges.setEnabled(true);
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show();
@@ -372,7 +364,6 @@ public class ProfileFragment extends Fragment {
     }
 
     private void deleteProfilePhoto() {
-        // Marcamos para borrar al guardar, actualizamos UI
         shouldDeletePhoto = true;
         pendingImageUri = null;
         binding.profileImage.setImageResource(R.drawable.ic_profile_picture);
@@ -430,7 +421,6 @@ public class ProfileFragment extends Fragment {
                 requireContext().getContentResolver(), uri
         );
 
-        // Aplica corrección de orientación
         Bitmap rotated = rotateImageIfRequired(original, uri);
 
         int targetWidth = 800;

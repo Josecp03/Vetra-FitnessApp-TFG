@@ -3,8 +3,8 @@ package com.example.vetra_fitnessapp_tfg;
 import android.content.pm.PackageManager;
 
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;        // ← nuevo
-import androidx.core.app.NotificationManagerCompat; // ← nuevo
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -13,11 +13,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
-        // Si viene payload de "notification", lo mostramos:
         RemoteMessage.Notification notif = message.getNotification();
         if (notif != null) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "mi_canal_por_defecto")
-                    .setSmallIcon(R.drawable.logo_vetra_white)   // pon aquí tu icono de notificación
+                    .setSmallIcon(R.drawable.logo_vetra_white)
                     .setContentTitle(notif.getTitle())
                     .setContentText(notif.getBody())
                     .setAutoCancel(true);
@@ -33,6 +32,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         super.onNewToken(token);
-        // Aquí puedes enviar el token a tu servidor si lo necesitas
+
     }
 }

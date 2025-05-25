@@ -55,19 +55,16 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         tvHeader = binding.tvHeader;
 
-        // 1) RecyclerView: al pulsar '+', devolvemos el ejercicio y cerramos
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseAdapter(
                 new ArrayList<>(),
                 exercise -> {
-                    // devolvemos el ejercicio elegido
                     Intent data = new Intent();
                     data.putExtra("selected_exercise", exercise);
                     setResult(RESULT_OK, data);
                     finish();
                 },
                 exercise -> {
-                    // detalle de ejercicio
                     Intent i = new Intent(this, ExerciseDetailActivity.class);
                     i.putExtra("exercise", exercise);
                     startActivity(i);
@@ -75,7 +72,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
         binding.rvPopularExercises.setAdapter(adapter);
 
-        // 2) Inicializamos vistas de filtros
         tvOptionMuscles    = binding.tvOptionMuscles;
         optionMuscles      = binding.optionMuscles;
         tvOptionEquipment  = binding.tvOptionEquipment;
@@ -85,10 +81,8 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionMuscles   .setIncludeFontPadding(false);
         tvOptionEquipment .setIncludeFontPadding(false);
 
-        // 3) Pintamos estado inicial
         refreshAllFilters();
 
-        // 4) Abrir selector músculos
         optionMuscles.setOnClickListener(v -> showSelectorDialog(
                 "muscle",
                 controller::loadTargetList,
@@ -99,7 +93,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                 }
         ));
 
-        // 5) Abrir selector equipamiento
         optionEquipment.setOnClickListener(v -> showSelectorDialog(
                 "equipment",
                 controller::loadEquipmentList,
@@ -110,22 +103,17 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                 }
         ));
 
-        // 6) Botón buscar: recarga según filtros
         optionSearch.setOnClickListener(v -> doSearch());
 
-        // 7) Botón atrás
         binding.buttonBack.setOnClickListener(v -> finish());
 
-        // 8) Carga inicial: 25 ejercicios populares
         controller.loadPopularExercises(
                 25, 0,
                 updateAdapterCallback()
         );
     }
 
-    /** Refreshes filter buttons and labels */
     private void refreshAllFilters() {
-        // Muscle filter
         optionMuscles.setBackgroundResource(
                 selectedMuscle.equals("All the muscles")
                         ? R.drawable.gender_selector_background
@@ -134,7 +122,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionMuscles.setText(selectedMuscle);
         tvOptionMuscles.setTextColor(Color.BLACK);
 
-        // Equipment filter
         optionEquipment.setBackgroundResource(
                 selectedEquipment.equals("All the equipment")
                         ? R.drawable.gender_selector_background
@@ -144,7 +131,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionEquipment.setTextColor(Color.BLACK);
     }
 
-    /** General callback to update the RecyclerView adapter */
     private Callback<List<Exercise>> updateAdapterCallback() {
         return new Callback<List<Exercise>>() {
             @Override
@@ -162,7 +148,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         };
     }
 
-    /** Performs search based on selected filters */
     private void doSearch() {
 
         updateHeaderText();
@@ -171,13 +156,11 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         boolean allEquip   = selectedEquipment.equals("All the equipment");
 
         if (allMuscles && allEquip) {
-            // Show popular
             controller.loadPopularExercises(
                     25, 0, updateAdapterCallback()
             );
         }
         else if (!allMuscles && allEquip) {
-            // Filter by muscle
             controller.loadExercisesByTarget(
                     selectedMuscle.toLowerCase(),
                     Integer.MAX_VALUE, 0,
@@ -185,7 +168,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             );
         }
         else if (allMuscles && !allEquip) {
-            // Filter by equipment
             String eq = selectedEquipment.toLowerCase().replace(" ", "%20");
             controller.loadExercisesByEquipment(
                     eq, Integer.MAX_VALUE, 0,
@@ -193,7 +175,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             );
         }
         else {
-            // Both filters: fetch by muscle, then filter by equipment locally
             controller.loadExercisesByTarget(
                     selectedMuscle.toLowerCase(),
                     Integer.MAX_VALUE, 0,
@@ -229,7 +210,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         View dlg = getLayoutInflater()
                 .inflate(R.layout.dialog_exercise_selector, null, false);
 
-        // Dynamic title
         TextView tvTitle = dlg.findViewById(R.id.textDialogMuscleGroupTitle);
         tvTitle.setIncludeFontPadding(false);
         tvTitle.setText(

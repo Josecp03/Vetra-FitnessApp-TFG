@@ -28,17 +28,14 @@ public class WorkoutFragment extends Fragment {
     public View onCreateView(LayoutInflater inf, ViewGroup cont, Bundle b) {
         binding = FragmentWorkoutBinding.inflate(inf, cont, false);
 
-        // 1) Botón “Add New Routine”
         binding.buttonAddRoutine.setOnClickListener(v ->
                 startActivity(new Intent(requireActivity(), NewRoutineActivity.class))
         );
 
-        // 2) RecyclerView de mis rutinas
         adapter = new RoutineAdapter(routines);
         binding.rvMyRoutines.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMyRoutines.setAdapter(adapter);
 
-        // 3) Cargar desde Firestore
         controller.loadUserRoutines(list -> {
             routines.clear();
             routines.addAll(list);

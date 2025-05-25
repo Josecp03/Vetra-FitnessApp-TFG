@@ -42,17 +42,14 @@ public class StartRoutineAdapter
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
 
-        // 1) Cabecera: thumbnail + nombre
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
         h.tvName.setText(re.getExercise().getName());
 
-        // 2) Limpiamos contenedor de sets
         h.llSets.removeAllViews();
 
-        // 3) Para cada set…
         for (ExerciseSet s : re.getSets()) {
             View row = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_start_routine_set, h.llSets, false);
@@ -68,7 +65,6 @@ public class StartRoutineAdapter
             etR.setHint(String.valueOf(s.getReps()));
             etR.setText("");
 
-            // Actualizar modelo al perder foco
             etW.setOnFocusChangeListener((v, hasFocus) -> {
                 if (!hasFocus) {
                     String text = etW.getText().toString();
@@ -82,13 +78,11 @@ public class StartRoutineAdapter
                 }
             });
 
-            // 1) Filas pares → fondo blanco / impares → transparente
             int baseBg = (s.getSetNumber() % 2 == 0)
                     ? Color.WHITE
                     : Color.TRANSPARENT;
             row.setBackgroundColor(baseBg);
 
-            // 2) Toggle checkbox + marcar fila + persistir done en el modelo
             ivC.setOnClickListener(v -> {
                 boolean done = ivC.isSelected();
                 ivC.setSelected(!done);
@@ -103,7 +97,6 @@ public class StartRoutineAdapter
             h.llSets.addView(row);
         }
 
-        // 4) Click sobre todo el ítem → detalle completo
         h.headerContainer.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());

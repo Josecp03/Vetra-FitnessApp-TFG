@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -16,21 +15,10 @@ import androidx.navigation.ui.NavigationUI;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
-
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.Objects;
-
-
-
-import android.content.Intent;
-import android.net.Uri;
-
-import android.provider.Settings;
 import android.widget.Toast;
-
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 

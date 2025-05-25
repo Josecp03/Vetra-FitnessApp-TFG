@@ -2,7 +2,6 @@ package com.example.vetra_fitnessapp_tfg.view.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +26,6 @@ import android.net.Uri;
 
 public class UserSetUpActivity extends AppCompatActivity {
 
-    // Atributos
     private ActivityUserSetUpBinding binding;
     private int currentStep = 0;
     private final Fragment[] steps = new Fragment[] {

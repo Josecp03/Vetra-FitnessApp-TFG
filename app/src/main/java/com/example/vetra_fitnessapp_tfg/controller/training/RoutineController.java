@@ -1,4 +1,3 @@
-// com/example/vetra_fitnessapp_tfg/controller/training/RoutineController.java
 package com.example.vetra_fitnessapp_tfg.controller.training;
 
 import com.example.vetra_fitnessapp_tfg.model.training.Exercise;

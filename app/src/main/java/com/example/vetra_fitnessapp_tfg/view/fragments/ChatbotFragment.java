@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
@@ -40,18 +39,11 @@ public class ChatbotFragment extends Fragment {
     private KeyStoreManager keyStore;
     private FirebaseFirestore db;
     private String uid;
-
-    // Datos del usuario
     private int age, height, calorieGoal;
     private double weight;
     private String gender;
-
-    // Para cancelar peticiones si salimos
     private Call currentCall;
-    // Burbuja de “Loading…”
     private TextView loadingBubble;
-
-    // Límite leído de Firestore
     private long chatCount = 0;
 
     @Override
@@ -65,7 +57,6 @@ public class ChatbotFragment extends Fragment {
         db        = FirebaseFirestore.getInstance();
         uid       = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // ocultamos la UI de chat hasta que haya interacción
         binding.scrollMessages.setVisibility(View.GONE);
         binding.messagesContainer.setVisibility(View.GONE);
 
@@ -78,7 +69,6 @@ public class ChatbotFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // cancelar la llamada si estamos fuera
         if (currentCall != null && !currentCall.isCanceled()) {
             currentCall.cancel();
         }
@@ -89,14 +79,12 @@ public class ChatbotFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists()) return;
-                    // datos básicos
                     age         = doc.getLong("age").intValue();
                     height      = doc.getLong("height").intValue();
                     weight      = doc.getDouble("weight");
                     calorieGoal = doc.getLong("user_calories").intValue();
                     gender      = keyStore.decrypt(doc.getString("gender"));
 
-                    // leemos el contador actual
                     chatCount = doc.contains("limit_chat") ? doc.getLong("limit_chat") : 0L;
                     checkLimit(chatCount);
                 })
@@ -137,16 +125,13 @@ public class ChatbotFragment extends Fragment {
     private void sendMessage(String msg) {
         if (TextUtils.isEmpty(msg) || chatCount >= 100) return;
 
-        // mostramos el mensaje del usuario
         binding.suggestionsContainer.setVisibility(View.GONE);
         binding.scrollMessages.setVisibility(View.VISIBLE);
         binding.messagesContainer.setVisibility(View.VISIBLE);
         showMessageBubble(msg, Gravity.END, R.drawable.user_bubble_background, Color.WHITE);
 
-        // bloqueamos UI y mostramos “Loading…”
         startLoading();
 
-        // disparar la petición al API
         currentCall = apiClient.sendMessage(msg, new ChatApiClient.Callback() {
             @Override public void onSuccess(String response) {
                 if (!isAdded()) return;
@@ -179,19 +164,14 @@ public class ChatbotFragment extends Fragment {
         });
     }
 
-    /**
-     * Habilita o deshabilita el chat según el contador.
-     */
+
     private void checkLimit(long count) {
         boolean blocked = count >= 100;
-        // EditText
         binding.etMessage.setEnabled(!blocked);
         binding.etMessage.setHint(blocked
                 ? "Request limit reached"
                 : "Type a message to VetraGPT");
-        // Botón de enviar
         binding.btnSend.setEnabled(!blocked);
-        // (opcional) también podrías desactivar sugerencias:
         setSuggestionsEnabled(!blocked);
     }
 
@@ -309,7 +289,6 @@ public class ChatbotFragment extends Fragment {
             binding.scrollMessages.setVisibility(View.GONE);
             binding.messagesContainer.setVisibility(View.GONE);
             binding.suggestionsContainer.setVisibility(View.VISIBLE);
-            // Restablecer hint y estado sólo si aún no llegó al límite
             checkLimit(chatCount);
             dlg.dismiss();
         });

@@ -41,19 +41,15 @@ public class NewRoutineActivity extends AppCompatActivity {
         binding = ActivityNewRoutineBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Firebase
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // Indicamos que hay rutina en progreso
         Prefs.setRoutineInProgress(this, true);
 
-        // RecyclerView
         binding.rvRoutineExercises.setLayoutManager(new LinearLayoutManager(this));
         routineAdapter = new RoutineExerciseAdapter(exercises);
         binding.rvRoutineExercises.setAdapter(routineAdapter);
 
-        // “Add exercise”
         binding.buttonAddExercise.setOnClickListener(v -> {
             if (exercises.size() >= 20) {
                 Toast.makeText(this, "You can add up to 20 exercises", Toast.LENGTH_SHORT).show();
@@ -64,7 +60,6 @@ public class NewRoutineActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
         });
 
-        // Guardar / descartar
         binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
         binding.buttonDiscard.setOnClickListener(v -> {
             Prefs.setRoutineInProgress(this, false);
@@ -86,7 +81,6 @@ public class NewRoutineActivity extends AppCompatActivity {
             }
 
             String uid = auth.getCurrentUser().getUid();
-            // Construir documento de rutina sin user_id (se guarda en subcolección)
             Map<String,Object> routine = new HashMap<>();
             routine.put("routine_name", name);
 
@@ -98,7 +92,6 @@ public class NewRoutineActivity extends AppCompatActivity {
                 exMap.put("exercise_photo_url", re.getExercise().getGifUrl());
                 exMap.put("muscle", toCamelCase(re.getExercise().getTarget()));
 
-                // Campos adicionales
                 exMap.put("bodyPart",        re.getExercise().getBodyPart());
                 exMap.put("equipment",       re.getExercise().getEquipment());
                 exMap.put("secondaryMuscles", re.getExercise().getSecondaryMuscles());
@@ -117,7 +110,6 @@ public class NewRoutineActivity extends AppCompatActivity {
             }
             routine.put("exercises", exList);
 
-            // Guardar en Firestore bajo users/{uid}/routines
             db.collection("users")
                     .document(uid)
                     .collection("routines")
@@ -140,7 +132,7 @@ public class NewRoutineActivity extends AppCompatActivity {
 
     @SuppressLint("MissingSuperCall")
     @Override
-    public void onBackPressed() { /* bloqueado durante creación */ }
+    public void onBackPressed() { }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

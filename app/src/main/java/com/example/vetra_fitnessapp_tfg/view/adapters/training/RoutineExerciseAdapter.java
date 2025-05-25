@@ -47,17 +47,14 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         String rawName     = re.getExercise().getName();
         String displayName = toCamelCase(rawName);
 
-        // 1) Cabecera: imagen + nombre en CamelCase
         h.tvName.setText(displayName);
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
 
-        // 2) Limpia contenedor de series
         h.llSets.removeAllViews();
 
-        // 3) Fila de encabezado
         View header = LayoutInflater.from(h.llSets.getContext())
                 .inflate(R.layout.item_routine_set, h.llSets, false);
         TextView tvSetH  = header.findViewById(R.id.tvSetNumber);
@@ -68,7 +65,6 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         tvRepsH.setText("Reps");
         h.llSets.addView(header);
 
-        // 4) Series existentes
         for (ExerciseSet set : re.getSets()) {
             View row = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_routine_set, h.llSets, false);
@@ -80,14 +76,12 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             tvW.setText(String.valueOf(set.getWeight()));
             tvR.setText(String.valueOf(set.getReps()));
 
-            // Fila par → fondo blanco
             if (set.getSetNumber() % 2 == 0) {
                 row.setBackgroundColor(Color.WHITE);
             }
             h.llSets.addView(row);
         }
 
-        // 5) + Add set con límite
         h.btnAddSet.setOnClickListener(v -> {
             if (re.getSets().size() < MAX_SETS) {
                 re.addSet();
@@ -101,17 +95,14 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             }
         });
 
-        // 6) Más opciones → diálogo eliminar
         h.btnMore.setOnClickListener(v ->
                 showDeleteDialog(h, displayName, pos)
         );
-        // 7) Long‑press también abre diálogo eliminar
         h.itemView.setOnLongClickListener(v -> {
             showDeleteDialog(h, displayName, pos);
             return true;
         });
 
-        // 8) Click sobre todo el ítem → abre ExerciseDetailActivity
         h.itemView.setOnClickListener(v -> {
             Intent i = new Intent(
                     h.itemView.getContext(),
@@ -126,7 +117,6 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         return items.size();
     }
 
-    /** Convierte texto a CamelCase. */
     private String toCamelCase(String input) {
         String[] parts = input.split(" ");
         StringBuilder sb = new StringBuilder();
@@ -145,7 +135,6 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         return sb.toString();
     }
 
-    /** Muestra diálogo para confirmar borrado. */
     private void showDeleteDialog(VH h, String displayName, int pos) {
         View dlg = LayoutInflater.from(h.itemView.getContext())
                 .inflate(R.layout.dialog_delete_exercise, null);
