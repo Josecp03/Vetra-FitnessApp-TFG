@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -41,9 +42,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     private String selectedMuscle = "All the muscles";
     private String selectedEquipment = "All the equipment";
 
-    private TextView tvOptionMuscles, tvOptionEquipment;
+    private TextView tvOptionMuscles, tvOptionEquipment, tvHeader;
     private LinearLayout optionMuscles, optionEquipment, optionSearch;
-    private TextView tvHeader;
+    private LinearLayout placeholderContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         controller = new ExerciseSelectionController();
 
-        tvHeader = binding.tvHeader;
+        // Vínculos a vistas
+        tvHeader            = binding.tvHeader;
+        placeholderContainer = binding.placeholderContainer; // FrameLayout en tu XML
 
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseAdapter(
@@ -72,14 +75,18 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
         binding.rvPopularExercises.setAdapter(adapter);
 
+        // Mostrar placeholder inicialmente
+        showLoadingPlaceholder(true);
+
+        // Filtros
         tvOptionMuscles    = binding.tvOptionMuscles;
         optionMuscles      = binding.optionMuscles;
         tvOptionEquipment  = binding.tvOptionEquipment;
         optionEquipment    = binding.optionEquipment;
         optionSearch       = binding.optionSearch;
 
-        tvOptionMuscles   .setIncludeFontPadding(false);
-        tvOptionEquipment .setIncludeFontPadding(false);
+        tvOptionMuscles.setIncludeFontPadding(false);
+        tvOptionEquipment.setIncludeFontPadding(false);
 
         refreshAllFilters();
 
@@ -103,13 +110,16 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                 }
         ));
 
-        optionSearch.setOnClickListener(v -> doSearch());
+        optionSearch.setOnClickListener(v -> {
+            doSearch();
+        });
 
         binding.buttonBack.setOnClickListener(v -> finish());
 
+        // Carga inicial de ejercicios populares
         controller.loadPopularExercises(
                 25, 0,
-                updateAdapterCallback()
+                wrapCallback(updateAdapterCallback())
         );
     }
 
@@ -131,6 +141,61 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionEquipment.setTextColor(Color.BLACK);
     }
 
+    private void doSearch() {
+        updateHeaderText();
+        showLoadingPlaceholder(true);
+
+        boolean allMuscles = selectedMuscle.equals("All the muscles");
+        boolean allEquip   = selectedEquipment.equals("All the equipment");
+
+        if (allMuscles && allEquip) {
+            controller.loadPopularExercises(
+                    25, 0,
+                    wrapCallback(updateAdapterCallback())
+            );
+        }
+        else if (!allMuscles && allEquip) {
+            controller.loadExercisesByTarget(
+                    selectedMuscle.toLowerCase(),
+                    Integer.MAX_VALUE, 0,
+                    wrapCallback(updateAdapterCallback())
+            );
+        }
+        else if (allMuscles && !allEquip) {
+            String eq = selectedEquipment.toLowerCase().replace(" ", "%20");
+            controller.loadExercisesByEquipment(
+                    eq, Integer.MAX_VALUE, 0,
+                    wrapCallback(updateAdapterCallback())
+            );
+        }
+        else {
+            controller.loadExercisesByTarget(
+                    selectedMuscle.toLowerCase(),
+                    Integer.MAX_VALUE, 0,
+                    wrapCallback(new Callback<List<Exercise>>() {
+                        @Override
+                        public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
+                            if (res.isSuccessful() && res.body() != null) {
+                                List<Exercise> filtered = new ArrayList<>();
+                                for (Exercise ex : res.body()) {
+                                    if (ex.getEquipment().equalsIgnoreCase(selectedEquipment)) {
+                                        filtered.add(ex);
+                                    }
+                                }
+                                adapter.getItems().clear();
+                                adapter.getItems().addAll(filtered);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<List<Exercise>> call, Throwable t) {
+                            Log.e("ExerciseSel", "Error loading", t);
+                        }
+                    })
+            );
+        }
+    }
+
     private Callback<List<Exercise>> updateAdapterCallback() {
         return new Callback<List<Exercise>>() {
             @Override
@@ -148,56 +213,35 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         };
     }
 
-    private void doSearch() {
+    private Callback<List<Exercise>> wrapCallback(Callback<List<Exercise>> inner) {
+        return new Callback<List<Exercise>>() {
+            @Override
+            public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
+                showLoadingPlaceholder(false);
+                inner.onResponse(call, res);
+            }
+            @Override
+            public void onFailure(Call<List<Exercise>> call, Throwable t) {
+                showLoadingPlaceholder(false);
+                inner.onFailure(call, t);
+            }
+        };
+    }
 
-        updateHeaderText();
-
-        boolean allMuscles = selectedMuscle.equals("All the muscles");
-        boolean allEquip   = selectedEquipment.equals("All the equipment");
-
-        if (allMuscles && allEquip) {
-            controller.loadPopularExercises(
-                    25, 0, updateAdapterCallback()
-            );
-        }
-        else if (!allMuscles && allEquip) {
-            controller.loadExercisesByTarget(
-                    selectedMuscle.toLowerCase(),
-                    Integer.MAX_VALUE, 0,
-                    updateAdapterCallback()
-            );
-        }
-        else if (allMuscles && !allEquip) {
-            String eq = selectedEquipment.toLowerCase().replace(" ", "%20");
-            controller.loadExercisesByEquipment(
-                    eq, Integer.MAX_VALUE, 0,
-                    updateAdapterCallback()
-            );
-        }
-        else {
-            controller.loadExercisesByTarget(
-                    selectedMuscle.toLowerCase(),
-                    Integer.MAX_VALUE, 0,
-                    new Callback<List<Exercise>>() {
-                        @Override
-                        public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
-                            if (res.isSuccessful() && res.body() != null) {
-                                List<Exercise> filtered = new ArrayList<>();
-                                for (Exercise ex : res.body()) {
-                                    if (ex.getEquipment().equalsIgnoreCase(selectedEquipment)) {
-                                        filtered.add(ex);
-                                    }
-                                }
-                                adapter.getItems().clear();
-                                adapter.getItems().addAll(filtered);
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                        @Override public void onFailure(Call<List<Exercise>> call, Throwable t) {
-                            Log.e("ExerciseSel", "Error loading", t);
-                        }
-                    }
-            );
+    private void showLoadingPlaceholder(boolean show) {
+        placeholderContainer.removeAllViews();
+        if (show) {
+            LayoutInflater inflater = LayoutInflater.from(this);
+            int count = 6; // número de placeholders
+            for (int i = 0; i < count; i++) {
+                View ph = inflater.inflate(R.layout.placeholder_exercise_item, placeholderContainer, false);
+                placeholderContainer.addView(ph);
+            }
+            binding.rvPopularExercises.setVisibility(View.GONE);
+            placeholderContainer.setVisibility(View.VISIBLE);
+        } else {
+            binding.rvPopularExercises.setVisibility(View.VISIBLE);
+            placeholderContainer.setVisibility(View.GONE);
         }
     }
 
@@ -207,9 +251,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             String current,
             java.util.function.Consumer<String> onSelect
     ) {
-        View dlg = getLayoutInflater()
-                .inflate(R.layout.dialog_exercise_selector, null, false);
-
+        View dlg = getLayoutInflater().inflate(R.layout.dialog_exercise_selector, null, false);
         TextView tvTitle = dlg.findViewById(R.id.textDialogMuscleGroupTitle);
         tvTitle.setIncludeFontPadding(false);
         tvTitle.setText(
@@ -218,20 +260,18 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                         : R.string.equipment
         );
 
-        BottomSheetDialog sheet = new BottomSheetDialog(
-                this, R.style.BottomSheetDialogTheme);
+        BottomSheetDialog sheet = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
         sheet.setContentView(dlg);
-        Objects.requireNonNull(sheet.getWindow())
-                .setBackgroundDrawableResource(android.R.color.transparent);
+        Objects.requireNonNull(sheet.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
 
         LinearLayout ll = dlg.findViewById(R.id.llTargets);
         sheet.setCancelable(false);
 
         List<MaterialButton> btnList = new ArrayList<>();
-        int selBg = getColor(R.color.white);
-        int selText = getColor(R.color.dark_gray);
-        int unselBg = getColor(R.color.dark_gray);
-        int unselText = getColor(R.color.white);
+        int selBg    = getColor(R.color.white);
+        int selText  = getColor(R.color.dark_gray);
+        int unselBg  = getColor(R.color.dark_gray);
+        int unselText= getColor(R.color.white);
 
         Typeface goldman = ResourcesCompat.getFont(this, R.font.goldman);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -240,13 +280,8 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
         lp.setMargins(0, 0, 0, dpToPx(8));
 
-        String allLabel = type.equals("muscle")
-                ? "All the muscles"
-                : "All the equipment";
-        MaterialButton allBtn = new MaterialButton(
-                this, null,
-                com.google.android.material.R.attr.materialButtonStyle
-        );
+        String allLabel = type.equals("muscle") ? "All the muscles" : "All the equipment";
+        MaterialButton allBtn = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle);
         allBtn.setLayoutParams(lp);
         allBtn.setText(allLabel);
         allBtn.setTypeface(goldman);
@@ -267,8 +302,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<String>> call, Response<List<String>> res) {
                 sheet.setCancelable(true);
-                if (!res.isSuccessful() || res.body() == null) {
-                    sheet.dismiss(); return; }
+                if (!res.isSuccessful() || res.body() == null) { sheet.dismiss(); return; }
                 for (String raw : res.body()) {
                     String label = raw.substring(0,1).toUpperCase() + raw.substring(1);
                     MaterialButton btn = new MaterialButton(
@@ -305,22 +339,18 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                 }
             }
             @Override public void onFailure(Call<List<String>> call, Throwable t) {
-                sheet.setCancelable(true); sheet.dismiss(); }
+                sheet.setCancelable(true);
+                sheet.dismiss();
+            }
         });
 
         sheet.setOnShowListener(d -> {
-            FrameLayout bs = sheet.findViewById(
-                    com.google.android.material.R.id.design_bottom_sheet);
-            BottomSheetBehavior.from(bs)
-                    .setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-            BottomSheetBehavior.from(bs)
-                    .setHalfExpandedRatio(0.6f);
-            BottomSheetBehavior.from(bs)
-                    .setDraggable(false);
-            BottomSheetBehavior.from(bs)
-                    .setHideable(false);
-            BottomSheetBehavior.from(bs)
-                    .setFitToContents(false);
+            FrameLayout bs = sheet.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            BottomSheetBehavior.from(bs).setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+            BottomSheetBehavior.from(bs).setHalfExpandedRatio(0.6f);
+            BottomSheetBehavior.from(bs).setDraggable(false);
+            BottomSheetBehavior.from(bs).setHideable(false);
+            BottomSheetBehavior.from(bs).setFitToContents(false);
         });
 
         sheet.show();
@@ -336,16 +366,12 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         if (allMuscles && allEquip) {
             tvHeader.setText(getString(R.string.popular_exercises));
-        }
-        else if (!allMuscles && allEquip) {
+        } else if (!allMuscles && allEquip) {
             tvHeader.setText("Exercises for " + selectedMuscle);
-        }
-        else if (allMuscles && !allEquip) {
+        } else if (allMuscles && !allEquip) {
             tvHeader.setText("Exercises with " + selectedEquipment);
-        }
-        else {
+        } else {
             tvHeader.setText("Exercises for " + selectedMuscle + " with " + selectedEquipment);
         }
     }
-
 }

@@ -145,6 +145,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
+    <LinearLayout
+        android:id="@+id/placeholderContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPopularExercises"
         android:layout_width="0dp"
