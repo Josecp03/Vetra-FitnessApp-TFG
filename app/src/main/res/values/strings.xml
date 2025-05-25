@@ -115,4 +115,5 @@
     <string name="you_can_make_up_to_100_requests_per_month_stay_mindful_and_make_each_one_count">You cannot make more than 100 requests per month. Stay mindful and make each one count!</string>
     <string name="icono_de_uso_limite">Icono de uso limite</string>
     <string name="usage_limit">Usage Limit</string>
+    <string name="no_exercises_found">No exercises found.</string>
 </resources>

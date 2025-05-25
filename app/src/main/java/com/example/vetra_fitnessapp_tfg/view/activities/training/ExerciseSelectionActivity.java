@@ -45,6 +45,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     private TextView tvOptionMuscles, tvOptionEquipment, tvHeader;
     private LinearLayout optionMuscles, optionEquipment, optionSearch;
     private LinearLayout placeholderContainer;
+    private TextView tvNoExercises;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         // Vínculos a vistas
         tvHeader            = binding.tvHeader;
         placeholderContainer = binding.placeholderContainer; // FrameLayout en tu XML
+        tvNoExercises       = binding.tvNoExercises;
 
         binding.rvPopularExercises.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ExerciseAdapter(
@@ -185,11 +187,25 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                                 adapter.getItems().clear();
                                 adapter.getItems().addAll(filtered);
                                 adapter.notifyDataSetChanged();
+
+                                // **aquí** comprobamos si está vacío o no:
+                                if (filtered.isEmpty()) {
+                                    tvNoExercises.setVisibility(View.VISIBLE);
+                                    binding.rvPopularExercises.setVisibility(View.GONE);
+                                } else {
+                                    tvNoExercises.setVisibility(View.GONE);
+                                    binding.rvPopularExercises.setVisibility(View.VISIBLE);
+                                }
+                            } else {
+                                // fallo o body null: también mostramos el mensaje
+                                tvNoExercises.setVisibility(View.VISIBLE);
+                                binding.rvPopularExercises.setVisibility(View.GONE);
                             }
                         }
-                        @Override
-                        public void onFailure(Call<List<Exercise>> call, Throwable t) {
+                        @Override public void onFailure(Call<List<Exercise>> call, Throwable t) {
                             Log.e("ExerciseSel", "Error loading", t);
+                            tvNoExercises.setVisibility(View.VISIBLE);
+                            binding.rvPopularExercises.setVisibility(View.GONE);
                         }
                     })
             );
@@ -200,14 +216,31 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         return new Callback<List<Exercise>>() {
             @Override
             public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
+                binding.placeholderContainer.setVisibility(View.GONE);
                 if (res.isSuccessful() && res.body() != null) {
+                    List<Exercise> list = res.body();
                     adapter.getItems().clear();
-                    adapter.getItems().addAll(res.body());
+                    adapter.getItems().addAll(list);
                     adapter.notifyDataSetChanged();
+
+                    if (list.isEmpty()) {
+                        tvNoExercises.setVisibility(View.VISIBLE);
+                        binding.rvPopularExercises.setVisibility(View.GONE);
+                    } else {
+                        tvNoExercises.setVisibility(View.GONE);
+                        binding.rvPopularExercises.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    // fallo o body null
+                    tvNoExercises.setVisibility(View.VISIBLE);
+                    binding.rvPopularExercises.setVisibility(View.GONE);
                 }
             }
             @Override
             public void onFailure(Call<List<Exercise>> call, Throwable t) {
+                binding.placeholderContainer.setVisibility(View.GONE);
+                tvNoExercises.setVisibility(View.VISIBLE);
+                binding.rvPopularExercises.setVisibility(View.GONE);
                 Log.e("ExerciseSel", "Error loading", t);
             }
         };
