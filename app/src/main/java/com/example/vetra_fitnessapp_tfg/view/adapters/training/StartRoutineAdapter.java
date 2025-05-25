@@ -63,8 +63,10 @@ public class StartRoutineAdapter
             ImageView ivC    = row.findViewById(R.id.ivCheck);
 
             tvNum.setText(String.valueOf(s.getSetNumber()));
-            etW.setText(String.valueOf(s.getWeight()));
-            etR.setText(String.valueOf(s.getReps()));
+            etW.setHint(String.valueOf(s.getWeight()));
+            etW.setText("");
+            etR.setHint(String.valueOf(s.getReps()));
+            etR.setText("");
 
             // Actualizar modelo al perder foco
             etW.setOnFocusChangeListener((v, hasFocus) -> {
@@ -102,7 +104,7 @@ public class StartRoutineAdapter
         }
 
         // 4) Click sobre todo el ítem → detalle completo
-        h.itemView.setOnClickListener(v -> {
+        h.headerContainer.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
             v.getContext().startActivity(i);
@@ -118,12 +120,14 @@ public class StartRoutineAdapter
         ImageView    ivThumb;
         TextView     tvName;
         LinearLayout llSets;
+        View         headerContainer;
 
         VH(View item) {
             super(item);
             ivThumb = item.findViewById(R.id.ivThumb);
             tvName  = item.findViewById(R.id.tvName);
             llSets  = item.findViewById(R.id.llSets);
+            headerContainer = item.findViewById(R.id.headerContainer);
         }
     }
 }
