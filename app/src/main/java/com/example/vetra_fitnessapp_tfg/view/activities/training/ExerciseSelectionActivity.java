@@ -1,6 +1,7 @@
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -52,6 +53,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityExerciseSelectionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         controller = new ExerciseSelectionController();
 

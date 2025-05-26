@@ -2,6 +2,7 @@ package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -43,6 +44,7 @@ public class NewRoutineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNewRoutineBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
