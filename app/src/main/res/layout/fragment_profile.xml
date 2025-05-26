@@ -302,13 +302,11 @@
                     android:includeFontPadding="false"
                     android:text="@string/save_changes"
                     android:textAllCaps="false"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
-                    app:backgroundTint="@android:color/black"
+                    app:backgroundTint="@android:color/white"
                     app:cornerRadius="8dp"
-                    app:iconTint="@null"
-                    app:strokeColor="@android:color/black"
-                    app:strokeWidth="2dp" />
+                    app:iconTint="@null" />
 
                 <!-- Cerrar sesión -->
                 <com.google.android.material.button.MaterialButton
@@ -324,6 +322,32 @@
                     app:backgroundTint="@android:color/holo_red_dark"
                     app:cornerRadius="8dp"
                     app:iconTint="@null" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingHorizontal="40dp">
+
+                <!-- Borrar cuenta -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonDeleteAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:fontFamily="@font/goldman"
+                    android:includeFontPadding="false"
+                    android:text="@string/delete_account"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    app:backgroundTint="@android:color/black"
+                    app:cornerRadius="8dp"
+                    app:iconTint="@null" />
+
             </LinearLayout>
 
         </LinearLayout>

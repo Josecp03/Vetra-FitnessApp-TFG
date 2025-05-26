@@ -196,7 +196,7 @@ public class UserSetUpActivity extends AppCompatActivity {
         Map<String, Object> datos = new HashMap<>();
 
         // Guardar los datos en el mapa
-        datos.put("email", user.getEmail());
+        datos.put("email", keyStore.encrypt(user.getEmail()));
         datos.put("username", keyStore.encrypt(user.getDisplayName()));
         datos.put("real_name", keyStore.encrypt(firstName));
         datos.put("last_name", keyStore.encrypt(lastName));

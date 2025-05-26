@@ -34,13 +34,19 @@ import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
@@ -48,8 +54,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -102,6 +111,9 @@ public class ProfileFragment extends Fragment {
         binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
         binding.buttonSaveChanges.setOnClickListener(v -> saveProfileChanges());
 
+        binding.buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
+
+
         return view;
     }
 
@@ -110,6 +122,23 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         loadUserProfile();
     }
+
+    private void showDeleteAccountDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_account, null);
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
+        dialog.setContentView(dialogView);
+        Objects.requireNonNull(dialog.getWindow())
+                .setBackgroundDrawableResource(android.R.color.transparent);
+
+        MaterialButton btnConfirm = dialogView.findViewById(R.id.buttonDeleteAccountConfirm);
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            deleteUserAccountCascade();
+        });
+
+        dialog.show();
+    }
+
 
     private void loadUserProfile() {
         db.collection("users").document(user.getUid()).get()
@@ -439,6 +468,90 @@ public class ProfileFragment extends Fragment {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
+
+    private void deleteUserAccountCascade() {
+        ProgressDialog progress = new ProgressDialog(getContext());
+        progress.setMessage("Deleting your account…");
+        progress.setCancelable(false);
+        progress.show();
+
+        String uid = user.getUid();
+        DocumentReference userDoc = db.collection("users").document(uid);
+
+        // Eliminar subcolecciones y el documento principal
+        List<String> subCollections = Arrays.asList("exerciseHistory", "routines");
+        List<Task<?>> deleteTasks = new ArrayList<>();
+
+        // Primero, borramos cada documento de cada subcolección
+        for (String sub : subCollections) {
+            CollectionReference colRef = userDoc.collection(sub);
+            Task<QuerySnapshot> queryTask = colRef.get()
+                    .addOnSuccessListener(qs -> {
+                        for (DocumentSnapshot ds : qs.getDocuments()) {
+                            deleteTasks.add(ds.getReference().delete());
+                        }
+                    });
+            deleteTasks.add(queryTask);
+        }
+
+        // Cuando todas las tareas de borrado de subcolecciones estén lanzadas:
+        Tasks.whenAll(deleteTasks)
+                .addOnCompleteListener(t1 -> {
+                    // Ahora borramos el documento principal
+                    userDoc.delete()
+                            .addOnSuccessListener(aVoid -> {
+                                // Eliminar Storage
+                                deleteUserStorage(uid)
+                                        .addOnCompleteListener(t2 -> {
+                                            // Eliminar Auth
+                                            user.delete()
+                                                    .addOnCompleteListener(t3 -> {
+                                                        progress.dismiss();
+                                                        if (t3.isSuccessful()) {
+                                                            Intent intent = new Intent(requireActivity(), SignInActivity.class);
+                                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            requireActivity().finish();
+                                                        } else {
+                                                            Toast.makeText(getContext(),
+                                                                    "Error deleting account", Toast.LENGTH_LONG).show();
+                                                        }
+                                                    });
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                progress.dismiss();
+                                Toast.makeText(getContext(),
+                                        "Error deleting Firestore data" + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            });
+                });
+    }
+
+    private Task<Void> deleteUserStorage(String uid) {
+        // Referencia a la foto de perfil
+        StorageReference photoRef = storageRef.child("profile_photos/" + uid + ".jpg");
+        // Referencia a la carpeta de usuario
+        StorageReference userFolder = storageRef.child("users/" + uid);
+
+        // Borrar foto de perfil
+        Task<Void> deletePhoto = photoRef.delete();
+
+        // Listar y borrar el resto de ficheros
+        Task<ListResult> listTask = userFolder.listAll();
+        Task<Void> deleteContent = listTask.continueWithTask(task -> {
+            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+            List<Task<Void>> removes = new ArrayList<>();
+            for (StorageReference item : task.getResult().getItems()) {
+                removes.add(item.delete());
+            }
+            return Tasks.whenAll(removes);
+        });
+
+        // Esperar a foto + contenido
+        return Tasks.whenAll(deletePhoto, deleteContent);
+    }
+
 
 
 
