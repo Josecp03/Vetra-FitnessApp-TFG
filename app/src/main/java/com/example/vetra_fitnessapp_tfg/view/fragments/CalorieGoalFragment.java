@@ -29,25 +29,26 @@ public class CalorieGoalFragment extends Fragment implements StepValidator {
 
     @Override
     public boolean validateFields() {
+        String cStr = binding.editTextCalories.getText().toString().trim();
 
-        // Guardar los datos en variables temporales
-        String c = binding.editTextCalories.getText().toString().trim();
-
-        // Comprobar que los campos no estén vacíos
-        if (c.isEmpty()) {
+        if (cStr.isEmpty()) {
             Toast.makeText(getContext(), "Please complete all fields to continue", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Comprobar que sea una cantidad realista
-        if (Integer.parseInt(c) > 30000) {
-            Toast.makeText(getContext(), "Please enter a reasonable calorie amount", Toast.LENGTH_SHORT).show();
+        int calories = Integer.parseInt(cStr);
+
+        if (calories < 100) {
+            Toast.makeText(getContext(), "Minimum calorie goal is 100", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (calories > 30000) {
+            Toast.makeText(getContext(), "Please enter a reasonable calorie amount (≤30000)", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-
         return true;
-
     }
+
 
 }

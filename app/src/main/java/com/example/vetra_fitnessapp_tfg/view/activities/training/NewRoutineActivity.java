@@ -2,7 +2,9 @@ package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -19,6 +21,7 @@ import com.example.vetra_fitnessapp_tfg.model.training.RoutineExercise;
 import com.example.vetra_fitnessapp_tfg.utils.Prefs;
 import com.example.vetra_fitnessapp_tfg.view.adapters.training.RoutineExerciseAdapter;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class NewRoutineActivity extends AppCompatActivity {
     private ActivityNewRoutineBinding binding;
@@ -40,6 +44,7 @@ public class NewRoutineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityNewRoutineBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -60,11 +65,43 @@ public class NewRoutineActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
         });
 
-        binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
-        binding.buttonDiscard.setOnClickListener(v -> {
+        binding.buttonSave.setOnClickListener(v -> {
+            if (exercises.isEmpty()) {
+                Toast.makeText(
+                        this,
+                        "Add at least 1 exercise",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
+            showSaveRoutineDialog();
+        });
+        binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
+    }
+
+    private void showDiscardRoutineDialog() {
+        // Inflamos el layout de tu dialog_discard_routine.xml
+        View dialogView = getLayoutInflater()
+                .inflate(R.layout.dialog_discard_routine, null, false);
+
+        BottomSheetDialog bottomSheet = new BottomSheetDialog(
+                this, R.style.BottomSheetDialogTheme);
+        bottomSheet.setContentView(dialogView);
+        Objects.requireNonNull(bottomSheet.getWindow())
+                .setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Botón de confirmar descarte
+        MaterialButton btnConfirm = dialogView.findViewById(
+                R.id.buttonDiscardRoutineConfirm);
+        btnConfirm.setOnClickListener(v -> {
             Prefs.setRoutineInProgress(this, false);
+            bottomSheet.dismiss();
             finish();
         });
+
+        // Opcional: permitir cancelar tocando fuera o con back
+        bottomSheet.setCancelable(true);
+        bottomSheet.show();
     }
 
     private void showSaveRoutineDialog() {
@@ -132,7 +169,9 @@ public class NewRoutineActivity extends AppCompatActivity {
 
     @SuppressLint("MissingSuperCall")
     @Override
-    public void onBackPressed() { }
+    public void onBackPressed() {
+        showDiscardRoutineDialog();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

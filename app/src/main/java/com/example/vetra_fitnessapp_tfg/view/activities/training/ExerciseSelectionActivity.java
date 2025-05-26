@@ -1,6 +1,7 @@
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -52,6 +53,7 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityExerciseSelectionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         controller = new ExerciseSelectionController();
 
@@ -118,7 +120,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         binding.buttonBack.setOnClickListener(v -> finish());
 
-        // Carga inicial de ejercicios populares
         controller.loadPopularExercises(
                 25, 0,
                 wrapCallback(updateAdapterCallback())
@@ -188,7 +189,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                                 adapter.getItems().addAll(filtered);
                                 adapter.notifyDataSetChanged();
 
-                                // **aquí** comprobamos si está vacío o no:
                                 if (filtered.isEmpty()) {
                                     tvNoExercises.setVisibility(View.VISIBLE);
                                     binding.rvPopularExercises.setVisibility(View.GONE);
@@ -197,7 +197,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                                     binding.rvPopularExercises.setVisibility(View.VISIBLE);
                                 }
                             } else {
-                                // fallo o body null: también mostramos el mensaje
                                 tvNoExercises.setVisibility(View.VISIBLE);
                                 binding.rvPopularExercises.setVisibility(View.GONE);
                             }

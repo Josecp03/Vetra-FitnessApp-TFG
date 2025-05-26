@@ -2,6 +2,7 @@ package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class StartRoutineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         routine = (Routine) getIntent().getSerializableExtra(EXTRA_ROUTINE);
         if (routine == null) {
             startActivity(new Intent(this, StartupActivity.class)

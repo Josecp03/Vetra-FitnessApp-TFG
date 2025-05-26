@@ -1,5 +1,6 @@
 package com.example.vetra_fitnessapp_tfg.view.activities.training;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -32,6 +33,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         binding = ActivityExerciseDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

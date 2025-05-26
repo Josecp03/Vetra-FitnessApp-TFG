@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,9 +29,19 @@ public class WorkoutFragment extends Fragment {
     public View onCreateView(LayoutInflater inf, ViewGroup cont, Bundle b) {
         binding = FragmentWorkoutBinding.inflate(inf, cont, false);
 
-        binding.buttonAddRoutine.setOnClickListener(v ->
-                startActivity(new Intent(requireActivity(), NewRoutineActivity.class))
-        );
+        binding.buttonAddRoutine.setOnClickListener(v -> {
+            if (routines.size() >= 10) {
+                Toast.makeText(
+                        requireContext(),
+                        "Maximum 10 routines allowed",
+                        Toast.LENGTH_SHORT
+                ).show();
+            } else {
+                startActivity(
+                        new Intent(requireActivity(), NewRoutineActivity.class)
+                );
+            }
+        });
 
         adapter = new RoutineAdapter(routines);
         binding.rvMyRoutines.setLayoutManager(new LinearLayoutManager(requireContext()));

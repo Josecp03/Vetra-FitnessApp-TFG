@@ -78,7 +78,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:autofillHints=""
-                        android:background="@null"
                         android:cursorVisible="true"
                         android:fontFamily="@font/goldman"
                         android:hint="@string/username"
@@ -94,6 +93,9 @@
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
                         android:textSize="14sp"
+                        android:background="?android:attr/editTextBackground"
+                        android:backgroundTint="@android:color/black"
+                        android:backgroundTintMode="src_atop"
                         tools:ignore="LabelFor,TextFields" />
                 </LinearLayout>
 
@@ -126,10 +128,9 @@
                         android:id="@+id/editTextAge"
                         android:layout_width="48dp"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
-                        android:background="@null"
                         android:cursorVisible="true"
                         android:fontFamily="@font/goldman"
+                        android:autofillHints=""
                         android:hint="@string/_0"
                         android:inputType="number"
                         android:maxLength="3"
@@ -139,8 +140,20 @@
                         android:textColor="@android:color/black"
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
-                        android:textSize="14sp"
-                        tools:ignore="LabelFor,TextFields" />
+                        android:background="?android:attr/editTextBackground"
+                        android:backgroundTint="@android:color/black"
+                        android:backgroundTintMode="src_atop"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/goldman"
+                        android:text="years"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"/>
+
                 </LinearLayout>
 
                 <View
@@ -170,10 +183,10 @@
 
                     <EditText
                         android:id="@+id/editTextWeight"
-                        android:layout_width="60dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.37"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
-                        android:background="@null"
+                        android:background="?android:attr/editTextBackground"
                         android:cursorVisible="true"
                         android:fontFamily="@font/goldman"
                         android:hint="@string/_0"
@@ -185,8 +198,17 @@
                         android:textColor="@android:color/black"
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
-                        android:textSize="14sp"
-                        tools:ignore="LabelFor,TextFields" />
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/goldman"
+                        android:text="kg"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"/>
+
                 </LinearLayout>
 
                 <View
@@ -216,10 +238,10 @@
 
                     <EditText
                         android:id="@+id/editTextHeight"
-                        android:layout_width="48dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="0.35"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
-                        android:background="@null"
+                        android:background="?android:attr/editTextBackground"
                         android:cursorVisible="true"
                         android:fontFamily="@font/goldman"
                         android:hint="@string/_0"
@@ -231,8 +253,17 @@
                         android:textColor="@android:color/black"
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
-                        android:textSize="14sp"
-                        tools:ignore="LabelFor,TextFields" />
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/goldman"
+                        android:text="cm"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"/>
+
                 </LinearLayout>
 
                 <View
@@ -265,8 +296,7 @@
                         android:id="@+id/editTextCalorieGoal"
                         android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:autofillHints=""
-                        android:background="@null"
+                        android:background="?android:attr/editTextBackground"
                         android:cursorVisible="true"
                         android:fontFamily="@font/goldman"
                         android:hint="@string/_0"
@@ -278,8 +308,17 @@
                         android:textColor="@android:color/black"
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
-                        android:textSize="14sp"
-                        tools:ignore="LabelFor,TextFields" />
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/goldman"
+                        android:text="kcal"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"/>
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -327,9 +366,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
                 android:gravity="center"
+                android:orientation="horizontal"
                 android:paddingHorizontal="40dp">
 
                 <!-- Borrar cuenta -->
