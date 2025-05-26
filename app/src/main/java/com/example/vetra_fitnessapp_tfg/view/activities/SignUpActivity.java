@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -36,6 +37,8 @@ public class SignUpActivity extends AppCompatActivity {
                     new ActivityResultContracts.StartActivityForResult(),
                     this::handleGoogleSignInResult
             );
+    private boolean hasNavigated = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,37 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (hasNavigated) return;
+
+        FirebaseUser current = mAuth.getCurrentUser();
+        if (current != null) {
+            current.reload().addOnCompleteListener(t -> {
+                if (current.isEmailVerified()) {
+                    hasNavigated = true;
+                    navigateToUserSetUpActivity();
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (hasNavigated) return;
+        FirebaseUser current = mAuth.getCurrentUser();
+        if (current != null) {
+            current.reload().addOnCompleteListener(t -> {
+                if (current.isEmailVerified()) {
+                    hasNavigated = true;
+                    navigateToUserSetUpActivity();
+                }
+            });
+        }
+    }
+
     private void signUpWithEmail() {
 
         // Obtener los valores de los campos de texto
@@ -104,28 +138,64 @@ public class SignUpActivity extends AppCompatActivity {
         // Registrar con Firebase
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
-
-                        // Obtener el usuairo actual
+                        // Nueva cuenta
                         FirebaseUser user = mAuth.getCurrentUser();
-
-                        // Actualizar el perfil del usuario
                         UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(username)
-                                .build();
-
-                        // Navegar a la actividad específica cuando se complete la actualización de perfil
-                        user.updateProfile(req).addOnCompleteListener(uTask -> navigateToUserSetUpActivity());
-
+                                .setDisplayName(username).build();
+                        user.updateProfile(req).addOnCompleteListener(u -> {
+                            user.sendEmailVerification().addOnCompleteListener(v -> {
+                                if (v.isSuccessful()) {
+                                    Toast.makeText(
+                                            this,
+                                            "Verification email sent",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                } else {
+                                    Toast.makeText(
+                                            this,
+                                            "Failed to send verification email",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                }
+                            });
+                        });
                     } else {
-
-                        // Manejar errores de autenticación
-                        Toast.makeText(this, "Account already registered. Use another provider", Toast.LENGTH_SHORT).show();
-
+                        Exception e = task.getException();
+                        if (e instanceof FirebaseAuthUserCollisionException) {
+                            // Ya existía: intentar sign-in para refrescar estado
+                            mAuth.signInWithEmailAndPassword(email, pass)
+                                    .addOnCompleteListener(this, signInTask -> {
+                                        if (signInTask.isSuccessful()) {
+                                            FirebaseUser user = mAuth.getCurrentUser();
+                                            user.reload().addOnCompleteListener(r -> {
+                                                if (user.isEmailVerified()) {
+                                                    hasNavigated = true;
+                                                    navigateToUserSetUpActivity();
+                                                } else {
+                                                    Toast.makeText(
+                                                            this,
+                                                            "Account exists. Please verify your email.",
+                                                            Toast.LENGTH_SHORT
+                                                    ).show();
+                                                }
+                                            });
+                                        } else {
+                                            Toast.makeText(
+                                                    this,
+                                                    "Account exists. Please sign in.",
+                                                    Toast.LENGTH_SHORT
+                                            ).show();
+                                        }
+                                    });
+                        } else {
+                            Toast.makeText(
+                                    this,
+                                    "Error registering: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
                     }
-
                 });
 
     }
@@ -234,6 +304,8 @@ public class SignUpActivity extends AppCompatActivity {
 
         // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
+
+        finish();
 
     }
 
