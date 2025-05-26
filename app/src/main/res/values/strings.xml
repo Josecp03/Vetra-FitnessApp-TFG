@@ -116,4 +116,6 @@
     <string name="icono_de_uso_limite">Icono de uso limite</string>
     <string name="usage_limit">Usage Limit</string>
     <string name="no_exercises_found">No exercises found.</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="are_you_sure_you_want_to_delete_your_account_all_your_data_will_be_permanently_removed">Are you sure you want to delete your account? All your data will be permanently removed.</string>
 </resources>
