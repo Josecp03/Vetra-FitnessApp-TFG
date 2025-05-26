@@ -1,9 +1,12 @@
 package com.example.vetra_fitnessapp_tfg.view.fragments;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
+import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
 import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -37,11 +42,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,11 +56,14 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ProfileFragment extends Fragment {
 
     private static final int RC_CAMERA = 1001;
     private static final int RC_GALLERY = 1002;
-
     private FragmentProfileBinding binding;
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleClient;
@@ -65,6 +73,7 @@ public class ProfileFragment extends Fragment {
     private Uri pendingImageUri = null;
     private StorageReference storageRef;
     private boolean shouldDeletePhoto = false;
+    private KeyStoreManager keyStore;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,6 +81,8 @@ public class ProfileFragment extends Fragment {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        keyStore   = new KeyStoreManager();
 
         // Firebase setup
         mAuth = FirebaseAuth.getInstance();
@@ -107,7 +118,11 @@ public class ProfileFragment extends Fragment {
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
-                    binding.editTextUserName.setText(doc.getString("username"));
+
+                    String encryptedUser = doc.getString("username");
+                    String decryptedUser = keyStore.decrypt(encryptedUser);
+                    binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
+
                     binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
                     binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
                     binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
@@ -276,15 +291,17 @@ public class ProfileFragment extends Fragment {
         if (!validateProfileFields()) return;
 
         Map<String,Object> updates = new HashMap<>();
-        updates.put("username", binding.editTextUserName.getText().toString().trim());
+
+        String plainUser = binding.editTextUserName.getText().toString().trim();
+        String encryptedUser = keyStore.encrypt(plainUser);
+        updates.put("username", encryptedUser);
+
         updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
         updates.put("height", Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
         updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
-        // Caso 1: hay nueva foto
         if (pendingImageUri != null) {
-            // Como antes: compressImage(), putBytes(), getDownloadUrl()…
             try {
                 byte[] compressed = compressImage(pendingImageUri);
                 StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
@@ -300,7 +317,7 @@ public class ProfileFragment extends Fragment {
                         .addOnSuccessListener(downloadUri -> {
                             updates.put("profile_photo_url", downloadUri.toString());
                             pendingImageUri = null;
-                            shouldDeletePhoto = false;  // ya no eliminar
+                            shouldDeletePhoto = false;
                             finalizeSave(updates, photoRef);
                         })
                         .addOnFailureListener(e -> {
@@ -314,11 +331,8 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
             }
 
-            // Caso 2: ni nueva foto, ni borrado
         } else if (!shouldDeletePhoto) {
             finalizeSave(updates, null);
-
-            // Caso 3: solo borrar foto
         } else {
             updates.put("profile_photo_url", null);
             binding.buttonSaveChanges.setEnabled(false);
@@ -326,15 +340,14 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+
     private void finalizeSave(Map<String,Object> updates, @Nullable StorageReference photoRef) {
         db.collection("users").document(user.getUid())
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
-                    // Si marca borrado: lo hacemos también en Storage
                     if (shouldDeletePhoto && photoRef != null) {
                         photoRef.delete();
                     }
-                    // Si el Fragment sigue activo, actualizamos UI y toast
                     if (isAdded()) {
                         binding.buttonSaveChanges.setEnabled(true);
                         Toast.makeText(getContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show();
@@ -350,24 +363,7 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
-
-    private void applyFirestoreUpdates(Map<String, Object> updates) {
-        db.collection("users").document(user.getUid())
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    // Toast de "Profile updated!" eliminado
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ProfileFragment", "Error updating profile", e);
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), "Error updating profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
     private void deleteProfilePhoto() {
-        // Marcamos para borrar al guardar, actualizamos UI
         shouldDeletePhoto = true;
         pendingImageUri = null;
         binding.profileImage.setImageResource(R.drawable.ic_profile_picture);
@@ -403,23 +399,48 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
+        InputStream input = requireContext().getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei = new ExifInterface(input);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
     private byte[] compressImage(Uri uri) throws IOException {
-        // 1. Cargar el Bitmap original desde el Uri
         Bitmap original = MediaStore.Images.Media.getBitmap(
                 requireContext().getContentResolver(), uri
         );
 
-        // 2. Calcular tamaño objetivo (800px de ancho)
+        Bitmap rotated = rotateImageIfRequired(original, uri);
+
         int targetWidth = 800;
-        int targetHeight = original.getHeight() * targetWidth / original.getWidth();
+        int targetHeight = rotated.getHeight() * targetWidth / rotated.getWidth();
 
-        // 3. Escalar
-        Bitmap scaled = Bitmap.createScaledBitmap(original, targetWidth, targetHeight, true);
+        Bitmap scaled = Bitmap.createScaledBitmap(rotated, targetWidth, targetHeight, true);
 
-        // 4. Comprimir a JPEG al 80%
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         scaled.compress(Bitmap.CompressFormat.JPEG, 80, baos);
         return baos.toByteArray();
     }
+
+
+    private Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+
+
 
 }

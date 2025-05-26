@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "1028343963760-ikl9alfnajtgkemmeoqtcrclurcsf2b8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vetra_fitnessapp_tfg",
+            "certificate_hash": "c6ea8b7fd5e934616836ca292b0cdf431f820bff"
+          }
+        },
+        {
           "client_id": "1028343963760-e1rshaa0rgf54ls5jujrue5ej7nju0uk.apps.googleusercontent.com",
           "client_type": 3
         }

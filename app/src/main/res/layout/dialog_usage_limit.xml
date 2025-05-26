@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_bottom_dialog"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/textTitleUsageLimit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/usage_limit"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="@color/white" />
+
+    <TextView
+        android:id="@+id/textMessageClearChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:text="@string/you_can_make_up_to_100_requests_per_month_stay_mindful_and_make_each_one_count"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
+
+</LinearLayout>

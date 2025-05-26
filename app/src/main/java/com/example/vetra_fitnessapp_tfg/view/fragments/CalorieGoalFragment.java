@@ -23,7 +23,6 @@ public class CalorieGoalFragment extends Fragment implements StepValidator {
         return view;
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public int getCalorieGoalValue() {
         return Integer.parseInt(binding.editTextCalories.getText().toString().trim());
     }
@@ -39,6 +38,13 @@ public class CalorieGoalFragment extends Fragment implements StepValidator {
             Toast.makeText(getContext(), "Please complete all fields to continue", Toast.LENGTH_SHORT).show();
             return false;
         }
+
+        // Comprobar que sea una cantidad realista
+        if (Integer.parseInt(c) > 30000) {
+            Toast.makeText(getContext(), "Please enter a reasonable calorie amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
 
         return true;
 

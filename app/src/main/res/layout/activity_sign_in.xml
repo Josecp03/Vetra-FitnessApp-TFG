@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    android:fillViewport="true"
     tools:context=".view.activities.SignInActivity">
 
     <LinearLayout
@@ -20,7 +19,7 @@
             android:id="@+id/imageViewLogoVetra"
             android:layout_width="match_parent"
             android:layout_height="146dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             android:contentDescription="@string/dark_logo_app"
             android:paddingEnd="8dp"
             app:srcCompat="@drawable/logo_vetra_black"
@@ -262,8 +261,7 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:gravity="center"
-            android:paddingBottom="20dp">
+            android:gravity="center">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/buttonGoogle"

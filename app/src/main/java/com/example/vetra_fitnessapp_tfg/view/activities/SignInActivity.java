@@ -1,16 +1,18 @@
 package com.example.vetra_fitnessapp_tfg.view.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.example.vetra_fitnessapp_tfg.MainActivity;
 import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogRecoverPasswordBinding;
@@ -23,10 +25,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivitySignInBinding;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import java.util.Objects;
-import android.util.Patterns;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -44,7 +44,6 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -101,7 +100,7 @@ public class SignInActivity extends AppCompatActivity {
 
             }
 
-            // Recuperar la contraseña envianod un correo al usuario
+            // Recuperar la contraseña enviando un correo al usuario
             resetPassword(email, bottomSheetDialog);
 
         });

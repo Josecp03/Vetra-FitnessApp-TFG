@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llSetRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/tvSetNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:textColor="@color/black" />
+
+    <EditText
+        android:id="@+id/etWeight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:autofillHints=""
+        android:background="@null"
+        android:cursorVisible="true"
+        android:inputType="number"
+        android:maxLength="3"
+        android:textCursorDrawable="@drawable/custom_cursor"
+        tools:ignore="LabelFor,TextFields"
+        android:hint="@string/_0"
+        android:textColorHint="@color/dark_gray"
+        android:textSize="12dp"/>
+
+    <EditText
+        android:id="@+id/etReps"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:autofillHints=""
+        android:background="@null"
+        android:cursorVisible="true"
+        android:inputType="number"
+        android:maxLength="3"
+        android:textCursorDrawable="@drawable/custom_cursor"
+        tools:ignore="LabelFor,TextFields"
+        android:hint="@string/_0"
+        android:textColorHint="@color/dark_gray"
+        android:textSize="12dp"/>
+
+    <ImageView
+        android:id="@+id/ivCheck"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:padding="4dp"
+        android:src="@drawable/ic_check" />
+</LinearLayout>

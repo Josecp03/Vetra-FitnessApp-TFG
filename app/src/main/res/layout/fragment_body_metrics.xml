@@ -9,7 +9,7 @@
     <!-- LinearLayout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
         tools:ignore="UselessParent">
@@ -90,9 +90,11 @@
 
             <TextView
                 android:id="@+id/unitHeight"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:paddingHorizontal="20dp"
+                android:minHeight="48dp"
                 android:layout_marginEnd="80dp"
                 android:background="@drawable/unit_background"
                 android:fontFamily="@font/goldman"
@@ -152,7 +154,7 @@
                     android:includeFontPadding="false"
                     android:inputType="numberDecimal|textNoSuggestions"
                     android:digits="0123456789."
-                    android:maxLength="4"
+                    android:maxLength="5"
                     android:textColor="@android:color/black"
                     android:textColorHint="@color/dark_gray"
                     android:textCursorDrawable="@drawable/custom_cursor"
@@ -162,9 +164,11 @@
 
             <TextView
                 android:id="@+id/unitWeight"
-                android:layout_width="80dp"
-                android:layout_height="45dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:paddingHorizontal="20dp"
+                android:minHeight="48dp"
                 android:layout_marginEnd="80dp"
                 android:background="@drawable/unit_background"
                 android:fontFamily="@font/goldman"

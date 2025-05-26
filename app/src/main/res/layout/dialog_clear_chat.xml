@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_bottom_dialog"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/textTitleClearChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/clear_chat"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="16dp"
+        android:background="@color/white" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonClearChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="12dp"
+        android:text="@string/clear_chat"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:backgroundTint="@android:color/holo_red_dark"
+        app:cornerRadius="16dp" />
+
+    <TextView
+        android:id="@+id/textMessageClearChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="24dp"
+        android:fontFamily="@font/goldman"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:text="@string/one_selected_this_chat_cannot_be_recovered"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
+
+</LinearLayout>

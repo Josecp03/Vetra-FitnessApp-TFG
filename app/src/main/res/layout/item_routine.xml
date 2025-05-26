@@ -1,0 +1,63 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:background="@color/medium_gray">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Contenedor principal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gender_selector_background"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvRoutineName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/goldman"
+                android:includeFontPadding="false"
+                android:text="Routine Name"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStartRoutine"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/goldman"
+                android:includeFontPadding="false"
+                android:text="@string/start_routine"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/black"
+                app:cornerRadius="20dp" />
+
+        </LinearLayout>
+
+        <!-- Botón de tres puntos en la esquina superior derecha -->
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end|top"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_points_menu"
+            android:contentDescription="@string/icono_de_tres_puntos_horizontales_que_representa_un_men" />
+
+    </FrameLayout>
+</androidx.cardview.widget.CardView>

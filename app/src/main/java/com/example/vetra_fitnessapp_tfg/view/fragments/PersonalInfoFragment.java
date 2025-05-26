@@ -79,17 +79,14 @@ public class PersonalInfoFragment extends Fragment implements StepValidator {
         return true;
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public String getFirstName() {
         return binding.editTextFirstName.getText().toString().trim();
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public String getLastName() {
         return binding.editTextSecondName.getText().toString().trim();
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public Integer getAgeValue() {
         try {
             return Integer.parseInt(binding.editTextAge.getText().toString().trim());
@@ -98,7 +95,6 @@ public class PersonalInfoFragment extends Fragment implements StepValidator {
         }
     }
 
-    /** Llamado desde la Activity al pulsar NEXT */
     public String getGender() {
         return selectedGender;
     }
