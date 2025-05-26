@@ -64,15 +64,18 @@ public class PersonalInfoFragment extends Fragment implements StepValidator {
 
     @Override
     public boolean validateFields() {
-
-        // Guardar los datos en variables temporales
         String fn = binding.editTextFirstName.getText().toString().trim();
         String ln = binding.editTextSecondName.getText().toString().trim();
         String ageStr = binding.editTextAge.getText().toString().trim();
 
-        // Comprobar que los campos no estén vacíos
         if (fn.isEmpty() || ln.isEmpty() || ageStr.isEmpty()) {
             Toast.makeText(getContext(), "Please complete all fields to continue", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        Integer age = getAgeValue();
+        if (age == null || age < 12) {
+            Toast.makeText(getContext(), "You must be at least 12 years old", Toast.LENGTH_SHORT).show();
             return false;
         }
 

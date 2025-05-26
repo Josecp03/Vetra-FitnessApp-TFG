@@ -27,31 +27,36 @@ public class BodyMetricsFragment extends Fragment implements StepValidator {
 
     @Override
     public boolean validateFields() {
-
-        // Guardar los datos en variables temporales
         String h = binding.editTextHeight.getText().toString().trim();
         String w = binding.editTextWeight.getText().toString().trim();
 
-        // Comprobar que los campos no estén vacíos
         if (h.isEmpty() || w.isEmpty()) {
             Toast.makeText(getContext(), "Please complete all fields to continue", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Comprobar que sea una altura realista
-        if (Integer.parseInt(h) > 250) {
-            Toast.makeText(getContext(), "Please enter a reasonable height", Toast.LENGTH_SHORT).show();
+        int height = Integer.parseInt(h);
+        double weight = Double.parseDouble(w);
+
+        if (height < 120) {
+            Toast.makeText(getContext(), "Minimum height is 120 cm", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (height > 250) {
+            Toast.makeText(getContext(), "Please enter a reasonable height (≤250 cm)", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Comprobar que sea un peso realista
-        if (Double.parseDouble(w) > 300) {
-            Toast.makeText(getContext(), "Please enter a reasonable weight", Toast.LENGTH_SHORT).show();
+        if (weight < 20) {
+            Toast.makeText(getContext(), "Minimum weight is 20 kg", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (weight > 300) {
+            Toast.makeText(getContext(), "Please enter a reasonable weight (≤300 kg)", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         return true;
-
     }
 
     public int getHeightValue() {

@@ -110,8 +110,8 @@ public class ProfileFragment extends Fragment {
         binding.buttonLogOut.setOnClickListener(v -> showLogoutDialog());
         binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
         binding.buttonSaveChanges.setOnClickListener(v -> saveProfileChanges());
-
         binding.buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
+        binding.profileImage.setOnClickListener(v -> showChangePictureDialog());
 
 
         return view;
@@ -407,14 +407,43 @@ public class ProfileFragment extends Fragment {
     }
 
     private boolean validateProfileFields() {
-        if (binding.editTextUserName.getText().toString().trim().isEmpty()
-                || binding.editTextAge.getText().toString().trim().isEmpty()
-                || binding.editTextWeight.getText().toString().trim().isEmpty()
-                || binding.editTextHeight.getText().toString().trim().isEmpty()
-                || binding.editTextCalorieGoal.getText().toString().trim().isEmpty()) {
-            Toast.makeText(requireContext(), "Please complete all fields before saving", Toast.LENGTH_SHORT).show();
+        String user = binding.editTextUserName.getText().toString().trim();
+        String ageStr = binding.editTextAge.getText().toString().trim();
+        String weightStr = binding.editTextWeight.getText().toString().trim();
+        String heightStr = binding.editTextHeight.getText().toString().trim();
+        String calStr = binding.editTextCalorieGoal.getText().toString().trim();
+
+        if (user.isEmpty() || ageStr.isEmpty() || weightStr.isEmpty()
+                || heightStr.isEmpty() || calStr.isEmpty()) {
+            Toast.makeText(getContext(), "Please complete all fields before saving", Toast.LENGTH_SHORT).show();
             return false;
         }
+
+        int age = Integer.parseInt(ageStr);
+        int height = Integer.parseInt(heightStr);
+        double weight = Double.parseDouble(weightStr);
+        int calories = Integer.parseInt(calStr);
+
+        if (age < 12 || age > 120) {
+            Toast.makeText(getContext(), "Age must be between 12 and 120 years", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (height < 120 || height > 250) {
+            Toast.makeText(getContext(), "Height must be between 120 and 250 cm", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (weight < 20 || weight > 300) {
+            Toast.makeText(getContext(), "Weight must be between 20 and 300 kg", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (calories < 100 || calories > 30000) {
+            Toast.makeText(getContext(), "Calorie goal must be between 100 and 30000", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         return true;
     }
 
