@@ -65,7 +65,7 @@
     <string name="log_out_message">Are you sure you want to log out? You will need to sign in again to contiune.</string>
     <string name="my_nutrition">My nutrition</string>
     <string name="my_workouts">My workouts</string>
-    <string name="my_chatbot">My chatbot</string>
+    <string name="my_chatbot">Chatbot</string>
     <string name="add_new_routine">Add New Routine</string>
     <string name="take_photo">Take photo</string>
     <string name="select_from_gallery">Select from gallery</string>
