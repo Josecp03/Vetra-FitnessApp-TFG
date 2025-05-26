@@ -63,7 +63,17 @@ public class NewRoutineActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
         });
 
-        binding.buttonSave.setOnClickListener(v -> showSaveRoutineDialog());
+        binding.buttonSave.setOnClickListener(v -> {
+            if (exercises.isEmpty()) {
+                Toast.makeText(
+                        this,
+                        "Add at least 1 exercise",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
+            showSaveRoutineDialog();
+        });
         binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
     }
 
