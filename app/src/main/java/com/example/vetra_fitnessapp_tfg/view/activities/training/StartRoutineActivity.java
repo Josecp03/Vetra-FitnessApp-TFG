@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -84,28 +85,65 @@ public class StartRoutineActivity extends AppCompatActivity {
         sheet.show();
     }
 
+    @SuppressLint("SetTextI18n")
     private void showFinishDialog() {
+        // 1) Detectar series incompletas
+        boolean hasIncomplete = false;
+        // 2) Detectar series "completadas" pero con peso y reps a 0
+        boolean hasZeroCompleted = false;
+
+        for (RoutineExercise re : routine.getExercises()) {
+            for (ExerciseSet s : re.getSets()) {
+                if (!s.isDone()) {
+                    hasIncomplete = true;
+                }
+                // si está marcada como hecha pero sin peso y reps
+                if (s.isDone() && s.getWeight() == 0 && s.getReps() == 0) {
+                    hasZeroCompleted = true;
+                }
+                if (hasIncomplete && hasZeroCompleted) break;
+            }
+            if (hasIncomplete && hasZeroCompleted) break;
+        }
+
         View dlg = getLayoutInflater().inflate(
                 R.layout.dialog_finish_routine, null);
         BottomSheetDialog sheet = new BottomSheetDialog(
                 this, R.style.BottomSheetDialogTheme);
         sheet.setContentView(dlg);
+
+        TextView tvMsg = dlg.findViewById(R.id.textMessageFinishRoutine);
+
+        // Si hay series incompletas O series "vacias" completadas, advertimos
+        if (hasIncomplete || hasZeroCompleted) {
+            tvMsg.setText(
+                    "⚠️🚨 You have incomplete or zero-valued sets. " +
+                            "Are you sure you want to finish the routine? " +
+                            "Incomplete or empty sets will not be saved in your history."
+            );
+        } else {
+            tvMsg.setText(
+                    getString(R.string.finish_routine_restarting_later_means_starting_from_the_beginning)
+            );
+        }
+
         MaterialButton btnYes = dlg.findViewById(R.id.buttonConfirmFinish);
         btnYes.setOnClickListener(x -> {
-            saveHistory();  // ← aquí guardamos
+            saveHistory();
             Prefs.setRoutineInProgress(this, false);
             Prefs.setCurrentRoutineId(this, null);
             sheet.dismiss();
             startActivity(new Intent(this, MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
         });
+
         sheet.show();
     }
 
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-
+        showDiscardDialog();
     }
 
     private void saveHistory() {
