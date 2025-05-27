@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.vetra_fitnessapp_tfg" />
+                  <option name="mobileSdkAppId" value="1:1028343963760:android:36739d3fafa0fdd29e54b5" />
+                  <option name="projectId" value="vetra-28db4" />
+                  <option name="projectNumber" value="1028343963760" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

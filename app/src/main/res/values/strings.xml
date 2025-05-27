@@ -118,4 +118,10 @@
     <string name="no_exercises_found">No exercises found.</string>
     <string name="delete_account">Delete Account</string>
     <string name="are_you_sure_you_want_to_delete_your_account_all_your_data_will_be_permanently_removed">Are you sure you want to delete your account? All your data will be permanently removed.</string>
+    <string name="exit_process">Exit Process</string>
+    <string name="exiting_this_process_will_require_you_to_re_enter_all_your_account_information_if_you_decide_to_create_an_account_later">Exiting this process will require you to re-enter all your account information if you decide to create an account later.</string>
+    <string name="delete_process">Delete Process</string>
+    <string name="continueProcess">Continue</string>
+    <string name="a_verification_link_has_been_sent_to_your_email_please_check_your_inbox_and_spam_folder">A verification link has been sent to your email.Please check your inbox (and spam folder).</string>
+    <string name="icon_mail_sent">Icon mail sent</string>
 </resources>
