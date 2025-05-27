@@ -3,10 +3,9 @@ package com.example.vetra_fitnessapp_tfg.view.activities;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.vetra_fitnessapp_tfg.MainActivity;
+import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
 import com.example.vetra_fitnessapp_tfg.model.training.ExerciseSet;
 import com.example.vetra_fitnessapp_tfg.model.training.Routine;
@@ -17,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +27,30 @@ public class StartupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        // 1) si no hay user, a login
+        if (user == null) {
+            navigateTo(SignInActivity.class);
+            return;
+        }
+
+        // 2) recargar estado y, si no verificado, a VerifyEmailActivity
+        user.reload().addOnCompleteListener(task -> {
+            if (!user.isEmailVerified()) {
+                navigateTo(VerifyEmailActivity.class);
+            } else {
+                // 3) ya verificado → continuar con el flujo normal
+                initAppFlow();
+            }
+        });
+    }
+
+    /** Continúa con la lógica original: rutina en progreso o perfil/setup */
+    private void initAppFlow() {
+        // Si estamos en medio de una rutina guardada
         if (Prefs.isRoutineInProgress(this)) {
             String routineId = Prefs.getCurrentRoutineId(this);
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            String uid       = FirebaseAuth.getInstance().getCurrentUser().getUid();
             if (routineId != null) {
                 FirebaseFirestore.getInstance()
                         .collection("users")
@@ -44,6 +63,7 @@ public class StartupActivity extends AppCompatActivity {
                 return;
             }
         }
+        // Si no, pasamos al flujo normal de perfil
         proceedNormalFlow();
     }
 
@@ -82,6 +102,7 @@ public class StartupActivity extends AppCompatActivity {
 
                 RoutineExercise re = new RoutineExercise();
                 re.setExercise(ex);
+
                 List<ExerciseSet> sets = new ArrayList<>();
                 @SuppressWarnings("unchecked")
                 List<Map<String,Object>> setsMaps =
@@ -109,22 +130,14 @@ public class StartupActivity extends AppCompatActivity {
 
     private void proceedNormalFlow() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            startActivity(new Intent(this, SignInActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
-            finish();
-            return;
-        }
-
+        // A estas alturas user no es null ni es unverified: cargar perfil
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(this::onProfileDocument)
                 .addOnFailureListener(e -> {
-                    startActivity(new Intent(this, UserSetUpActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                    finish();
+                    navigateTo(UserSetUpActivity.class);
                 });
     }
 
@@ -138,12 +151,17 @@ public class StartupActivity extends AppCompatActivity {
                 && doc.contains("user_calories");
 
         if (hasAll) {
-            startActivity(new Intent(this, MainActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            navigateTo(MainActivity.class);
         } else {
-            startActivity(new Intent(this, UserSetUpActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            navigateTo(UserSetUpActivity.class);
         }
+    }
+
+    /** Helper para lanzar una activity y limpiar back-stack */
+    private void navigateTo(Class<?> cls) {
+        Intent i = new Intent(this, cls)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
         finish();
     }
 }

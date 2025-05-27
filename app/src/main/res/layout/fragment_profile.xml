@@ -133,7 +133,7 @@
                         android:autofillHints=""
                         android:hint="@string/_0"
                         android:inputType="number"
-                        android:maxLength="3"
+                        android:maxLength="2"
                         android:minHeight="48dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"

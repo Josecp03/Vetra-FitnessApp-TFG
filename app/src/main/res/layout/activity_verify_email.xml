@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background">
+
+    <ImageView
+        android:id="@+id/imageEmailSent"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="-50dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/icon_mail_sent"
+        android:paddingLeft="10dp"
+        android:src="@drawable/ic_email_sent" />
+
+    <!-- Mensaje de instrucción -->
+    <TextView
+        android:id="@+id/textVerifyInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:paddingBottom="24dp"
+        android:text="@string/a_verification_link_has_been_sent_to_your_email_please_check_your_inbox_and_spam_folder"
+        android:textAlignment="center"
+        android:textColor="#0D0C0C"
+        android:textSize="16sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonContinue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/continueProcess"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:backgroundTint="@android:color/black"
+        app:cornerRadius="8dp"
+        app:iconTint="@null" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonStopProcess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/goldman"
+        android:includeFontPadding="false"
+        android:text="@string/delete_process"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:backgroundTint="@android:color/holo_red_dark"
+        app:cornerRadius="8dp"
+        app:iconTint="@null" />
+
+</LinearLayout>

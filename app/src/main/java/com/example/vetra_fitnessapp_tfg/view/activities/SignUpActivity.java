@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -107,34 +108,63 @@ public class SignUpActivity extends AppCompatActivity {
                     "Please enter a stronger password (chars, lowercase, uppercase, digit, special)",
                     Toast.LENGTH_SHORT
             ).show();
-            return;  // <-- ¡MUY IMPORTANTE!
+            return;
         }
 
         // Registrar con Firebase
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si la autenticación fue exitosa
-                    if (task.isSuccessful()) {
-
-                        // Obtener el usuairo actual
-                        FirebaseUser user = mAuth.getCurrentUser();
-
-                        // Actualizar el perfil del usuario
-                        UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
-                                .setDisplayName(username)
-                                .build();
-
-                        // Navegar a la actividad específica cuando se complete la actualización de perfil
-                        user.updateProfile(req).addOnCompleteListener(uTask -> navigateToUserSetUpActivity());
-
-                    } else {
-
-                        // Manejar errores de autenticación
-                        Toast.makeText(this, "Account already registered. Use another provider", Toast.LENGTH_SHORT).show();
-
+                    if (!task.isSuccessful()) {
+                        Exception e = task.getException();
+                        if (e instanceof FirebaseAuthUserCollisionException) {
+                            Toast.makeText(this,
+                                    "Account already registered. Use another provider",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        } else {
+                            Toast.makeText(this,
+                                    "Error registering: " + e.getMessage(),
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        }
+                        return;
                     }
 
+                    // --- Solo dentro de esta rama de ÉXITO va todo lo de perfil, verificación y navegación ---
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(username)
+                            .build();
+
+                    user.updateProfile(req).addOnCompleteListener(uTask -> {
+                        user.sendEmailVerification()
+                                .addOnCompleteListener(vTask -> {
+                                    if (vTask.isSuccessful()) {
+                                        Toast.makeText(
+                                                SignUpActivity.this,
+                                                "Verification email sent. Please check your inbox (and spam).",
+                                                Toast.LENGTH_LONG
+                                        ).show();
+                                    } else {
+                                        Toast.makeText(
+                                                SignUpActivity.this,
+                                                "Failed to send verification email.",
+                                                Toast.LENGTH_LONG
+                                        ).show();
+                                    }
+                                    // Ahora sí: navegamos a VerifyEmailActivity
+                                    Intent intent = new Intent(
+                                            SignUpActivity.this,
+                                            VerifyEmailActivity.class
+                                    );
+                                    intent.addFlags(
+                                            Intent.FLAG_ACTIVITY_NEW_TASK |
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    );
+                                    startActivity(intent);
+                                    finish();
+                                });
+                    });
                 });
 
     }
