@@ -36,5 +36,10 @@ public class ExerciseRepository {
         return api.getExercisesByEquipment(type, limit, offset);
     }
 
+    public Call<List<Exercise>> fetchExercisesByName(String name, int limit, int offset) {
+        return api.getExercisesByName(name, limit, offset);
+    }
+
+
 
 }

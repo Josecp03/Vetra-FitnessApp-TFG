@@ -145,22 +145,74 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
     }
 
     private void doSearch() {
-        updateHeaderText();
-        showLoadingPlaceholder(true);
+        String query = binding.editTextSearchExercise.getText()
+                .toString()
+                .trim();
 
         boolean allMuscles = selectedMuscle.equals("All the muscles");
         boolean allEquip   = selectedEquipment.equals("All the equipment");
 
-        if (allMuscles && allEquip) {
-            controller.loadPopularExercises(
-                    25, 0,
-                    wrapCallback(updateAdapterCallback())
+        // 1) Búsqueda por nombre (y luego aplico filtros)
+        if (!query.isEmpty()) {
+            updateHeaderForNameSearch(query);
+            showLoadingPlaceholder(true);
+
+            controller.loadExercisesByName(
+                    query.toLowerCase(),
+                    Integer.MAX_VALUE,
+                    0,
+                    new Callback<List<Exercise>>() {
+                        @Override
+                        public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
+                            binding.placeholderContainer.setVisibility(View.GONE);
+                            if (res.isSuccessful() && res.body() != null) {
+                                List<Exercise> result = res.body();
+                                // 2) Filtrar por músculo y/o equipo si es necesario
+                                List<Exercise> filtered = new ArrayList<>();
+                                for (Exercise ex : result) {
+                                    boolean matchMuscle = allMuscles ||
+                                            ex.getTarget().equalsIgnoreCase(selectedMuscle);
+                                    boolean matchEquip = allEquip ||
+                                            ex.getEquipment().equalsIgnoreCase(selectedEquipment);
+                                    if (matchMuscle && matchEquip) {
+                                        filtered.add(ex);
+                                    }
+                                }
+                                // 3) Actualizar adapter
+                                adapter.getItems().clear();
+                                adapter.getItems().addAll(filtered);
+                                adapter.notifyDataSetChanged();
+                                // Mostrar o hide no-results
+                                boolean empty = filtered.isEmpty();
+                                tvNoExercises.setVisibility(empty ? View.VISIBLE : View.GONE);
+                                binding.rvPopularExercises.setVisibility(empty ? View.GONE : View.VISIBLE);
+                            } else {
+                                tvNoExercises.setVisibility(View.VISIBLE);
+                                binding.rvPopularExercises.setVisibility(View.GONE);
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<List<Exercise>> call, Throwable t) {
+                            binding.placeholderContainer.setVisibility(View.GONE);
+                            tvNoExercises.setVisibility(View.VISIBLE);
+                            binding.rvPopularExercises.setVisibility(View.GONE);
+                            Log.e("ExerciseSel", "Error loading by name", t);
+                        }
+                    }
             );
+            return;
+        }
+
+        // 4) Si query vacío, uso tu lógica actual de filtros:
+        updateHeaderText();
+        showLoadingPlaceholder(true);
+
+        if (allMuscles && allEquip) {
+            controller.loadPopularExercises(25, 0, wrapCallback(updateAdapterCallback()));
         }
         else if (!allMuscles && allEquip) {
             controller.loadExercisesByTarget(
-                    selectedMuscle.toLowerCase(),
-                    Integer.MAX_VALUE, 0,
+                    selectedMuscle.toLowerCase(), Integer.MAX_VALUE, 0,
                     wrapCallback(updateAdapterCallback())
             );
         }
@@ -172,30 +224,24 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             );
         }
         else {
+            // combinación músculo + equipo
             controller.loadExercisesByTarget(
-                    selectedMuscle.toLowerCase(),
-                    Integer.MAX_VALUE, 0,
+                    selectedMuscle.toLowerCase(), Integer.MAX_VALUE, 0,
                     wrapCallback(new Callback<List<Exercise>>() {
-                        @Override
-                        public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
+                        @Override public void onResponse(Call<List<Exercise>> call, Response<List<Exercise>> res) {
                             if (res.isSuccessful() && res.body() != null) {
-                                List<Exercise> filtered = new ArrayList<>();
+                                List<Exercise> temp = new ArrayList<>();
                                 for (Exercise ex : res.body()) {
                                     if (ex.getEquipment().equalsIgnoreCase(selectedEquipment)) {
-                                        filtered.add(ex);
+                                        temp.add(ex);
                                     }
                                 }
                                 adapter.getItems().clear();
-                                adapter.getItems().addAll(filtered);
+                                adapter.getItems().addAll(temp);
                                 adapter.notifyDataSetChanged();
-
-                                if (filtered.isEmpty()) {
-                                    tvNoExercises.setVisibility(View.VISIBLE);
-                                    binding.rvPopularExercises.setVisibility(View.GONE);
-                                } else {
-                                    tvNoExercises.setVisibility(View.GONE);
-                                    binding.rvPopularExercises.setVisibility(View.VISIBLE);
-                                }
+                                boolean empty = temp.isEmpty();
+                                tvNoExercises.setVisibility(empty ? View.VISIBLE : View.GONE);
+                                binding.rvPopularExercises.setVisibility(empty ? View.GONE : View.VISIBLE);
                             } else {
                                 tvNoExercises.setVisibility(View.VISIBLE);
                                 binding.rvPopularExercises.setVisibility(View.GONE);
@@ -405,5 +451,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         } else {
             tvHeader.setText("Exercises for " + selectedMuscle + " with " + selectedEquipment);
         }
+    }
+
+    private void updateHeaderForNameSearch(String query) {
+        tvHeader.setText("Search results for: \"" + query + "\"");
     }
 }

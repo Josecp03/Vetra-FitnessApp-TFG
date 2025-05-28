@@ -46,34 +46,39 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         RoutineExercise re = items.get(pos);
         String displayName = toCamelCase(re.getExercise().getName());
 
-        // 1) Cabecera fija: imagen + nombre
+        // 1) Cabecera fija
         h.tvName.setText(displayName);
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
 
-        // 2) Estado expandido / colapsado
+        // 2) Leemos estado siempre dinámicamente
         boolean expanded = re.isExpanded();
 
-        // 3) Mostrar u ocultar el divisor principal
-        h.divider.setVisibility(expanded ? View.VISIBLE : View.GONE);
-
-        // 4) Icono dropdown y toggle
+        // 3) Dropdown icon y toggle correcto
         h.btnDropdown.setImageResource(
                 expanded
                         ? R.drawable.ic_drop_down
                         : R.drawable.ic_drop_up
         );
         h.btnDropdown.setOnClickListener(v -> {
-            re.setExpanded(!expanded);
+            // Toggle basado en el estado real
+            re.setExpanded(!re.isExpanded());
             notifyItemChanged(pos);
         });
 
-        // 5) Limpiar y repoblar la lista de sets solo si está expandido
+        // 4) Limpiar siempre antes de repoblar
         h.llSets.removeAllViews();
+
         if (expanded) {
-            // 5.a) Cabecera de la mini-tabla
+            // 5.a) Mostrar divisor, sets y botones
+            h.divider.setVisibility(View.VISIBLE);
+            h.llSets.setVisibility(View.VISIBLE);
+            h.btnAddSet.setVisibility(View.VISIBLE);
+            h.btnRemoveSet.setVisibility(View.VISIBLE);
+
+            // Cabecera de mini-tabla
             View header = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_routine_set, h.llSets, false);
             ((TextView) header.findViewById(R.id.tvSetNumber)).setText("Set");
@@ -81,7 +86,7 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             ((TextView) header.findViewById(R.id.tvReps))     .setText("Reps");
             h.llSets.addView(header);
 
-            // 5.b) Filas de cada set
+            // Filas de sets
             for (ExerciseSet set : re.getSets()) {
                 View row = LayoutInflater.from(h.llSets.getContext())
                         .inflate(R.layout.item_routine_set, h.llSets, false);
@@ -96,21 +101,19 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
                 }
                 h.llSets.addView(row);
             }
-
-            // 5.c) Mostrar botones
-            h.btnAddSet   .setVisibility(View.VISIBLE);
-            h.btnRemoveSet.setVisibility(View.VISIBLE);
         } else {
-            // 5.d) Ocultar botones cuando está colapsado
-            h.btnAddSet   .setVisibility(View.GONE);
+            // 5.b) Ocultar todo lo expandible
+            h.divider.setVisibility(View.GONE);
+            h.llSets.setVisibility(View.GONE);
+            h.btnAddSet.setVisibility(View.GONE);
             h.btnRemoveSet.setVisibility(View.GONE);
-            h.llSets      .setVisibility(View.GONE);
         }
 
-        // 6) Listeners de añadir/quitar
+        // 6) Listeners añadir/quitar
         h.btnAddSet.setOnClickListener(v -> {
             if (re.getSets().size() < MAX_SETS) {
                 re.addSet();
+                // forzamos rebind para recalcular visibilidad y contenido
                 notifyItemChanged(pos);
             } else {
                 Toast.makeText(
@@ -127,19 +130,14 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             }
         });
 
-        // 7) Menú y navegación
-        h.btnMore.setOnClickListener(v ->
-                showDeleteDialog(h, displayName, pos)
-        );
+        // 7) Menú y navegación (sin cambios)
+        h.btnMore.setOnClickListener(v -> showDeleteDialog(h, displayName, pos));
         h.itemView.setOnLongClickListener(v -> {
             showDeleteDialog(h, displayName, pos);
             return true;
         });
         h.itemView.setOnClickListener(v -> {
-            Intent i = new Intent(
-                    h.itemView.getContext(),
-                    ExerciseDetailActivity.class
-            );
+            Intent i = new Intent(h.itemView.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
             h.itemView.getContext().startActivity(i);
         });
@@ -193,6 +191,8 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         sheet.show();
     }
 
+
+
     static class VH extends RecyclerView.ViewHolder {
         ImageView    ivThumb;
         TextView     tvName;
@@ -201,19 +201,18 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         Button       btnRemoveSet;
         ImageButton  btnMore;
         ImageButton  btnDropdown;
-        View divider;
-
+        View         divider;
 
         VH(View item) {
             super(item);
-            ivThumb   = item.findViewById(R.id.ivExerciseThumb);
-            tvName    = item.findViewById(R.id.tvExerciseName);
-            llSets    = item.findViewById(R.id.llSetsContainer);
-            btnAddSet = item.findViewById(R.id.btnAddSet);
-            btnRemoveSet  = item.findViewById(R.id.btnRemoveSet);
-            btnMore   = item.findViewById(R.id.btnMore);
+            ivThumb      = item.findViewById(R.id.ivExerciseThumb);
+            tvName       = item.findViewById(R.id.tvExerciseName);
+            llSets       = item.findViewById(R.id.llSetsContainer);
+            btnAddSet    = item.findViewById(R.id.btnAddSet);
+            btnRemoveSet = item.findViewById(R.id.btnRemoveSet);
+            btnMore      = item.findViewById(R.id.btnMore);
             btnDropdown  = item.findViewById(R.id.btnDropdown);
-            divider = item.findViewById(R.id.divider);
+            divider      = item.findViewById(R.id.divider);
         }
     }
 }

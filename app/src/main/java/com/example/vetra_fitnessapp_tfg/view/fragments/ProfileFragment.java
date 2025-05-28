@@ -84,6 +84,7 @@ public class ProfileFragment extends Fragment {
     private StorageReference storageRef;
     private boolean shouldDeletePhoto = false;
     private KeyStoreManager keyStore;
+    private boolean notificationsSwitchInitialized = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,6 +126,11 @@ public class ProfileFragment extends Fragment {
         loadUserProfile();
 
         binding.switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!notificationsSwitchInitialized) {
+                // Ignorar el primer cambio causado por setChecked() en loadUserProfile()
+                return;
+            }
+
             // 1) Guardar en Firestore
             db.collection("users")
                     .document(user.getUid())
@@ -189,19 +195,46 @@ public class ProfileFragment extends Fragment {
         db.collection("users")
                 .document(user.getUid())
                 .get()
-                .addOnSuccessListener(doc -> {
-                    // … tu carga de foto, username, edad, peso, etc. …
+                .addOnSuccessListener((DocumentSnapshot doc) -> {
+                    // 1) Foto de perfil
+                    Glide.with(this)
+                            .load(doc.getString("profile_photo_url"))
+                            .placeholder(R.drawable.ic_profile_picture)
+                            .into(binding.profileImage);
 
-                    // 4) Switch: estado de Firestore
+                    // 2) Username (desencriptar)
+                    String encryptedUser = doc.getString("username");
+                    String decryptedUser = keyStore.decrypt(encryptedUser);
+                    binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
+
+                    // 3) Edad, peso, altura, calorías
+                    Long age     = doc.getLong("age");
+                    Double weight= doc.getDouble("weight");
+                    Long height  = doc.getLong("height");
+                    Long cal     = doc.getLong("user_calories");
+                    binding.editTextAge.setText(age     != null ? String.valueOf(age)     : "");
+                    binding.editTextWeight.setText(weight!= null ? String.valueOf(weight) : "");
+                    binding.editTextHeight.setText(height != null ? String.valueOf(height) : "");
+                    binding.editTextCalorieGoal.setText(cal  != null ? String.valueOf(cal)    : "");
+
+                    // 4) Estado del switch de notificaciones (Firestore → UI)
                     Boolean notifEnabled = doc.getBoolean("notifications_enabled");
                     boolean isOn = notifEnabled == null ? true : notifEnabled;
                     binding.switchNotifications.setChecked(isOn);
 
-                    // 5) Asegurar que Prefs también lo refleja
+                    // 5) Guardar estado localmente
                     Prefs.setNotificationsEnabled(requireContext(), isOn);
+
+                    // 6) A partir de ahora, listener responderá solo a cambios manuales
+                    notificationsSwitchInitialized = true;
                 })
-                .addOnFailureListener(e -> Log.e("ProfileFragment", "Error reading profile", e));
+                .addOnFailureListener(e -> {
+                    Log.e("ProfileFragment", "Error reading profile", e);
+                    // Aunque falle, liberar el flag para no bloquear futuros cambios
+                    notificationsSwitchInitialized = true;
+                });
     }
+
 
 
     private void showLogoutDialog() {
