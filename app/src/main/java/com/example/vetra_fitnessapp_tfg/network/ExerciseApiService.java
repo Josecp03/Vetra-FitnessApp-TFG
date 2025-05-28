@@ -40,4 +40,12 @@ public interface ExerciseApiService {
             @Query("offset") int offset
     );
 
+    @GET("exercises/name/{name}")
+    Call<List<Exercise>> getExercisesByName(
+            @Path("name") String name,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
+
 }

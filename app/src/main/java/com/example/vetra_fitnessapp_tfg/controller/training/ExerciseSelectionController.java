@@ -31,4 +31,9 @@ public class ExerciseSelectionController {
         repo.fetchExercisesByEquipment(type, limit, offset).enqueue(cb);
     }
 
+    public void loadExercisesByName(String name, int limit, int offset, Callback<List<Exercise>> cb) {
+        repo.fetchExercisesByName(name, limit, offset).enqueue(cb);
+    }
+
+
 }

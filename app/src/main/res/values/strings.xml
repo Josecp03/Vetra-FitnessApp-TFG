@@ -124,4 +124,10 @@
     <string name="continueProcess">Continue</string>
     <string name="a_verification_link_has_been_sent_to_your_email_please_check_your_inbox_and_spam_folder">A verification link has been sent to your email.Please check your inbox (and spam folder).</string>
     <string name="icon_mail_sent">Icon mail sent</string>
+    <string name="information_new_routine">Hey there! 👋 You\'ll be able to edit the weight (kilos) and repetitions for each exercise when you\'re actively performing the routine. Right now, you can only add or remove sets. Just a heads-up: there\'s a limit of 20 exercises per routine and 15 sets per exercise! 💪</string>
+    <string name="remove_set">- Remove set</string>
+    <string name="add_set">+ Add set</string>
+    <string name="time_to_log_your_workout_as_you_complete_each_exercise_be_sure_to_edit_the_weight_kg_and_reps_to_track_your_progress_accurately_don_t_leave_any_set_unfinished_only_completed_sets_will_be_saved_to_your_history">💪 Time to log your workout! As you complete each exercise, be sure to edit the weight (kg) and reps to track your progress accurately. 🔄 Don’t leave any set unfinished—only completed sets will be saved to your history! ✅🔥</string>
+    <string name="icon_drop_down">Icon drop down</string>
+    <string name="search_exercise">Search exercise</string>
 </resources>

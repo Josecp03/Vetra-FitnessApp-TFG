@@ -1,0 +1,16 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ON: bolita negra -->
+    <item android:state_checked="true">
+        <shape android:shape="oval">
+            <size android:width="20dp" android:height="20dp"/>
+            <solid android:color="@android:color/black"/>
+        </shape>
+    </item>
+    <!-- OFF: bolita blanca CON BORDE negro -->
+    <item>
+        <shape android:shape="oval">
+            <size android:width="20dp" android:height="20dp"/>
+            <solid android:color="@android:color/white"/>
+        </shape>
+    </item>
+</selector>

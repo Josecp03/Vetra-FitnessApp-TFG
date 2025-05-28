@@ -46,7 +46,7 @@
         app:cornerRadius="16dp" />
 
     <TextView
-        android:id="@+id/textMessageDiscardRoutine"
+        android:id="@+id/textMessageFinishRoutine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -54,8 +54,7 @@
         android:fontFamily="@font/goldman"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:text="@string/finish_routine_restarting_later_means_starting_from_the_beginning"
         android:textColor="@android:color/white"
-        android:textSize="12sp" />
+        android:textSize="12sp"/>
 
 </LinearLayout>

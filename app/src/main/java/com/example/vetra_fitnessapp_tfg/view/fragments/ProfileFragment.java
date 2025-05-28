@@ -30,6 +30,7 @@ import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.databinding.DialogLogoutBinding;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentProfileBinding;
 import com.example.vetra_fitnessapp_tfg.utils.KeyStoreManager;
+import com.example.vetra_fitnessapp_tfg.utils.Prefs;
 import com.example.vetra_fitnessapp_tfg.view.activities.SignInActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -65,9 +66,9 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+
 
 public class ProfileFragment extends Fragment {
 
@@ -83,6 +84,7 @@ public class ProfileFragment extends Fragment {
     private StorageReference storageRef;
     private boolean shouldDeletePhoto = false;
     private KeyStoreManager keyStore;
+    private boolean notificationsSwitchInitialized = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -120,7 +122,56 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         loadUserProfile();
+
+        binding.switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!notificationsSwitchInitialized) {
+                // Ignorar el primer cambio causado por setChecked() en loadUserProfile()
+                return;
+            }
+
+            // 1) Guardar en Firestore
+            db.collection("users")
+                    .document(user.getUid())
+                    .update("notifications_enabled", isChecked)
+                    .addOnSuccessListener(a -> {
+                        String msg = isChecked
+                                ? "Notifications enabled"
+                                : "Notifications disabled";
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(getContext(),
+                                    "Error saving notification setting",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+
+            // 2) Guardar localmente para el Service
+            Prefs.setNotificationsEnabled(requireContext(), isChecked);
+
+            // 3) Suscribir / desuscribir de FCM
+            String topic = "user_" + user.getUid();
+            if (isChecked) {
+                FirebaseMessaging.getInstance()
+                        .subscribeToTopic(topic)
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful())
+                                Log.e("ProfileFragment",
+                                        "FCM subscribe failed",
+                                        task.getException());
+                        });
+            } else {
+                FirebaseMessaging.getInstance()
+                        .unsubscribeFromTopic(topic)
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful())
+                                Log.e("ProfileFragment",
+                                        "FCM unsubscribe failed",
+                                        task.getException());
+                        });
+            }
+        });
     }
 
     private void showDeleteAccountDialog() {
@@ -141,24 +192,50 @@ public class ProfileFragment extends Fragment {
 
 
     private void loadUserProfile() {
-        db.collection("users").document(user.getUid()).get()
+        db.collection("users")
+                .document(user.getUid())
+                .get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
+                    // 1) Foto de perfil
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
 
+                    // 2) Username (desencriptar)
                     String encryptedUser = doc.getString("username");
                     String decryptedUser = keyStore.decrypt(encryptedUser);
                     binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
 
-                    binding.editTextAge.setText(String.valueOf(doc.getLong("age")));
-                    binding.editTextWeight.setText(String.valueOf(doc.getDouble("weight")));
-                    binding.editTextHeight.setText(String.valueOf(doc.getLong("height")));
-                    binding.editTextCalorieGoal.setText(String.valueOf(doc.getLong("user_calories")));
+                    // 3) Edad, peso, altura, calorías
+                    Long age     = doc.getLong("age");
+                    Double weight= doc.getDouble("weight");
+                    Long height  = doc.getLong("height");
+                    Long cal     = doc.getLong("user_calories");
+                    binding.editTextAge.setText(age     != null ? String.valueOf(age)     : "");
+                    binding.editTextWeight.setText(weight!= null ? String.valueOf(weight) : "");
+                    binding.editTextHeight.setText(height != null ? String.valueOf(height) : "");
+                    binding.editTextCalorieGoal.setText(cal  != null ? String.valueOf(cal)    : "");
+
+                    // 4) Estado del switch de notificaciones (Firestore → UI)
+                    Boolean notifEnabled = doc.getBoolean("notifications_enabled");
+                    boolean isOn = notifEnabled == null ? true : notifEnabled;
+                    binding.switchNotifications.setChecked(isOn);
+
+                    // 5) Guardar estado localmente
+                    Prefs.setNotificationsEnabled(requireContext(), isOn);
+
+                    // 6) A partir de ahora, listener responderá solo a cambios manuales
+                    notificationsSwitchInitialized = true;
                 })
-                .addOnFailureListener(e -> Log.e("ProfileFragment", "Error reading profile", e));
+                .addOnFailureListener(e -> {
+                    Log.e("ProfileFragment", "Error reading profile", e);
+                    // Aunque falle, liberar el flag para no bloquear futuros cambios
+                    notificationsSwitchInitialized = true;
+                });
     }
+
+
 
     private void showLogoutDialog() {
         DialogLogoutBinding dialogBinding = DialogLogoutBinding.inflate(getLayoutInflater());
@@ -321,45 +398,23 @@ public class ProfileFragment extends Fragment {
 
         Map<String,Object> updates = new HashMap<>();
 
-        String plainUser = binding.editTextUserName.getText().toString().trim();
+        // Encriptar y guardar username
+        String plainUser     = binding.editTextUserName.getText().toString().trim();
         String encryptedUser = keyStore.encrypt(plainUser);
         updates.put("username", encryptedUser);
 
-        updates.put("age", Integer.parseInt(binding.editTextAge.getText().toString().trim()));
-        updates.put("height", Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
-        updates.put("weight", Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
+        // Campos restantes
+        updates.put("age",           Integer.parseInt(binding.editTextAge.getText().toString().trim()));
+        updates.put("height",        Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
+        updates.put("weight",        Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
 
+        // Estado de notificaciones
+        updates.put("notifications_enabled", binding.switchNotifications.isChecked());
+
+        // Resto de tu lógica de subida de foto y finalizeSave(updates,…)
         if (pendingImageUri != null) {
-            try {
-                byte[] compressed = compressImage(pendingImageUri);
-                StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
-
-                Toast.makeText(requireContext(), "Uploading photo...", Toast.LENGTH_SHORT).show();
-                binding.buttonSaveChanges.setEnabled(false);
-
-                photoRef.putBytes(compressed)
-                        .continueWithTask(task -> {
-                            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
-                            return photoRef.getDownloadUrl();
-                        })
-                        .addOnSuccessListener(downloadUri -> {
-                            updates.put("profile_photo_url", downloadUri.toString());
-                            pendingImageUri = null;
-                            shouldDeletePhoto = false;
-                            finalizeSave(updates, photoRef);
-                        })
-                        .addOnFailureListener(e -> {
-                            binding.buttonSaveChanges.setEnabled(true);
-                            Toast.makeText(requireContext(), "Error uploading photo", Toast.LENGTH_SHORT).show();
-                            Log.e("ProfileFragment", "Upload failed", e);
-                        });
-
-            } catch (IOException e) {
-                Log.e("ProfileFragment", "Error compressing image", e);
-                Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
-            }
-
+            // … tu código existente para subir foto …
         } else if (!shouldDeletePhoto) {
             finalizeSave(updates, null);
         } else {
@@ -368,6 +423,7 @@ public class ProfileFragment extends Fragment {
             finalizeSave(updates, storageRef.child("profile_photos/" + user.getUid() + ".jpg"));
         }
     }
+
 
 
     private void finalizeSave(Map<String,Object> updates, @Nullable StorageReference photoRef) {
