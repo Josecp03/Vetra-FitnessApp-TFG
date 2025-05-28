@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -9,96 +8,122 @@
     app:cardElevation="4dp"
     app:cardUseCompatPadding="true">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/gender_selector_background"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <!-- Cabecera ejercicio -->
         <LinearLayout
-            android:id="@+id/headerContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/ivThumb"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="centerCrop" />
-
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/goldman"
-                android:textSize="18sp"
-                android:textColor="@color/black"
-                android:includeFontPadding="false"
-                android:text="Exercise name" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:background="@android:color/black" />
-
-        <!-- Encabezado de sets -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:paddingHorizontal="4dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/goldman"
-                android:text="Set"
-                android:textColor="@color/black"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/goldman"
-                android:text="Kg"
-                android:textColor="@color/black"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/goldman"
-                android:text="Reps"
-                android:textColor="@color/black"
-                android:gravity="center" />
-
-
-            <View
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_check" />
-        </LinearLayout>
-
-        <!-- Aquí van las filas de cada set -->
-        <LinearLayout
-            android:id="@+id/llSets"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="4dp" />
+            android:background="@drawable/gender_selector_background"
+            android:padding="12dp">
 
-    </LinearLayout>
+            <!-- Cabecera ejercicio -->
+            <LinearLayout
+                android:id="@+id/headerContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivThumb"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerCrop" />
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/goldman"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="Exercise name"
+                    android:textColor="@color/black"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Divisor de sets -->
+            <View
+                android:id="@+id/dividerSets"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/black"/>
+
+            <!-- Encabezado de sets -->
+            <LinearLayout
+                android:id="@+id/setsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp"
+                android:paddingHorizontal="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/goldman"
+                    android:text="Set"
+                    android:textColor="@color/black"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/goldman"
+                    android:text="Kg"
+                    android:textColor="@color/black"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/goldman"
+                    android:text="Reps"
+                    android:textColor="@color/black"
+                    android:gravity="center" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_check" />
+            </LinearLayout>
+
+            <!-- Filas de sets -->
+            <LinearLayout
+                android:id="@+id/llSets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <!-- Dropdown arriba a la derecha -->
+        <ImageButton
+            android:id="@+id/btnDropdown"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end|top"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:src="@drawable/ic_drop_down"
+            android:contentDescription="@string/icon_drop_down"
+            android:scaleType="centerInside"/>
+
+    </FrameLayout>
 </androidx.cardview.widget.CardView>

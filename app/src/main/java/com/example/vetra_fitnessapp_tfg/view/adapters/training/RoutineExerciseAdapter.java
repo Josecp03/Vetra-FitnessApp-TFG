@@ -44,8 +44,7 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
     @Override
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
-        String rawName     = re.getExercise().getName();
-        String displayName = toCamelCase(rawName);
+        String displayName = toCamelCase(re.getExercise().getName());
 
         // 1) Cabecera fija: imagen + nombre
         h.tvName.setText(displayName);
@@ -54,28 +53,35 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
                 .circleCrop()
                 .into(h.ivThumb);
 
-        // 2) Limpio el contenedor de series
-        h.llSets.removeAllViews();
-
-        // 3) Icono dropdown según estado
+        // 2) Estado expandido / colapsado
         boolean expanded = re.isExpanded();
+
+        // 3) Mostrar u ocultar el divisor principal
+        h.divider.setVisibility(expanded ? View.VISIBLE : View.GONE);
+
+        // 4) Icono dropdown y toggle
         h.btnDropdown.setImageResource(
                 expanded
                         ? R.drawable.ic_drop_down
                         : R.drawable.ic_drop_up
         );
+        h.btnDropdown.setOnClickListener(v -> {
+            re.setExpanded(!expanded);
+            notifyItemChanged(pos);
+        });
 
-        // 4) Si está expandido, dibujo la tabla de sets y muestro botones
+        // 5) Limpiar y repoblar la lista de sets solo si está expandido
+        h.llSets.removeAllViews();
         if (expanded) {
-            // 4.a) Cabecera de la mini-tabla
+            // 5.a) Cabecera de la mini-tabla
             View header = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_routine_set, h.llSets, false);
             ((TextView) header.findViewById(R.id.tvSetNumber)).setText("Set");
-            ((TextView) header.findViewById(R.id.tvWeight)).setText("kg");
-            ((TextView) header.findViewById(R.id.tvReps)).setText("Reps");
+            ((TextView) header.findViewById(R.id.tvWeight))   .setText("kg");
+            ((TextView) header.findViewById(R.id.tvReps))     .setText("Reps");
             h.llSets.addView(header);
 
-            // 4.b) Cada fila de serie
+            // 5.b) Filas de cada set
             for (ExerciseSet set : re.getSets()) {
                 View row = LayoutInflater.from(h.llSets.getContext())
                         .inflate(R.layout.item_routine_set, h.llSets, false);
@@ -91,16 +97,17 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
                 h.llSets.addView(row);
             }
 
-            // 4.c) Muestro los botones de añadir/quitar
-            h.btnAddSet.setVisibility(View.VISIBLE);
+            // 5.c) Mostrar botones
+            h.btnAddSet   .setVisibility(View.VISIBLE);
             h.btnRemoveSet.setVisibility(View.VISIBLE);
         } else {
-            // 5) Si está colapsado, oculto tabla y botones
-            h.btnAddSet.setVisibility(View.GONE);
+            // 5.d) Ocultar botones cuando está colapsado
+            h.btnAddSet   .setVisibility(View.GONE);
             h.btnRemoveSet.setVisibility(View.GONE);
+            h.llSets      .setVisibility(View.GONE);
         }
 
-        // 6) Listeners de botones (añadir/quitar siguen funcionando aunque estén invisibles)
+        // 6) Listeners de añadir/quitar
         h.btnAddSet.setOnClickListener(v -> {
             if (re.getSets().size() < MAX_SETS) {
                 re.addSet();
@@ -120,13 +127,7 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             }
         });
 
-        // 7) Toggle expand/collapse al pulsar el dropdown
-        h.btnDropdown.setOnClickListener(v -> {
-            re.setExpanded(!expanded);
-            notifyItemChanged(pos);
-        });
-
-        // 8) Resto de listeners (menu, navegación, etc.)
+        // 7) Menú y navegación
         h.btnMore.setOnClickListener(v ->
                 showDeleteDialog(h, displayName, pos)
         );
@@ -143,7 +144,6 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             h.itemView.getContext().startActivity(i);
         });
     }
-
 
 
 
@@ -201,6 +201,8 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         Button       btnRemoveSet;
         ImageButton  btnMore;
         ImageButton  btnDropdown;
+        View divider;
+
 
         VH(View item) {
             super(item);
@@ -211,6 +213,7 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
             btnRemoveSet  = item.findViewById(R.id.btnRemoveSet);
             btnMore   = item.findViewById(R.id.btnMore);
             btnDropdown  = item.findViewById(R.id.btnDropdown);
+            divider = item.findViewById(R.id.divider);
         }
     }
 }

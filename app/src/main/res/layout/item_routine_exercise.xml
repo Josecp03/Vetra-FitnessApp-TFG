@@ -20,10 +20,13 @@
 
             <!-- Encabezado: imagen y nombre -->
             <LinearLayout
+                android:id="@+id/headerContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <ImageView
                     android:id="@+id/ivExerciseThumb"
@@ -34,11 +37,15 @@
 
                 <TextView
                     android:id="@+id/tvExerciseName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
                     android:fontFamily="@font/goldman"
                     android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:singleLine="true"
                     android:text="Exercise name"
                     android:textColor="@color/black"
                     android:textSize="18sp"
@@ -48,10 +55,11 @@
 
             <!-- Separador -->
             <View
+                android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="4dp"
-                android:background="@android:color/black" />
+                android:background="@android:color/black"/>
 
             <!-- Contenedor dinámico de series -->
             <LinearLayout
@@ -59,21 +67,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="12dp"/>
 
-            <!-- Botones "+ Add set" y "- Remove set" en la misma línea -->
+            <!-- Botones "+ Add set" y "- Remove set" -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="4dp">
 
                 <Button
                     android:id="@+id/btnAddSet"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
+                    android:layout_marginEnd="10dp"
                     android:fontFamily="@font/goldman"
                     android:includeFontPadding="false"
                     android:text="@string/add_set"
@@ -95,7 +103,7 @@
 
         </LinearLayout>
 
-
+        <!-- Dropdown arriba a la derecha -->
         <ImageButton
             android:id="@+id/btnDropdown"
             android:layout_width="30dp"
@@ -120,7 +128,7 @@
             android:padding="4dp"
             android:src="@drawable/ic_points_menu"
             android:contentDescription="@string/icono_de_tres_puntos_horizontales_que_representa_un_men"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"/>
 
     </FrameLayout>
 

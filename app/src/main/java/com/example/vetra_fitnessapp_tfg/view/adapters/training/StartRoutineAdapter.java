@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,67 +43,92 @@ public class StartRoutineAdapter
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
 
+        // 1) Carga de thumb y nombre
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
         h.tvName.setText(re.getExercise().getName());
 
+        // 2) Estado expandido / colapsado
+        boolean expanded = re.isExpanded();
+
+        // 3) Icono dropdown y toggle
+        h.btnDropdown.setImageResource(
+                expanded
+                        ? R.drawable.ic_drop_down
+                        : R.drawable.ic_drop_up
+        );
+        h.btnDropdown.setOnClickListener(v -> {
+            re.setExpanded(!expanded);
+            notifyItemChanged(pos);
+        });
+
+        // 4) Mostrar u ocultar divisor y header de sets
+        h.dividerSets.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        h.setsHeader .setVisibility(expanded ? View.VISIBLE : View.GONE);
+
+        // 5) Limpiar y mostrar/ocultar contenedor de filas
         h.llSets.removeAllViews();
+        if (expanded) {
+            h.llSets.setVisibility(View.VISIBLE);
+            for (ExerciseSet s : re.getSets()) {
+                View row = LayoutInflater.from(h.llSets.getContext())
+                        .inflate(R.layout.item_start_routine_set, h.llSets, false);
 
-        for (ExerciseSet s : re.getSets()) {
-            View row = LayoutInflater.from(h.llSets.getContext())
-                    .inflate(R.layout.item_start_routine_set, h.llSets, false);
+                TextView tvNum = row.findViewById(R.id.tvSetNumber);
+                EditText etW   = row.findViewById(R.id.etWeight);
+                EditText etR   = row.findViewById(R.id.etReps);
+                ImageView ivC  = row.findViewById(R.id.ivCheck);
 
-            TextView tvNum   = row.findViewById(R.id.tvSetNumber);
-            EditText etW     = row.findViewById(R.id.etWeight);
-            EditText etR     = row.findViewById(R.id.etReps);
-            ImageView ivC    = row.findViewById(R.id.ivCheck);
+                tvNum.setText(String.valueOf(s.getSetNumber()));
+                etW.setHint(String.valueOf(s.getWeight()));
+                etW.setText("");
+                etR.setHint(String.valueOf(s.getReps()));
+                etR.setText("");
 
-            tvNum.setText(String.valueOf(s.getSetNumber()));
-            etW.setHint(String.valueOf(s.getWeight()));
-            etW.setText("");
-            etR.setHint(String.valueOf(s.getReps()));
-            etR.setText("");
+                etW.setOnFocusChangeListener((v, hasFocus) -> {
+                    if (!hasFocus) {
+                        String text = etW.getText().toString();
+                        s.setWeight(text.isEmpty() ? 0 : Integer.parseInt(text));
+                    }
+                });
+                etR.setOnFocusChangeListener((v, hasFocus) -> {
+                    if (!hasFocus) {
+                        String text = etR.getText().toString();
+                        s.setReps(text.isEmpty() ? 0 : Integer.parseInt(text));
+                    }
+                });
 
-            etW.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    String text = etW.getText().toString();
-                    s.setWeight(text.isEmpty() ? 0 : Integer.parseInt(text));
-                }
-            });
-            etR.setOnFocusChangeListener((v, hasFocus) -> {
-                if (!hasFocus) {
-                    String text = etR.getText().toString();
-                    s.setReps(text.isEmpty() ? 0 : Integer.parseInt(text));
-                }
-            });
+                int baseBg = (s.getSetNumber() % 2 == 0)
+                        ? Color.WHITE
+                        : Color.TRANSPARENT;
+                row.setBackgroundColor(baseBg);
 
-            int baseBg = (s.getSetNumber() % 2 == 0)
-                    ? Color.WHITE
-                    : Color.TRANSPARENT;
-            row.setBackgroundColor(baseBg);
+                ivC.setOnClickListener(v -> {
+                    boolean done = ivC.isSelected();
+                    ivC.setSelected(!done);
+                    s.setDone(!done);
+                    int bg = s.isDone()
+                            ? ContextCompat.getColor(row.getContext(), R.color.green_success)
+                            : baseBg;
+                    row.setBackgroundColor(bg);
+                });
 
-            ivC.setOnClickListener(v -> {
-                boolean done = ivC.isSelected();
-                ivC.setSelected(!done);
-                s.setDone(!done);
-
-                int bg = s.isDone()
-                        ? ContextCompat.getColor(row.getContext(), R.color.green_success)
-                        : baseBg;
-                row.setBackgroundColor(bg);
-            });
-
-            h.llSets.addView(row);
+                h.llSets.addView(row);
+            }
+        } else {
+            h.llSets.setVisibility(View.GONE);
         }
 
+        // 6) Click en header abre detalle
         h.headerContainer.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
             v.getContext().startActivity(i);
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -114,6 +140,9 @@ public class StartRoutineAdapter
         TextView     tvName;
         LinearLayout llSets;
         View         headerContainer;
+        ImageButton btnDropdown;
+        View         dividerSets;
+        LinearLayout setsHeader;
 
         VH(View item) {
             super(item);
@@ -121,6 +150,9 @@ public class StartRoutineAdapter
             tvName  = item.findViewById(R.id.tvName);
             llSets  = item.findViewById(R.id.llSets);
             headerContainer = item.findViewById(R.id.headerContainer);
+            btnDropdown = item.findViewById(R.id.btnDropdown);
+            dividerSets   = item.findViewById(R.id.dividerSets);
+            setsHeader    = item.findViewById(R.id.setsHeader);
         }
     }
 }
