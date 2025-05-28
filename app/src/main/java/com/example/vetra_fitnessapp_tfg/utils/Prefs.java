@@ -6,6 +6,8 @@ public class Prefs {
     private static final String TFG = "TFG_PREFS";
     private static final String KEY_IN_PROGRESS       = "routine_in_progress";
     private static final String KEY_CURRENT_ROUTINE_ID = "current_routine_id";
+    private static final String KEY_NOTIFICATIONS_ENABLED   = "notifications_enabled";  // ← Añadido
+
 
     public static void setRoutineInProgress(Context ctx, boolean inProgress) {
         ctx.getSharedPreferences(TFG, Context.MODE_PRIVATE)
@@ -28,4 +30,17 @@ public class Prefs {
         return ctx.getSharedPreferences(TFG, Context.MODE_PRIVATE)
                 .getString(KEY_CURRENT_ROUTINE_ID, null);
     }
+
+    public static void setNotificationsEnabled(Context ctx, boolean enabled) {
+        ctx.getSharedPreferences(TFG, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled)
+                .apply();
+    }
+
+    public static boolean isNotificationsEnabled(Context ctx) {
+        return ctx.getSharedPreferences(TFG, Context.MODE_PRIVATE)
+                .getBoolean(KEY_NOTIFICATIONS_ENABLED, true);
+    }
+
 }

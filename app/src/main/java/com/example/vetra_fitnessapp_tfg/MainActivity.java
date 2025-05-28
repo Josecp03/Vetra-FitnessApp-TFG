@@ -17,6 +17,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import com.example.vetra_fitnessapp_tfg.databinding.ActivityMainBinding;
+import com.example.vetra_fitnessapp_tfg.utils.Prefs;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.Objects;
 import android.widget.Toast;
@@ -95,14 +96,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 1) Leemos el estado del switch guardado en Prefs
+            boolean enabled = Prefs.isNotificationsEnabled(this);
+
+            // 2) IMPORTANCE_NONE o DEFAULT según el switch
+            int importance = enabled
+                    ? NotificationManager.IMPORTANCE_DEFAULT
+                    : NotificationManager.IMPORTANCE_NONE;
+
             NotificationChannel channel = new NotificationChannel(
                     "mi_canal_por_defecto",
                     "Notificaciones de entrenamiento",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    importance
             );
             channel.setDescription("Canal para recordatorios diarios");
+
             NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 

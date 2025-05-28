@@ -28,4 +28,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="Widget.App.CustomSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <!-- Usamos nuestros drawables personalizados -->
+        <item name="android:thumb">@drawable/switch_thumb_custom</item>
+        <item name="android:track">@drawable/switch_track_custom</item>
+        <!-- Muy importante para que no aplique ningún MaterialTheme tint -->
+        <item name="useMaterialThemeColors">false</item>
+    </style>
+
 </resources>

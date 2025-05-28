@@ -278,7 +278,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="40dp">
@@ -308,7 +307,7 @@
                         android:textColor="@android:color/black"
                         android:textColorHint="@color/dark_gray"
                         android:textCursorDrawable="@drawable/custom_cursor"
-                        android:textSize="14sp"/>
+                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -317,7 +316,43 @@
                         android:fontFamily="@font/goldman"
                         android:text="kcal"
                         android:textColor="@android:color/black"
-                        android:textSize="14sp"/>
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="40dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/black" />
+
+                <LinearLayout
+                    android:id="@+id/notificationToggleContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="40dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/goldman"
+                        android:text="Notifications"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchNotifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.App.CustomSwitch"
+                        app:showText="false" />
+
 
                 </LinearLayout>
 
