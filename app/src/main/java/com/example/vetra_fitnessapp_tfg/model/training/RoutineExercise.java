@@ -8,6 +8,7 @@ public class RoutineExercise implements Serializable {
 
     private Exercise exercise;
     private List<ExerciseSet> sets = new ArrayList<>();
+    private boolean expanded = true;
 
     public RoutineExercise() { }
 
@@ -34,4 +35,8 @@ public class RoutineExercise implements Serializable {
         int next = sets.size() + 1;
         sets.add(new ExerciseSet(next, 0, 0));
     }
+
+    public boolean isExpanded() { return expanded; }
+
+    public void setExpanded(boolean expanded) { this.expanded = expanded; }
 }
