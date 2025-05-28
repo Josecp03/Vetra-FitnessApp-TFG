@@ -130,4 +130,5 @@
     <string name="time_to_log_your_workout_as_you_complete_each_exercise_be_sure_to_edit_the_weight_kg_and_reps_to_track_your_progress_accurately_don_t_leave_any_set_unfinished_only_completed_sets_will_be_saved_to_your_history">💪 Time to log your workout! As you complete each exercise, be sure to edit the weight (kg) and reps to track your progress accurately. 🔄 Don’t leave any set unfinished—only completed sets will be saved to your history! ✅🔥</string>
     <string name="icon_drop_down">Icon drop down</string>
     <string name="search_exercise">Search exercise</string>
+    <string name="exercises_in_the_last_week">Exercises in the Last Week</string>
 </resources>
