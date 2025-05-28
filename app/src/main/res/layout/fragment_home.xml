@@ -66,16 +66,11 @@
         </LinearLayout>
 
         <!-- Divider -->
-
-        <!-- Botón: My Nutrition -->
-
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginHorizontal="16dp"
             android:background="@color/black" />
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,8 +79,7 @@
             android:baselineAligned="false"
             android:gravity="center_horizontal"
             android:orientation="horizontal"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="16dp">
 
             <!-- Workouts -->
             <LinearLayout
@@ -174,6 +168,37 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@color/black" />
+
+        <TextView
+            android:id="@+id/chart_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/goldman"
+            android:includeFontPadding="false"
+            android:text="@string/exercises_in_the_last_week"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChartWeekly"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_chart_rounded"
+            android:clipToOutline="true" />
 
     </LinearLayout>
 
