@@ -72,6 +72,7 @@ public class StartRoutineAdapter
         h.llSets.removeAllViews();
         if (expanded) {
             h.llSets.setVisibility(View.VISIBLE);
+
             for (ExerciseSet s : re.getSets()) {
                 View row = LayoutInflater.from(h.llSets.getContext())
                         .inflate(R.layout.item_start_routine_set, h.llSets, false);
@@ -81,12 +82,14 @@ public class StartRoutineAdapter
                 EditText etR   = row.findViewById(R.id.etReps);
                 ImageView ivC  = row.findViewById(R.id.ivCheck);
 
+                // Número y hints
                 tvNum.setText(String.valueOf(s.getSetNumber()));
                 etW.setHint(String.valueOf(s.getWeight()));
                 etW.setText("");
                 etR.setHint(String.valueOf(s.getReps()));
                 etR.setText("");
 
+                // Listeners habituales para focos (opcional si usas volcado manual)
                 etW.setOnFocusChangeListener((v, hasFocus) -> {
                     if (!hasFocus) {
                         String text = etW.getText().toString();
@@ -100,19 +103,41 @@ public class StartRoutineAdapter
                     }
                 });
 
+                // Calcular background base (blanco/par)
                 int baseBg = (s.getSetNumber() % 2 == 0)
                         ? Color.WHITE
                         : Color.TRANSPARENT;
-                row.setBackgroundColor(baseBg);
 
+                // **  Restaurar estado según el modelo antes del listener **
+                boolean done = s.isDone();
+                ivC.setSelected(done);
+                int initialBg = done
+                        ? ContextCompat.getColor(row.getContext(), R.color.green_success)
+                        : baseBg;
+                row.setBackgroundColor(initialBg);
+
+                // Listener del checkbox: vuelca inputs y hace toggle
                 ivC.setOnClickListener(v -> {
-                    boolean done = ivC.isSelected();
-                    ivC.setSelected(!done);
-                    s.setDone(!done);
-                    int bg = s.isDone()
+                    // 1) Volcar manualmente el texto actual al modelo
+                    String wText = etW.getText().toString().trim();
+                    if (!wText.isEmpty()) {
+                        s.setWeight(Integer.parseInt(wText));
+                    }
+                    String rText = etR.getText().toString().trim();
+                    if (!rText.isEmpty()) {
+                        s.setReps(Integer.parseInt(rText));
+                    }
+
+                    // 2) Cambiar el estado de "done"
+                    boolean nowDone = !s.isDone();
+                    s.setDone(nowDone);
+                    ivC.setSelected(nowDone);
+
+                    // 3) Ajustar el fondo según el nuevo estado
+                    int newBg = nowDone
                             ? ContextCompat.getColor(row.getContext(), R.color.green_success)
                             : baseBg;
-                    row.setBackgroundColor(bg);
+                    row.setBackgroundColor(newBg);
                 });
 
                 h.llSets.addView(row);
@@ -121,7 +146,7 @@ public class StartRoutineAdapter
             h.llSets.setVisibility(View.GONE);
         }
 
-        // 6) Click en header abre detalle
+        // 6) Click en header abre detalle de ejercicio
         h.headerContainer.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
