@@ -2,25 +2,28 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background">
+    android:background="@color/almost_black"
+    android:fitsSystemWindows="true">
 
+    <!-- 1) Toolbar opaco arriba -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarNewRoutine"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="72dp"
         android:background="@color/almost_black"
         app:contentInsetStartWithNavigation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingEnd="16dp"
             tools:ignore="RtlSymmetry">
 
@@ -32,7 +35,7 @@
                 android:background="@null"
                 android:contentDescription="@string/back"
                 app:srcCompat="@drawable/ic_back_white"
-                android:scaleType="centerInside"/>
+                android:scaleType="centerInside" />
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -45,170 +48,162 @@
                 android:text="@string/new_exercise"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
+
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <EditText
-        android:id="@+id/editTextSearchExercise"
+    <!-- 2) Contenedor con gradiente -->
+    <FrameLayout
+        android:id="@+id/contentGradient"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:autofillHints=""
-        android:backgroundTint="@color/black"
-        android:ems="10"
-        android:fontFamily="@font/goldman"
-        android:hint="@string/search_exercise"
-        android:includeFontPadding="false"
-        android:inputType="text|textNoSuggestions"
-        android:maxLength="35"
-        android:textColor="@color/black"
-        android:textColorHint="@color/dark_gray"
-        android:textCursorDrawable="@drawable/custom_cursor"
-        tools:ignore="TextFields"
-        app:layout_constraintTop_toBottomOf="@id/toolbarNewRoutine"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/filtersContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:weightSum="7"
-        app:layout_constraintTop_toBottomOf="@id/editTextSearchExercise"
+        android:layout_height="0dp"
+        android:layout_marginTop="72dp"
+        android:background="@drawable/gradient_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- 3) Todo el contenido original dentro -->
         <LinearLayout
-            android:id="@+id/optionEquipment"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="3"
-            android:background="@drawable/gender_selector_background"
-            android:gravity="center">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/editTextSearchExercise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:backgroundTint="@color/black"
+                android:ems="10"
+                android:fontFamily="@font/goldman"
+                android:hint="@string/search_exercise"
+                android:includeFontPadding="false"
+                android:inputType="text|textNoSuggestions"
+                android:maxLength="35"
+                android:textColor="@color/black"
+                android:textColorHint="@color/dark_gray"
+                android:textCursorDrawable="@drawable/custom_cursor" />
+
+            <LinearLayout
+                android:id="@+id/filtersContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:weightSum="7">
+
+                <LinearLayout
+                    android:id="@+id/optionEquipment"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/gender_selector_background"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvOptionEquipment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/goldman"
+                        android:includeFontPadding="false"
+                        android:text="@string/all_the_equipment"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/optionMuscles"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/gender_selector_background"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvOptionMuscles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/goldman"
+                        android:includeFontPadding="false"
+                        android:text="@string/all_the_muscles"
+                        android:textAlignment="center"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/optionSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/filter_selected"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/ivSearch"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_search"
+                        android:contentDescription="@string/icono_de_b_squeda" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/black" />
 
             <TextView
-                android:id="@+id/tvOptionEquipment"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvHeader"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:fontFamily="@font/goldman"
                 android:includeFontPadding="false"
-                android:text="@string/all_the_equipment"
-                android:textAlignment="center"
+                android:text="@string/popular_exercises"
                 android:textColor="@color/black"
-                android:textSize="14sp" />
-        </LinearLayout>
+                android:textSize="16sp" />
 
-        <LinearLayout
-            android:id="@+id/optionMuscles"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="3"
-            android:background="@drawable/gender_selector_background"
-            android:gravity="center">
+            <LinearLayout
+                android:id="@+id/placeholderContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" />
 
             <TextView
-                android:id="@+id/tvOptionMuscles"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvNoExercises"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
                 android:fontFamily="@font/goldman"
+                android:gravity="center"
                 android:includeFontPadding="false"
-                android:text="@string/all_the_muscles"
-                android:textAlignment="center"
+                android:text="@string/no_exercises_found"
                 android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPopularExercises"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="vertical" />
         </LinearLayout>
+    </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/optionSearch"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@drawable/filter_selected"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_search"
-                android:contentDescription="@string/icono_de_b_squeda" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@android:color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filtersContainer" />
-
-    <TextView
-        android:id="@+id/tvHeader"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/goldman"
-        android:includeFontPadding="false"
-        android:text="@string/popular_exercises"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider" />
-
-    <LinearLayout
-        android:id="@+id/placeholderContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvHeader"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/tvNoExercises"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginEnd="16dp"
-        android:fontFamily="@font/goldman"
-        android:gravity="center"
-        android:includeFontPadding="false"
-        android:text="@string/no_exercises_found"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvHeader" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPopularExercises"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="16dp"
-        android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/tvNoExercises"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:scrollbarStyle="insideOverlay" />
 </androidx.constraintlayout.widget.ConstraintLayout>
