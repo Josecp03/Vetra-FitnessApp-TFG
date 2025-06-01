@@ -23,15 +23,39 @@ import com.example.vetra_fitnessapp_tfg.view.activities.training.ExerciseDetailA
 
 import java.util.List;
 
+/**
+ * Adaptador para mostrar ejercicios durante la ejecución de una rutina.
+ * Permite expandir/colapsar ejercicios, editar pesos y repeticiones,
+ * y marcar series como completadas. Maneja el estado visual de las
+ * series completadas y la persistencia de datos en tiempo real.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class StartRoutineAdapter
         extends RecyclerView.Adapter<StartRoutineAdapter.VH> {
 
+    /**
+     * Lista de ejercicios de rutina en ejecución.
+     */
     private final List<RoutineExercise> items;
 
+    /**
+     * Constructor del adaptador.
+     *
+     * @param items Lista de ejercicios de rutina en ejecución
+     */
     public StartRoutineAdapter(List<RoutineExercise> items) {
         this.items = items;
     }
 
+    /**
+     * Crea un ViewHolder para un elemento de ejercicio en ejecución.
+     *
+     * @param parent ViewGroup padre
+     * @param viewType Tipo de vista
+     * @return Nuevo ViewHolder configurado
+     */
     @NonNull @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -39,21 +63,21 @@ public class StartRoutineAdapter
         return new VH(v);
     }
 
+    /**
+     * Vincula datos a un ViewHolder específico.
+     *
+     * @param h ViewHolder a configurar
+     * @param pos Posición del elemento en la lista
+     */
     @Override
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
-
-        // 1) Carga de thumb y nombre
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
         h.tvName.setText(re.getExercise().getName());
-
-        // 2) Estado expandido / colapsado
         boolean expanded = re.isExpanded();
-
-        // 3) Icono dropdown y toggle
         h.btnDropdown.setImageResource(
                 expanded
                         ? R.drawable.ic_drop_down
@@ -63,12 +87,8 @@ public class StartRoutineAdapter
             re.setExpanded(!expanded);
             notifyItemChanged(pos);
         });
-
-        // 4) Mostrar u ocultar divisor y header de sets
         h.dividerSets.setVisibility(expanded ? View.VISIBLE : View.GONE);
         h.setsHeader .setVisibility(expanded ? View.VISIBLE : View.GONE);
-
-        // 5) Limpiar y mostrar/ocultar contenedor de filas
         h.llSets.removeAllViews();
         if (expanded) {
             h.llSets.setVisibility(View.VISIBLE);
@@ -81,15 +101,11 @@ public class StartRoutineAdapter
                 EditText etW   = row.findViewById(R.id.etWeight);
                 EditText etR   = row.findViewById(R.id.etReps);
                 ImageView ivC  = row.findViewById(R.id.ivCheck);
-
-                // Número y hints
                 tvNum.setText(String.valueOf(s.getSetNumber()));
                 etW.setHint(String.valueOf(s.getWeight()));
                 etW.setText("");
                 etR.setHint(String.valueOf(s.getReps()));
                 etR.setText("");
-
-                // Listeners habituales para focos (opcional si usas volcado manual)
                 etW.setOnFocusChangeListener((v, hasFocus) -> {
                     if (!hasFocus) {
                         String text = etW.getText().toString();
@@ -102,23 +118,16 @@ public class StartRoutineAdapter
                         s.setReps(text.isEmpty() ? 0 : Integer.parseInt(text));
                     }
                 });
-
-                // Calcular background base (blanco/par)
                 int baseBg = (s.getSetNumber() % 2 == 0)
                         ? Color.WHITE
                         : Color.TRANSPARENT;
-
-                // **  Restaurar estado según el modelo antes del listener **
                 boolean done = s.isDone();
                 ivC.setSelected(done);
                 int initialBg = done
                         ? ContextCompat.getColor(row.getContext(), R.color.green_success)
                         : baseBg;
                 row.setBackgroundColor(initialBg);
-
-                // Listener del checkbox: vuelca inputs y hace toggle
                 ivC.setOnClickListener(v -> {
-                    // 1) Volcar manualmente el texto actual al modelo
                     String wText = etW.getText().toString().trim();
                     if (!wText.isEmpty()) {
                         s.setWeight(Integer.parseInt(wText));
@@ -127,13 +136,9 @@ public class StartRoutineAdapter
                     if (!rText.isEmpty()) {
                         s.setReps(Integer.parseInt(rText));
                     }
-
-                    // 2) Cambiar el estado de "done"
                     boolean nowDone = !s.isDone();
                     s.setDone(nowDone);
                     ivC.setSelected(nowDone);
-
-                    // 3) Ajustar el fondo según el nuevo estado
                     int newBg = nowDone
                             ? ContextCompat.getColor(row.getContext(), R.color.green_success)
                             : baseBg;
@@ -145,8 +150,6 @@ public class StartRoutineAdapter
         } else {
             h.llSets.setVisibility(View.GONE);
         }
-
-        // 6) Click en header abre detalle de ejercicio
         h.headerContainer.setOnClickListener(v -> {
             Intent i = new Intent(v.getContext(), ExerciseDetailActivity.class);
             i.putExtra("exercise", re.getExercise());
@@ -154,21 +157,60 @@ public class StartRoutineAdapter
         });
     }
 
-
+    /**
+     * Obtiene el número total de elementos en el adaptador.
+     *
+     * @return Número de elementos
+     */
     @Override
     public int getItemCount() {
         return items.size();
     }
 
+    /**
+     * ViewHolder para elementos de ejercicio en ejecución.
+     */
     static class VH extends RecyclerView.ViewHolder {
+        /**
+         * ImageView para la miniatura del ejercicio.
+         */
         ImageView    ivThumb;
+
+        /**
+         * TextView para el nombre del ejercicio.
+         */
         TextView     tvName;
+
+        /**
+         * Contenedor para las series del ejercicio.
+         */
         LinearLayout llSets;
+
+        /**
+         * Contenedor del encabezado del ejercicio.
+         */
         View         headerContainer;
+
+        /**
+         * Botón para expandir/colapsar el ejercicio.
+         */
         ImageButton btnDropdown;
+
+        /**
+         * Divisor visual entre secciones.
+         */
         View         dividerSets;
+
+        /**
+         * Encabezado de la tabla de series.
+         */
         LinearLayout setsHeader;
 
+        /**
+         * Constructor del ViewHolder.
+         *
+         * @param item Vista del elemento
+         */
         VH(View item) {
             super(item);
             ivThumb = item.findViewById(R.id.ivThumb);

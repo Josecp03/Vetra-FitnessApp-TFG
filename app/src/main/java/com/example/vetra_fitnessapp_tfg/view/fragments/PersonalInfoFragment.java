@@ -12,56 +12,67 @@ import android.widget.Toast;
 import com.example.vetra_fitnessapp_tfg.utils.StepValidator;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentPersonalInfoBinding;
 
+/**
+ * Fragmento para capturar la información personal básica del usuario.
+ * Incluye nombre, apellido, edad y selección de género.
+ * Forma parte del proceso de configuración inicial de la aplicación.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class PersonalInfoFragment extends Fragment implements StepValidator {
 
+    /**
+     * Binding para acceder a las vistas del fragmento.
+     */
     private FragmentPersonalInfoBinding binding;
+
+    /**
+     * Género seleccionado por el usuario.
+     */
     private String selectedGender = "man";
 
+    /**
+     * Crea y configura la vista del fragmento.
+     *
+     * @param inflater Inflater para crear la vista
+     * @param container Contenedor padre
+     * @param savedInstanceState Estado guardado
+     * @return Vista configurada del fragmento
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentPersonalInfoBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-        // Establecer un género por defecto
         selectGender("man");
-
-        // Llamar a una función para actuaizar la vista según el género seleccionado
         binding.optionMan.setOnClickListener(v -> selectGender("man"));
         binding.optionWoman.setOnClickListener(v -> selectGender("woman"));
-
         return view;
     }
 
+    /**
+     * Actualiza la interfaz según el género seleccionado.
+     *
+     * @param gender Género seleccionado ("man" o "woman")
+     */
     private void selectGender(String gender) {
-
-        // Comprobar el género que fue seleccionado
         if (gender.equals("man")) {
-
-            // Hacer visible la imagen de seleccionado en man
             binding.checkMan.setVisibility(View.VISIBLE);
-
-            // Ocultar la imagen de seleccionado en woman
             binding.checkWoman.setVisibility(View.GONE);
-
-            // Actualizar variable selectgender
             selectedGender = "man";
-
         } else if (gender.equals("woman")) {
-
-            // Ocultar la imagen de seleccionado e woman
             binding.checkMan.setVisibility(View.GONE);
-
-            // Hacer visible la imagen de seleccionado en woman
             binding.checkWoman.setVisibility(View.VISIBLE);
-
-            // Actualizar variable selectgender
             selectedGender = "woman";
-
         }
-
     }
 
+    /**
+     * Valida que todos los campos estén completos y la edad sea válida.
+     *
+     * @return true si todos los campos son válidos, false en caso contrario
+     */
     @Override
     public boolean validateFields() {
         String fn = binding.editTextFirstName.getText().toString().trim();
@@ -82,14 +93,29 @@ public class PersonalInfoFragment extends Fragment implements StepValidator {
         return true;
     }
 
+    /**
+     * Obtiene el nombre ingresado por el usuario.
+     *
+     * @return Nombre del usuario
+     */
     public String getFirstName() {
         return binding.editTextFirstName.getText().toString().trim();
     }
 
+    /**
+     * Obtiene el apellido ingresado por el usuario.
+     *
+     * @return Apellido del usuario
+     */
     public String getLastName() {
         return binding.editTextSecondName.getText().toString().trim();
     }
 
+    /**
+     * Obtiene la edad ingresada por el usuario.
+     *
+     * @return Edad del usuario, o null si no es válida
+     */
     public Integer getAgeValue() {
         try {
             return Integer.parseInt(binding.editTextAge.getText().toString().trim());
@@ -98,6 +124,11 @@ public class PersonalInfoFragment extends Fragment implements StepValidator {
         }
     }
 
+    /**
+     * Obtiene el género seleccionado por el usuario.
+     *
+     * @return Género seleccionado ("man" o "woman")
+     */
     public String getGender() {
         return selectedGender;
     }

@@ -15,7 +15,6 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
-        <!-- Imagen placeholder -->
         <View
             android:id="@+id/ivPlaceholder"
             android:layout_width="56dp"
@@ -26,7 +25,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <!-- Línea de título placeholder -->
         <View
             android:id="@+id/tvPlaceholderTitle"
             android:layout_width="200dp"
@@ -37,7 +35,6 @@
             app:layout_constraintStart_toEndOf="@id/ivPlaceholder"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Línea de subtítulo placeholder -->
         <View
             android:id="@+id/tvPlaceholderSubtitle"
             android:layout_width="140dp"
@@ -47,8 +44,6 @@
             android:background="@drawable/placeholder_bg"
             app:layout_constraintStart_toEndOf="@id/ivPlaceholder"
             app:layout_constraintTop_toBottomOf="@id/tvPlaceholderTitle" />
-
-        <!-- Botón placeholder -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

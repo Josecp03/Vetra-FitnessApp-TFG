@@ -8,7 +8,6 @@
     android:background="@color/almost_black"
     android:fitsSystemWindows="true">
 
-    <!-- 1) Toolbar opaco arriba -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarNewRoutine"
         android:layout_width="0dp"
@@ -52,7 +51,6 @@
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- 2) Contenedor con gradiente -->
     <FrameLayout
         android:id="@+id/contentGradient"
         android:layout_width="0dp"
@@ -64,7 +62,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 3) Todo el contenido original dentro -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

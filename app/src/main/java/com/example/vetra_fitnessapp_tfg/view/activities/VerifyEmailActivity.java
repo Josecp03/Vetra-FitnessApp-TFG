@@ -11,20 +11,36 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * Actividad para la verificación de email del usuario.
+ * Bloquea el acceso a la aplicación hasta que el usuario verifique su email.
+ * Proporciona opciones para verificar o cancelar el proceso de registro.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class VerifyEmailActivity extends AppCompatActivity {
 
+    /** Instancia de Firebase Auth para autenticación */
     private FirebaseAuth mAuth;
+
+    /** Botón para continuar después de verificar el email */
     private Button buttonContinue;
+
+    /** Botón para detener el proceso de verificación */
     private Button buttonStopProcess;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa Firebase Auth y configura los listeners de los botones.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_email);
-
-        // Impide que al tocar fuera se cierre la Activity
         setFinishOnTouchOutside(false);
-        // Quita la flecha de "up" si hay Toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
@@ -37,6 +53,10 @@ public class VerifyEmailActivity extends AppCompatActivity {
         buttonStopProcess.setOnClickListener(v -> showConfirmStopDialog());
     }
 
+    /**
+     * Verifica si el email del usuario ha sido verificado.
+     * Recarga el estado del usuario y navega según el resultado.
+     */
     private void checkEmailVerified() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
@@ -44,7 +64,6 @@ public class VerifyEmailActivity extends AppCompatActivity {
             navigateToSignIn();
             return;
         }
-        // Refrescar estado
         user.reload().addOnCompleteListener(t -> {
             if (user.isEmailVerified()) {
                 navigateTo(UserSetUpActivity.class);
@@ -58,20 +77,19 @@ public class VerifyEmailActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Muestra un diálogo de confirmación para detener el proceso de verificación.
+     * Permite al usuario cancelar el registro y eliminar la cuenta creada.
+     */
     private void showConfirmStopDialog() {
-        // Usamos el constructor que permite pasar un estilo
         BottomSheetDialog dialog = new BottomSheetDialog(
                 this,
-                R.style.BottomSheetDialogTheme // asegúrate de que en tu styles.xml tienes este tema con windowBackground transparente
+                R.style.BottomSheetDialogTheme
         );
         dialog.setContentView(R.layout.dialog_confirm_exit_account_creation);
-
-        // Hacemos transparente el fondo del contenedor para respetar las esquinas redondeadas
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
-
-        // Permitimos que al tocar fuera el diálogo se cierre
         dialog.setCanceledOnTouchOutside(true);
         dialog.setCancelable(true);
 
@@ -105,39 +123,54 @@ public class VerifyEmailActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Método llamado al iniciar la actividad.
+     * Verifica el estado del usuario y navega según corresponda.
+     */
     @Override
     protected void onStart() {
         super.onStart();
-        // forzar que se quede aquí si no ha verificado
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             navigateToSignIn();
         } else if (!user.isEmailVerified()) {
-            // nada: permanece en esta pantalla
         } else {
             navigateTo(UserSetUpActivity.class);
         }
     }
 
-    // bloquear botón atrás
+    /**
+     * Bloquea el botón de retroceso y muestra el diálogo de confirmación.
+     */
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         showConfirmStopDialog();
     }
 
+    /**
+     * Navega a la actividad de inicio de sesión.
+     */
     private void navigateToSignIn() {
         startActivity(new Intent(this, SignInActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         finish();
     }
 
+    /**
+     * Navega a la actividad de registro.
+     */
     private void navigateToSignUp() {
         startActivity(new Intent(this, SignUpActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         finish();
     }
 
+    /**
+     * Navega a la clase especificada limpiando el back-stack.
+     *
+     * @param cls Clase de la actividad a la que navegar
+     */
     private void navigateTo(Class<?> cls) {
         startActivity(new Intent(this, cls)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));

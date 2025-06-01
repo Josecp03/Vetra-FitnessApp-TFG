@@ -1,22 +1,13 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-
-    <!-- Fondo gris claro -->
     <solid android:color="@color/medium_gray" />
-
-    <!-- Bordes redondeados -->
     <corners android:radius="12dp" />
-
-    <!-- Borde negro de 2dp (opcional) -->
     <stroke
         android:width="2dp"
         android:color="@android:color/black" />
-
-    <!-- Padding interno para separar el contenido de los bordes -->
     <padding
         android:left="8dp"
         android:top="8dp"
         android:right="8dp"
         android:bottom="8dp" />
-
 </shape>

@@ -7,7 +7,6 @@
     android:background="@color/almost_black"
     android:fitsSystemWindows="true">
 
-    <!-- Toolbar opaco -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarDetail"
         android:layout_width="0dp"
@@ -42,7 +41,6 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Contenedor con gradiente -->
     <FrameLayout
         android:id="@+id/contentGradient"
         android:layout_width="0dp"

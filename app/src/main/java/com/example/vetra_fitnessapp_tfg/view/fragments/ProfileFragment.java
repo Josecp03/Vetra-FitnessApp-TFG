@@ -70,68 +70,128 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 
+/**
+ * Fragmento para gestionar el perfil del usuario.
+ * Permite editar información personal, cambiar foto de perfil,
+ * configurar notificaciones, cerrar sesión y eliminar cuenta.
+ * Incluye cifrado de datos sensibles y gestión de permisos.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class ProfileFragment extends Fragment {
 
+    /**
+     * Código de solicitud para permisos de cámara.
+     */
     private static final int RC_CAMERA = 1001;
+
+    /**
+     * Código de solicitud para permisos de galería.
+     */
     private static final int RC_GALLERY = 1002;
+
+    /**
+     * Binding para acceder a las vistas del fragmento.
+     */
     private FragmentProfileBinding binding;
+
+    /**
+     * Instancia de autenticación de Firebase.
+     */
     private FirebaseAuth mAuth;
+
+    /**
+     * Cliente para autenticación con Google.
+     */
     private GoogleSignInClient googleClient;
+
+    /**
+     * Instancia de Firestore para operaciones de base de datos.
+     */
     private FirebaseFirestore db;
+
+    /**
+     * Usuario actual autenticado.
+     */
     private FirebaseUser user;
+
+    /**
+     * URI de la imagen capturada con la cámara.
+     */
     private Uri cameraImageUri;
+
+    /**
+     * URI de la imagen pendiente de subir.
+     */
     private Uri pendingImageUri = null;
+
+    /**
+     * Referencia al almacenamiento de Firebase.
+     */
     private StorageReference storageRef;
+
+    /**
+     * Indica si se debe eliminar la foto de perfil.
+     */
     private boolean shouldDeletePhoto = false;
+
+    /**
+     * Gestor de cifrado para datos sensibles.
+     */
     private KeyStoreManager keyStore;
+
+    /**
+     * Indica si el switch de notificaciones ha sido inicializado.
+     */
     private boolean notificationsSwitchInitialized = false;
 
+    /**
+     * Crea y configura la vista del fragmento.
+     *
+     * @param inflater Inflater para crear la vista
+     * @param container Contenedor padre
+     * @param savedInstanceState Estado guardado
+     * @return Vista configurada del fragmento
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
         keyStore   = new KeyStoreManager();
-
-        // Firebase setup
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
-
-        // Google SignIn
         GoogleSignInOptions googleOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleClient = GoogleSignIn.getClient(requireContext(), googleOptions);
-
-        // Button listeners
         binding.buttonLogOut.setOnClickListener(v -> showLogoutDialog());
         binding.changePictureText.setOnClickListener(v -> showChangePictureDialog());
         binding.buttonSaveChanges.setOnClickListener(v -> saveProfileChanges());
         binding.buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
         binding.profileImage.setOnClickListener(v -> showChangePictureDialog());
-
-
         return view;
     }
 
+    /**
+     * Configura el switch de notificaciones y sus listeners.
+     *
+     * @param view Vista del fragmento
+     * @param savedInstanceState Estado guardado
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         loadUserProfile();
-
         binding.switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!notificationsSwitchInitialized) {
-                // Ignorar el primer cambio causado por setChecked() en loadUserProfile()
                 return;
             }
-
-            // 1) Guardar en Firestore
             db.collection("users")
                     .document(user.getUid())
                     .update("notifications_enabled", isChecked)
@@ -146,11 +206,7 @@ public class ProfileFragment extends Fragment {
                                     "Error saving notification setting",
                                     Toast.LENGTH_SHORT).show()
                     );
-
-            // 2) Guardar localmente para el Service
             Prefs.setNotificationsEnabled(requireContext(), isChecked);
-
-            // 3) Suscribir / desuscribir de FCM
             String topic = "user_" + user.getUid();
             if (isChecked) {
                 FirebaseMessaging.getInstance()
@@ -174,40 +230,38 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Muestra el diálogo de confirmación para eliminar cuenta.
+     */
     private void showDeleteAccountDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_account, null);
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
         dialog.setContentView(dialogView);
         Objects.requireNonNull(dialog.getWindow())
                 .setBackgroundDrawableResource(android.R.color.transparent);
-
         MaterialButton btnConfirm = dialogView.findViewById(R.id.buttonDeleteAccountConfirm);
         btnConfirm.setOnClickListener(v -> {
             dialog.dismiss();
             deleteUserAccountCascade();
         });
-
         dialog.show();
     }
 
-
+    /**
+     * Carga el perfil del usuario desde Firestore y actualiza la interfaz.
+     */
     private void loadUserProfile() {
         db.collection("users")
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener((DocumentSnapshot doc) -> {
-                    // 1) Foto de perfil
                     Glide.with(this)
                             .load(doc.getString("profile_photo_url"))
                             .placeholder(R.drawable.ic_profile_picture)
                             .into(binding.profileImage);
-
-                    // 2) Username (desencriptar)
                     String encryptedUser = doc.getString("username");
                     String decryptedUser = keyStore.decrypt(encryptedUser);
                     binding.editTextUserName.setText(decryptedUser != null ? decryptedUser : "");
-
-                    // 3) Edad, peso, altura, calorías
                     Long age     = doc.getLong("age");
                     Double weight= doc.getDouble("weight");
                     Long height  = doc.getLong("height");
@@ -216,27 +270,21 @@ public class ProfileFragment extends Fragment {
                     binding.editTextWeight.setText(weight!= null ? String.valueOf(weight) : "");
                     binding.editTextHeight.setText(height != null ? String.valueOf(height) : "");
                     binding.editTextCalorieGoal.setText(cal  != null ? String.valueOf(cal)    : "");
-
-                    // 4) Estado del switch de notificaciones (Firestore → UI)
                     Boolean notifEnabled = doc.getBoolean("notifications_enabled");
                     boolean isOn = notifEnabled == null ? true : notifEnabled;
                     binding.switchNotifications.setChecked(isOn);
-
-                    // 5) Guardar estado localmente
                     Prefs.setNotificationsEnabled(requireContext(), isOn);
-
-                    // 6) A partir de ahora, listener responderá solo a cambios manuales
                     notificationsSwitchInitialized = true;
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ProfileFragment", "Error reading profile", e);
-                    // Aunque falle, liberar el flag para no bloquear futuros cambios
                     notificationsSwitchInitialized = true;
                 });
     }
 
-
-
+    /**
+     * Muestra el diálogo de confirmación para cerrar sesión.
+     */
     private void showLogoutDialog() {
         DialogLogoutBinding dialogBinding = DialogLogoutBinding.inflate(getLayoutInflater());
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
@@ -246,12 +294,14 @@ public class ProfileFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Muestra el diálogo para cambiar la foto de perfil.
+     */
     private void showChangePictureDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_change_picture, null);
         BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
         dialog.setContentView(dialogView);
         Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
-
         MaterialButton btnCamera = dialogView.findViewById(R.id.buttonTakePhoto);
         btnCamera.setOnClickListener(v -> {
             dialog.dismiss();
@@ -287,12 +337,18 @@ public class ProfileFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Maneja el resultado de solicitudes de permisos.
+     *
+     * @param requestCode Código de la solicitud
+     * @param permissions Permisos solicitados
+     * @param grantResults Resultados de los permisos
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         boolean allGranted = true;
         for (int r : grantResults) {
             if (r != PackageManager.PERMISSION_GRANTED) {
@@ -300,7 +356,6 @@ public class ProfileFragment extends Fragment {
                 break;
             }
         }
-
         if (requestCode == RC_CAMERA) {
             if (allGranted) {
                 openCamera();
@@ -331,6 +386,9 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Abre la aplicación de cámara para capturar una foto.
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(requireContext().getPackageManager()) == null) {
@@ -354,6 +412,9 @@ public class ProfileFragment extends Fragment {
         startActivityForResult(intent, RC_CAMERA);
     }
 
+    /**
+     * Abre la galería para seleccionar una imagen.
+     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
@@ -364,6 +425,13 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Maneja el resultado de actividades iniciadas para obtener resultados.
+     *
+     * @param requestCode Código de la solicitud
+     * @param resultCode Código del resultado
+     * @param data Datos devueltos por la actividad
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -393,28 +461,49 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Guarda los cambios del perfil en Firestore con cifrado de datos sensibles.
+     */
     private void saveProfileChanges() {
         if (!validateProfileFields()) return;
-
         Map<String,Object> updates = new HashMap<>();
-
-        // Encriptar y guardar username
         String plainUser     = binding.editTextUserName.getText().toString().trim();
         String encryptedUser = keyStore.encrypt(plainUser);
         updates.put("username", encryptedUser);
-
-        // Campos restantes
         updates.put("age",           Integer.parseInt(binding.editTextAge.getText().toString().trim()));
         updates.put("height",        Integer.parseInt(binding.editTextHeight.getText().toString().trim()));
         updates.put("weight",        Double.parseDouble(binding.editTextWeight.getText().toString().trim()));
         updates.put("user_calories", Integer.parseInt(binding.editTextCalorieGoal.getText().toString().trim()));
-
-        // Estado de notificaciones
         updates.put("notifications_enabled", binding.switchNotifications.isChecked());
-
-        // Resto de tu lógica de subida de foto y finalizeSave(updates,…)
         if (pendingImageUri != null) {
-            // … tu código existente para subir foto …
+            try {
+                byte[] compressed = compressImage(pendingImageUri);
+                StorageReference photoRef = storageRef.child("profile_photos/" + user.getUid() + ".jpg");
+
+                Toast.makeText(requireContext(), "Uploading photo...", Toast.LENGTH_SHORT).show();
+                binding.buttonSaveChanges.setEnabled(false);
+
+                photoRef.putBytes(compressed)
+                        .continueWithTask(task -> {
+                            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+                            return photoRef.getDownloadUrl();
+                        })
+                        .addOnSuccessListener(downloadUri -> {
+                            updates.put("profile_photo_url", downloadUri.toString());
+                            pendingImageUri = null;
+                            shouldDeletePhoto = false;
+                            finalizeSave(updates, photoRef);
+                        })
+                        .addOnFailureListener(e -> {
+                            binding.buttonSaveChanges.setEnabled(true);
+                            Toast.makeText(requireContext(), "Error uploading photo", Toast.LENGTH_SHORT).show();
+                            Log.e("ProfileFragment", "Upload failed", e);
+                        });
+
+            } catch (IOException e) {
+                Log.e("ProfileFragment", "Error compressing image", e);
+                Toast.makeText(requireContext(), "Could not process image", Toast.LENGTH_SHORT).show();
+            }
         } else if (!shouldDeletePhoto) {
             finalizeSave(updates, null);
         } else {
@@ -424,8 +513,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-
-
+    /**
+     * Finaliza el guardado de cambios en Firestore.
+     *
+     * @param updates Mapa de actualizaciones a aplicar
+     * @param photoRef Referencia opcional a foto para eliminar
+     */
     private void finalizeSave(Map<String,Object> updates, @Nullable StorageReference photoRef) {
         db.collection("users").document(user.getUid())
                 .update(updates)
@@ -448,6 +541,9 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Marca la foto de perfil para eliminación.
+     */
     private void deleteProfilePhoto() {
         shouldDeletePhoto = true;
         pendingImageUri = null;
@@ -455,6 +551,12 @@ public class ProfileFragment extends Fragment {
         Toast.makeText(requireContext(), "Photo will be deleted when you save changes", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Crea un archivo temporal para almacenar imágenes.
+     *
+     * @return Archivo temporal creado
+     * @throws IOException Si hay error al crear el archivo
+     */
     private File createTempImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "IMG_" + timeStamp + "_";
@@ -462,6 +564,11 @@ public class ProfileFragment extends Fragment {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
+    /**
+     * Valida que todos los campos del perfil estén completos y dentro de rangos válidos.
+     *
+     * @return true si todos los campos son válidos, false en caso contrario
+     */
     private boolean validateProfileFields() {
         String user = binding.editTextUserName.getText().toString().trim();
         String ageStr = binding.editTextAge.getText().toString().trim();
@@ -503,6 +610,9 @@ public class ProfileFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Cierra la sesión del usuario.
+     */
     private void logout() {
         mAuth.signOut();
         googleClient.signOut().addOnCompleteListener(requireActivity(), task -> {
@@ -513,6 +623,14 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Rota una imagen si es necesario según su orientación EXIF.
+     *
+     * @param img Imagen a rotar
+     * @param selectedImage URI de la imagen
+     * @return Imagen rotada si es necesario
+     * @throws IOException Si hay error al leer la imagen
+     */
     private Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
         InputStream input = requireContext().getContentResolver().openInputStream(selectedImage);
         ExifInterface ei = new ExifInterface(input);
@@ -530,6 +648,13 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Comprime una imagen para reducir su tamaño.
+     *
+     * @param uri URI de la imagen a comprimir
+     * @return Array de bytes de la imagen comprimida
+     * @throws IOException Si hay error al procesar la imagen
+     */
     private byte[] compressImage(Uri uri) throws IOException {
         Bitmap original = MediaStore.Images.Media.getBitmap(
                 requireContext().getContentResolver(), uri
@@ -547,13 +672,23 @@ public class ProfileFragment extends Fragment {
         return baos.toByteArray();
     }
 
-
+    /**
+     * Rota una imagen un ángulo específico.
+     *
+     * @param source Imagen fuente
+     * @param angle Ángulo de rotación
+     * @return Imagen rotada
+     */
     private Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    /**
+     * Elimina la cuenta del usuario de forma cascada.
+     * Borra datos de Firestore, Storage y Authentication.
+     */
     private void deleteUserAccountCascade() {
         ProgressDialog progress = new ProgressDialog(getContext());
         progress.setMessage("Deleting your account…");
@@ -562,12 +697,8 @@ public class ProfileFragment extends Fragment {
 
         String uid = user.getUid();
         DocumentReference userDoc = db.collection("users").document(uid);
-
-        // Eliminar subcolecciones y el documento principal
         List<String> subCollections = Arrays.asList("exerciseHistory", "routines");
         List<Task<?>> deleteTasks = new ArrayList<>();
-
-        // Primero, borramos cada documento de cada subcolección
         for (String sub : subCollections) {
             CollectionReference colRef = userDoc.collection(sub);
             Task<QuerySnapshot> queryTask = colRef.get()
@@ -578,17 +709,12 @@ public class ProfileFragment extends Fragment {
                     });
             deleteTasks.add(queryTask);
         }
-
-        // Cuando todas las tareas de borrado de subcolecciones estén lanzadas:
         Tasks.whenAll(deleteTasks)
                 .addOnCompleteListener(t1 -> {
-                    // Ahora borramos el documento principal
                     userDoc.delete()
                             .addOnSuccessListener(aVoid -> {
-                                // Eliminar Storage
                                 deleteUserStorage(uid)
                                         .addOnCompleteListener(t2 -> {
-                                            // Eliminar Auth
                                             user.delete()
                                                     .addOnCompleteListener(t3 -> {
                                                         progress.dismiss();
@@ -613,16 +739,16 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Elimina todos los archivos del usuario en Storage.
+     *
+     * @param uid ID del usuario
+     * @return Task que representa la operación de eliminación
+     */
     private Task<Void> deleteUserStorage(String uid) {
-        // Referencia a la foto de perfil
         StorageReference photoRef = storageRef.child("profile_photos/" + uid + ".jpg");
-        // Referencia a la carpeta de usuario
         StorageReference userFolder = storageRef.child("users/" + uid);
-
-        // Borrar foto de perfil
         Task<Void> deletePhoto = photoRef.delete();
-
-        // Listar y borrar el resto de ficheros
         Task<ListResult> listTask = userFolder.listAll();
         Task<Void> deleteContent = listTask.continueWithTask(task -> {
             if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
@@ -632,13 +758,6 @@ public class ProfileFragment extends Fragment {
             }
             return Tasks.whenAll(removes);
         });
-
-        // Esperar a foto + contenido
         return Tasks.whenAll(deletePhoto, deleteContent);
     }
-
-
-
-
-
 }

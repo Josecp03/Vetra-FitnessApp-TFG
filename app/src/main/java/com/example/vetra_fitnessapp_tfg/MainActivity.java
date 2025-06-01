@@ -24,62 +24,66 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-
+/**
+ * Actividad principal de la aplicación Vetra Fitness.
+ * Maneja la navegación entre fragmentos principales y configura el sistema de notificaciones.
+ * Contiene la barra de navegación inferior y el toolbar personalizado.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class MainActivity extends AppCompatActivity {
 
+    /** Binding para acceder a las vistas de la actividad */
     private ActivityMainBinding binding;
+
+    /** TextView del título en el toolbar personalizado */
     private TextView titleText;
+
+    /** ImageView del icono en el toolbar personalizado */
     private ImageView toolbarIcon;
+
+    /** Código de solicitud para permisos de notificaciones */
     private static final int RC_NOTIFICATIONS = 2001;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Configura la orientación, solicita permisos de notificaciones,
+     * crea el canal de notificaciones y configura la navegación.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
         requestNotificationPermissionIfNeeded();
-
         createNotificationChannel();
-
-        // Configurar barras de navegación
         setupNavigationAndToolbar();
-
     }
 
+    /**
+     * Configura la navegación inferior y el toolbar personalizado.
+     * Establece los títulos dinámicos según el fragmento actual.
+     */
     @SuppressLint("SetTextI18n")
     private void setupNavigationAndToolbar() {
-
-        // Configurar el toolbar personalizado
         Toolbar toolbar = findViewById(R.id.myToolbar);
         setSupportActionBar(toolbar);
-
-        // Ocultar el título por defecto
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-
-        // Referencias al texto y al icono del toolbar
         titleText = toolbar.findViewById(R.id.toolbar_title);
         toolbarIcon = toolbar.findViewById(R.id.toolbar_image);
-
-        // Configura la barra de navegación inferior
         BottomNavigationView navView = findViewById(R.id.nav_view);
-
-        // Definir las secciones principales de la app para el comportamiento del toolbar
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
                 R.id.navigation_workouts,
                 R.id.navigation_chatgpt,
                 R.id.navigation_profile
         ).build();
-
-        // Obtener el controlador de navegación asociado al nav_host_fragment
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-
-        // Vincular la BottomNavigationView con el NavController para gestionar la navegación
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        // Cambiar dinámicamente el título del toolbar según el destino de navegación
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             int id = destination.getId();
             if (id == R.id.navigation_home) {
@@ -94,23 +98,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Crea el canal de notificaciones para Android O y versiones superiores.
+     * La importancia del canal depende de la configuración del usuario guardada en Prefs.
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // 1) Leemos el estado del switch guardado en Prefs
             boolean enabled = Prefs.isNotificationsEnabled(this);
-
-            // 2) IMPORTANCE_NONE o DEFAULT según el switch
             int importance = enabled
                     ? NotificationManager.IMPORTANCE_DEFAULT
                     : NotificationManager.IMPORTANCE_NONE;
-
             NotificationChannel channel = new NotificationChannel(
                     "mi_canal_por_defecto",
                     "Notificaciones de entrenamiento",
                     importance
             );
             channel.setDescription("Canal para recordatorios diarios");
-
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
@@ -118,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Solicita permisos de notificaciones si es necesario (Android 13+).
+     */
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
@@ -131,6 +137,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Maneja el resultado de las solicitudes de permisos.
+     *
+     * @param requestCode Código de la solicitud de permiso
+     * @param permissions Array de permisos solicitados
+     * @param grantResults Array de resultados de los permisos
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -144,6 +157,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
 }

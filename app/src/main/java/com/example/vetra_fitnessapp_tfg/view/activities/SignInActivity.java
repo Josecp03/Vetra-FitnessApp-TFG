@@ -29,19 +29,41 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import java.util.Objects;
 
+/**
+ * Actividad para el inicio de sesión de usuarios.
+ * Permite autenticación mediante email/contraseña y Google Sign-In.
+ * También proporciona funcionalidad para recuperación de contraseñas.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class SignInActivity extends AppCompatActivity {
 
-    // Atributos
+    /** Binding para acceder a las vistas de la actividad */
     private ActivitySignInBinding binding;
+
+    /** Tag para logging */
     private static final String TAG = SignInActivity.class.getSimpleName();
+
+    /** Instancia de Firebase Auth para autenticación */
     private FirebaseAuth mAuth;
+
+    /** Cliente de Google Sign-In */
     private GoogleSignInClient googleClient;
+
+    /** Launcher para manejar el resultado de Google Sign-In */
     private final ActivityResultLauncher<Intent> googleSignInLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     this::handleGoogleSignInResult
             );
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa Firebase Auth, configura Google Sign-In y establece los listeners.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,259 +71,192 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        // Inicializar Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
-        // Configurar Google Sign-In
         GoogleSignInOptions googleOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id)) // Obtiene el ID del cliente de Google
                 .requestEmail() // Solicitar el correo electrónico
                 .build(); // Construir el objeto GoogleSignInOptions
         googleClient = GoogleSignIn.getClient(this, googleOptions);
 
-        // Listener para el botón de SignIn
         binding.buttonSignIn.setOnClickListener(v -> signInWithEmail());
-
-        // Listener para el botón de Google
         binding.buttonGoogle.setOnClickListener(v -> signInWithGoogle());
-
-        // Listener para el texto "Forget your password?"
         binding.textViewForgetPassword.setOnClickListener(v -> showForgotPasswordDialog());
-
-        // Listener para el texto "Sign up here"
         binding.textViewSignUp.setOnClickListener(v -> navigateToSignUpActivity());
 
     }
 
+    /**
+     * Muestra el diálogo para recuperación de contraseña.
+     * Permite al usuario ingresar su email para recibir un enlace de recuperación.
+     */
     private void showForgotPasswordDialog() {
-
-        // Inflar el binding del diálogo
         DialogRecoverPasswordBinding dialogBinding = DialogRecoverPasswordBinding.inflate(getLayoutInflater());
-
-        // Crear un BottomSheetDialog con un tema personalizado
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
-
-        // Asignar la vista al diálogo
         bottomSheetDialog.setContentView(dialogBinding.getRoot());
-
-        // Establecer fondo transparente para que los bordes sean redondeados o personalizados
         Objects.requireNonNull(bottomSheetDialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
 
-        // Listener para el botón de enviar email con enlace de recuperación
         dialogBinding.buttonSendMail.setOnClickListener(v -> {
-
-            // Obtener el email ingresado
             String email = dialogBinding.editTextEmail.getText().toString().trim();
-
-            // Comprobar que el email no esté vacío
             if (email.isEmpty()) {
-
-                // Mostrar un mensaje de error
                 Toast.makeText(this, "Email is required", Toast.LENGTH_SHORT).show();
                 return;
-
             }
-
-            // Recuperar la contraseña enviando un correo al usuario
             resetPassword(email, bottomSheetDialog);
-
         });
 
-        // Mostrar el diálogo
         bottomSheetDialog.show();
-
-        // Obtener la vista del bottom sheet
         View bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-
-        // Forzar que ocupe toda la altura de la pantalla
         bottomSheet.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
 
     }
 
+    /**
+     * Envía un email de recuperación de contraseña al usuario.
+     *
+     * @param email  Email del usuario para enviar el enlace de recuperación
+     * @param dialog Diálogo a cerrar si el envío es exitoso
+     */
     private void resetPassword(String email, BottomSheetDialog dialog) {
-
-        // Enviar enlace de recuperación de contraseña a Firebase
-        mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si el enlace fue enviado
+        mAuth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        boolean exists = !task.getResult().getSignInMethods().isEmpty();
 
-                        // Mostrar mensaje de éxito
-                        Toast.makeText(this, "Password reset link sent to your email", Toast.LENGTH_SHORT).show();
+                        if (exists) {
+                            mAuth.sendPasswordResetEmail(email)
+                                    .addOnCompleteListener(this, resetTask -> {
+                                        if (resetTask.isSuccessful()) {
+                                            FirebaseAuth.getInstance().signOut();
+                                            dialog.dismiss();
+                                            Toast.makeText(this, "Recovery link sent. Please check your email and log in again with your new password.", Toast.LENGTH_LONG).show();
 
-                        // Cerrar el diálogo
-                        dialog.dismiss();
-
+                                            Intent intent = new Intent(SignInActivity.this, SignInActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            Log.e(TAG, "Error sending recovery email", resetTask.getException());
+                                            Toast.makeText(this, "Failed to send recovery email: " + resetTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        } else {
+                            Toast.makeText(this, "This email is not associated with any account", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-
-                        // Manejar errores de autenticación
-                        Log.e(TAG, "Error al envira el enlace");
-
+                        Log.e(TAG, "Error checking email existence", task.getException());
+                        Toast.makeText(this, "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
                     }
-
                 });
-
     }
 
+    /**
+     * Inicia el proceso de autenticación con Google.
+     */
     private void signInWithGoogle() {
-
-        // Crear un intent para iniciar sesión con Google
         Intent intent = googleClient.getSignInIntent();
-
-        // Iniciar la actividad de Google Sign-In
         googleSignInLauncher.launch(intent);
-
     }
 
+    /**
+     * Maneja el resultado del proceso de Google Sign-In.
+     *
+     * @param result Resultado de la actividad de Google Sign-In
+     */
     private void handleGoogleSignInResult(androidx.activity.result.ActivityResult result) {
-
-        // Comprobar si el usuario canceló la operación
         if (result.getData() == null) {
             return;
         }
-
         try {
-
-            // Obtener la cuenta de Google del resultado
             GoogleSignInAccount acct = GoogleSignIn
                     .getSignedInAccountFromIntent(result.getData())
                     .getResult(ApiException.class);
-
-            // Autenticar con la cuenta de Google
             firebaseAuthWithGoogle(acct);
 
         } catch (ApiException e) {
-
-            // Manejar errores de autenticación con Google
             Log.w(TAG, "Autenticación con google cancelada", e);
-
         }
     }
 
+    /**
+     * Autentica al usuario en Firebase usando las credenciales de Google.
+     *
+     * @param acct Cuenta de Google obtenida del sign-in
+     */
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-
-        // Crear un objeto de autenticación con el token de Google
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-
-        // Iniciar la autenticación con Firebase
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
-
-                        // Guardar en variable booleana si es nuevo usuario
                         boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-
-                        // Comprobar el estado de la variable booleana
                         if (isNew) {
-
-                            // Navegar a la la actividad correspondiente
                             navigateToUserSetUpActivity();
-
                         } else {
-
-                            // Navegar a la actividad principal
                             navigateToMainActivity();
-
                         }
-
                     } else {
-
-                        // Manejar errores de autenticación
                         Log.e(TAG, "Autenticación con google fallida");
-
                     }
-
                 });
-
     }
 
+    /**
+     * Realiza el inicio de sesión con email y contraseña.
+     * Valida los campos y autentica al usuario con Firebase.
+     */
     private void signInWithEmail() {
-
-        // Obtener los valores de los campos de texto
         String email = binding.editTextEmail.getText().toString().trim();
         String pass  = binding.editTextPassword.getText().toString().trim();
-
-        // Comprobar que los campos no estén vacíos
         if (email.isEmpty() || pass.isEmpty()) {
-
-            // Mostrar un mensaje de error
             Toast.makeText(this, "Email and password are required", Toast.LENGTH_SHORT).show();
             return;
-
         }
-
-        // Comprobar que el email sea válido
         if (!isEmailValid(email)) {
-
-            // Mostrar un mensaje de error
             Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
-
         }
-
-        // Iniciar sesión con Firebase
         mAuth.signInWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
-
-                        // Navegar a la actividad principal
                         navigateToMainActivity();
-
                     } else {
-
-                        // Mostrar un mensaje de error
                         Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show();
-
                     }
-
                 });
-
     }
 
+    /**
+     * Navega a la actividad de registro.
+     */
     private void navigateToSignUpActivity() {
-
-        // Crear intent para navegar a SignUpActivity
         Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
-
-        // Lanzar el intent
         startActivity(intent);
-
-        // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
     }
 
+    /**
+     * Navega a la actividad de configuración de usuario.
+     */
     private void navigateToUserSetUpActivity() {
-
-        // Crear intent para navegar a SignUpActivity
         Intent intent = new Intent(SignInActivity.this, UserSetUpActivity.class);
-
-        // Lanzar el intent
         startActivity(intent);
-
-        // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
     }
 
+    /**
+     * Navega a la actividad principal.
+     */
     private void navigateToMainActivity() {
-
-        // Crear intent para navegar a SignUpActivity
         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-
-        // Lanzar el intent
         startActivity(intent);
-
-        // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
     }
 
+    /**
+     * Valida si un email tiene un formato correcto.
+     *
+     * @param email Email a validar
+     * @return true si el email es válido, false en caso contrario
+     */
     public static boolean isEmailValid(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }

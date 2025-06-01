@@ -13,11 +13,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * Controlador para la gestión de rutinas de entrenamiento.
+ * Maneja la lógica de negocio para cargar rutinas del usuario desde Firestore
+ * y convertir los datos en objetos del modelo.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class RoutineController {
 
+    /** Instancia de Firestore para acceso a la base de datos */
     private final FirebaseFirestore db   = FirebaseFirestore.getInstance();
+
+    /** Instancia de Firebase Auth para autenticación */
     private final FirebaseAuth      auth = FirebaseAuth.getInstance();
 
+    /**
+     * Carga todas las rutinas del usuario autenticado desde Firestore.
+     * Convierte los datos de Firestore en objetos Routine con sus ejercicios y series correspondientes.
+     *
+     * @param onSuccess Consumer que recibe la lista de rutinas cargadas exitosamente
+     */
     public void loadUserRoutines(Consumer<List<Routine>> onSuccess) {
         String uid = auth.getCurrentUser().getUid();
 

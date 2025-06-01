@@ -26,14 +26,41 @@ import com.google.android.material.button.MaterialButton;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Adaptador para mostrar ejercicios dentro de una rutina en creación.
+ * Maneja la expansión/colapso de ejercicios, gestión de series,
+ * y eliminación de ejercicios de la rutina. Incluye validaciones
+ * de límites máximos de series.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExerciseAdapter.VH> {
+    /**
+     * Lista de ejercicios de rutina a mostrar.
+     */
     private final List<RoutineExercise> items;
+    /**
+     * Número máximo de series permitidas por ejercicio.
+     */
     private static final int MAX_SETS = 15;
 
+    /**
+     * Constructor del adaptador.
+     *
+     * @param items Lista de ejercicios de rutina a mostrar
+     */
     public RoutineExerciseAdapter(List<RoutineExercise> items) {
         this.items = items;
     }
 
+    /**
+     * Crea un ViewHolder para un elemento de ejercicio de rutina.
+     *
+     * @param parent ViewGroup padre
+     * @param viewType Tipo de vista
+     * @return Nuevo ViewHolder configurado
+     */
     @NonNull @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -41,52 +68,43 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         return new VH(v);
     }
 
+    /**
+     * Vincula datos a un ViewHolder específico.
+     *
+     * @param h ViewHolder a configurar
+     * @param pos Posición del elemento en la lista
+     */
     @Override
     public void onBindViewHolder(@NonNull VH h, int pos) {
         RoutineExercise re = items.get(pos);
         String displayName = toCamelCase(re.getExercise().getName());
-
-        // 1) Cabecera fija
         h.tvName.setText(displayName);
         Glide.with(h.ivThumb.getContext())
                 .load(re.getExercise().getGifUrl())
                 .circleCrop()
                 .into(h.ivThumb);
-
-        // 2) Leemos estado siempre dinámicamente
         boolean expanded = re.isExpanded();
-
-        // 3) Dropdown icon y toggle correcto
         h.btnDropdown.setImageResource(
                 expanded
                         ? R.drawable.ic_drop_down
                         : R.drawable.ic_drop_up
         );
         h.btnDropdown.setOnClickListener(v -> {
-            // Toggle basado en el estado real
             re.setExpanded(!re.isExpanded());
             notifyItemChanged(pos);
         });
-
-        // 4) Limpiar siempre antes de repoblar
         h.llSets.removeAllViews();
-
         if (expanded) {
-            // 5.a) Mostrar divisor, sets y botones
             h.divider.setVisibility(View.VISIBLE);
             h.llSets.setVisibility(View.VISIBLE);
             h.btnAddSet.setVisibility(View.VISIBLE);
             h.btnRemoveSet.setVisibility(View.VISIBLE);
-
-            // Cabecera de mini-tabla
             View header = LayoutInflater.from(h.llSets.getContext())
                     .inflate(R.layout.item_routine_set, h.llSets, false);
             ((TextView) header.findViewById(R.id.tvSetNumber)).setText("Set");
             ((TextView) header.findViewById(R.id.tvWeight))   .setText("kg");
             ((TextView) header.findViewById(R.id.tvReps))     .setText("Reps");
             h.llSets.addView(header);
-
-            // Filas de sets
             for (ExerciseSet set : re.getSets()) {
                 View row = LayoutInflater.from(h.llSets.getContext())
                         .inflate(R.layout.item_routine_set, h.llSets, false);
@@ -102,18 +120,14 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
                 h.llSets.addView(row);
             }
         } else {
-            // 5.b) Ocultar todo lo expandible
             h.divider.setVisibility(View.GONE);
             h.llSets.setVisibility(View.GONE);
             h.btnAddSet.setVisibility(View.GONE);
             h.btnRemoveSet.setVisibility(View.GONE);
         }
-
-        // 6) Listeners añadir/quitar
         h.btnAddSet.setOnClickListener(v -> {
             if (re.getSets().size() < MAX_SETS) {
                 re.addSet();
-                // forzamos rebind para recalcular visibilidad y contenido
                 notifyItemChanged(pos);
             } else {
                 Toast.makeText(
@@ -129,8 +143,6 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
                 notifyItemChanged(pos);
             }
         });
-
-        // 7) Menú y navegación (sin cambios)
         h.btnMore.setOnClickListener(v -> showDeleteDialog(h, displayName, pos));
         h.itemView.setOnLongClickListener(v -> {
             showDeleteDialog(h, displayName, pos);
@@ -143,12 +155,21 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         });
     }
 
-
-
+    /**
+     * Obtiene el número total de elementos en el adaptador.
+     *
+     * @return Número de elementos
+     */
     @Override public int getItemCount() {
         return items.size();
     }
 
+    /**
+     * Convierte texto a formato CamelCase manejando guiones.
+     *
+     * @param input Texto de entrada a convertir
+     * @return Texto convertido a CamelCase
+     */
     private String toCamelCase(String input) {
         String[] parts = input.split(" ");
         StringBuilder sb = new StringBuilder();
@@ -167,6 +188,13 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         return sb.toString();
     }
 
+    /**
+     * Muestra el diálogo de confirmación para eliminar un ejercicio.
+     *
+     * @param h ViewHolder del elemento
+     * @param displayName Nombre del ejercicio a mostrar
+     * @param pos Posición del ejercicio en la lista
+     */
     private void showDeleteDialog(VH h, String displayName, int pos) {
         View dlg = LayoutInflater.from(h.itemView.getContext())
                 .inflate(R.layout.dialog_delete_exercise, null);
@@ -191,18 +219,47 @@ public class RoutineExerciseAdapter extends RecyclerView.Adapter<RoutineExercise
         sheet.show();
     }
 
-
-
+    /**
+     * ViewHolder para elementos de ejercicio de rutina.
+     */
     static class VH extends RecyclerView.ViewHolder {
+        /**
+         * ImageView para la miniatura del ejercicio.
+         */
         ImageView    ivThumb;
+
+        /**
+         * TextView para el nombre del ejercicio.
+         */
         TextView     tvName;
+
+        /**
+         * Contenedor para las series del ejercicio.
+         */
         LinearLayout llSets;
+
+        /**
+         * Botones para añadir y quitar series.
+         */
         Button       btnAddSet;
         Button       btnRemoveSet;
+
+        /**
+         * Botones de menú y expansión.
+         */
         ImageButton  btnMore;
         ImageButton  btnDropdown;
+
+        /**
+         * Divisor visual entre secciones.
+         */
         View         divider;
 
+        /**
+         * Constructor del ViewHolder.
+         *
+         * @param item Vista del elemento
+         */
         VH(View item) {
             super(item);
             ivThumb      = item.findViewById(R.id.ivExerciseThumb);

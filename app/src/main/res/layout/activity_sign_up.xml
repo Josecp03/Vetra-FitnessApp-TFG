@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:textAlignment="center">
 
-        <!-- Back -->
         <ImageView
             android:id="@+id/buttonBack"
             android:layout_width="116dp"
@@ -29,7 +28,6 @@
             android:src="@drawable/ic_back"
             tools:ignore="RtlSymmetry" />
 
-        <!-- Logo -->
         <ImageView
             android:id="@+id/imageViewLogoVetra"
             android:layout_width="match_parent"
@@ -40,7 +38,6 @@
             app:srcCompat="@drawable/logo_vetra_black"
             tools:ignore="RtlSymmetry" />
 
-        <!-- Mensaje 1 -->
         <TextView
             android:id="@+id/textViewWelcomeBack"
             android:layout_width="match_parent"
@@ -52,7 +49,6 @@
             android:textColor="@color/black"
             android:textSize="28sp" />
 
-        <!-- Mensaje 2 -->
         <TextView
             android:id="@+id/textViewLogIn"
             android:layout_width="match_parent"
@@ -66,7 +62,6 @@
             android:textColor="@color/black"
             android:textSize="14sp" />
 
-        <!-- Username -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -126,7 +121,6 @@
 
         </LinearLayout>
 
-        <!-- Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -187,7 +181,6 @@
 
         </LinearLayout>
 
-        <!-- Password -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -248,7 +241,6 @@
 
         </LinearLayout>
 
-        <!-- Sign Up -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -276,7 +268,6 @@
 
         </LinearLayout>
 
-        <!-- Divider -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -311,7 +302,6 @@
                 android:background="@android:color/black" />
         </LinearLayout>
 
-        <!-- Google -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

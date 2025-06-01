@@ -10,10 +10,26 @@ import android.widget.Toast;
 import com.example.vetra_fitnessapp_tfg.utils.StepValidator;
 import com.example.vetra_fitnessapp_tfg.databinding.FragmentCalorieGoalBinding;
 
+/**
+ * Fragmento para establecer el objetivo calórico diario del usuario.
+ * Forma parte del proceso de configuración inicial y valida
+ * que el objetivo esté dentro de rangos saludables.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class CalorieGoalFragment extends Fragment implements StepValidator {
 
     private FragmentCalorieGoalBinding binding;
 
+    /**
+     * Crea y configura la vista del fragmento.
+     *
+     * @param inflater Inflater para crear la vista
+     * @param container Contenedor padre
+     * @param savedInstanceState Estado guardado
+     * @return Vista configurada del fragmento
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -23,10 +39,20 @@ public class CalorieGoalFragment extends Fragment implements StepValidator {
         return view;
     }
 
+    /**
+     * Obtiene el objetivo calórico ingresado por el usuario.
+     *
+     * @return Objetivo calórico diario
+     */
     public int getCalorieGoalValue() {
         return Integer.parseInt(binding.editTextCalories.getText().toString().trim());
     }
 
+    /**
+     * Valida que el objetivo calórico esté completo y dentro de rangos válidos.
+     *
+     * @return true si el campo es válido, false en caso contrario
+     */
     @Override
     public boolean validateFields() {
         String cStr = binding.editTextCalories.getText().toString().trim();

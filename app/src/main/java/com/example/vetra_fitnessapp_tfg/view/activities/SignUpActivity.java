@@ -24,84 +24,79 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
-
+/**
+ * Actividad para el registro de nuevos usuarios.
+ * Permite crear cuentas mediante email/contraseña y Google Sign-In.
+ * Incluye validación de contraseñas seguras y verificación de email.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class SignUpActivity extends AppCompatActivity {
 
-    // Atributos
+    /** Binding para acceder a las vistas de la actividad */
     private ActivitySignUpBinding binding;
+
+    /** Tag para logging */
     private static final String TAG = SignUpActivity.class.getSimpleName();
+
+    /** Instancia de Firebase Auth para autenticación */
     private FirebaseAuth mAuth;
+
+    /** Cliente de Google Sign-In */
     private GoogleSignInClient googleClient;
+
+    /** Launcher para manejar el resultado de Google Sign-In */
     private final ActivityResultLauncher<Intent> googleSignInLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
                     this::handleGoogleSignInResult
             );
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa Firebase Auth, configura Google Sign-In y establece los listeners.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        // Inicializar Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
-        // Configurar Google Sign-In
         GoogleSignInOptions googleOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id)) // Obtiene el ID del cliente de Google
                 .requestEmail() // Solicitar el correo electrónico
                 .build(); // Construir el objeto GoogleSignInOptions
         googleClient = GoogleSignIn.getClient(this, googleOptions);
 
-        // Listener para el botón de volver
         binding.buttonBack.setOnClickListener(v -> {
-
-            // Crear el intent para navegar a SignInActivity
             Intent i = new Intent(SignUpActivity.this, SignInActivity.class);
-
-            // Lanzar el intent
             startActivity(i);
-
-            // Aplicar animación de transición
             overridePendingTransition(R.anim.slide_in_left_fade, R.anim.slide_out_right_fade);
-
         });
-
-        // Listener para el botón de SignUp
         binding.buttonSignUp.setOnClickListener(v -> signUpWithEmail());
-
-        // Listener para el botón de SignUp con Google
         binding.buttonGoogle.setOnClickListener(v-> signInWithGoogle());
-
     }
 
+    /**
+     * Realiza el registro con email y contraseña.
+     * Valida los campos, verifica la fortaleza de la contraseña y crea la cuenta en Firebase.
+     */
     private void signUpWithEmail() {
-
-        // Obtener los valores de los campos de texto
         String email = binding.editTextEmail.getText().toString().trim();
         String pass  = binding.editTextPassword.getText().toString().trim();
         String username = binding.editTextUserName.getText().toString().trim();
-
-        // Comprobar que los campos no estén vacíos
         if (email.isEmpty() || pass.isEmpty() || username.isEmpty()) {
-
-            // Mostrar un mensaje de error
             Toast.makeText(this, "Email, username and password are required", Toast.LENGTH_SHORT).show();
             return;
-
         }
-
-        // Comprobar que el email sea válido
         if (!isEmailValid(email)) {
-
-            // Mostrar un mensaje de error
             Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
-
         }
-
         if (!isPasswordStrong(pass)) {
             Toast.makeText(
                     this,
@@ -110,8 +105,6 @@ public class SignUpActivity extends AppCompatActivity {
             ).show();
             return;
         }
-
-        // Registrar con Firebase
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnCompleteListener(this, task -> {
                     if (!task.isSuccessful()) {
@@ -129,8 +122,6 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                         return;
                     }
-
-                    // --- Solo dentro de esta rama de ÉXITO va todo lo de perfil, verificación y navegación ---
                     FirebaseUser user = mAuth.getCurrentUser();
                     UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
                             .setDisplayName(username)
@@ -152,7 +143,6 @@ public class SignUpActivity extends AppCompatActivity {
                                                 Toast.LENGTH_LONG
                                         ).show();
                                     }
-                                    // Ahora sí: navegamos a VerifyEmailActivity
                                     Intent intent = new Intent(
                                             SignUpActivity.this,
                                             VerifyEmailActivity.class
@@ -166,122 +156,96 @@ public class SignUpActivity extends AppCompatActivity {
                                 });
                     });
                 });
-
     }
 
+    /**
+     * Verifica si una contraseña cumple con los criterios de seguridad.
+     * Debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, dígitos y caracteres especiales.
+     *
+     * @param password Contraseña a validar
+     * @return true si la contraseña es segura, false en caso contrario
+     */
     private boolean isPasswordStrong(String password) {
         if (password.length() < 8) return false;
         String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$";
         return password.matches(pattern);
     }
 
+    /**
+     * Autentica al usuario en Firebase usando las credenciales de Google para registro.
+     * Solo permite registro de nuevos usuarios, no inicio de sesión de usuarios existentes.
+     *
+     * @param acct Cuenta de Google obtenida del sign-in
+     */
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-
-        // Crear un objeto de autenticación con el token de Google
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-
-        // Iniciar la autenticación con Firebase
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
-
-                    // Comporbar si la autenticación fue exitosa
                     if (task.isSuccessful()) {
-
-                        // Guardar en variable booleana si es nuevo usuario
                         boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-
-                        // Obtener el usuario autenticado por Google
                         FirebaseUser user = mAuth.getCurrentUser();
-
-                        // Comprobar el estado de la variable booleana
                         if (isNew) {
-
-                            // Actualizar el perfil del usuario
                             String googleName = acct.getDisplayName();
-
-                            // Crear un UserProfileChangeRequest para actualizar el nombre de usuario
                             UserProfileChangeRequest updateRequest =
                                     new UserProfileChangeRequest.Builder()
                                             .setDisplayName(googleName)
                                             .build();
-
-                            // Navegar a la actividad específica
                             user.updateProfile(updateRequest).addOnCompleteListener(updateTask -> navigateToUserSetUpActivity());
-
                         } else {
-
-                            // Mostrar mensaje de error
                             Toast.makeText(this, "Account already exists. Please sign in", Toast.LENGTH_SHORT).show();
-
-                            // Cerrar sesión y volver a SignIn
                             mAuth.signOut();
                             googleClient.signOut();
                             finish();
-
                         }
-
                     } else {
-
-                        // Manejar errores de autenticación
                         Log.e(TAG, "Autenticación con google fallida");
-
                     }
-
                 });
-
     }
 
+    /**
+     * Maneja el resultado del proceso de Google Sign-In para registro.
+     *
+     * @param result Resultado de la actividad de Google Sign-In
+     */
     private void handleGoogleSignInResult(androidx.activity.result.ActivityResult result) {
-
-        // Comprobar si el usuario canceló la operación
         if (result.getData() == null) {
             return;
         }
-
         try {
-
-            // Obtener la cuenta de Google del resultado
             GoogleSignInAccount acct = GoogleSignIn
                     .getSignedInAccountFromIntent(result.getData())
                     .getResult(ApiException.class);
-
-            // Autenticar con la cuenta de Google
             firebaseAuthWithGoogle(acct);
-
         } catch (ApiException e) {
-
-            // Manejar errores de autenticación con Google
             Log.w(TAG, "Autenticación con google cancelada", e);
-
         }
     }
 
+    /**
+     * Inicia el proceso de registro con Google.
+     */
     private void signInWithGoogle() {
-
-        // Crear un intent para iniciar sesión con Google
         Intent intent = googleClient.getSignInIntent();
-
-        // Iniciar la actividad de Google Sign-In
         googleSignInLauncher.launch(intent);
-
     }
 
+    /**
+     * Navega a la actividad de configuración de usuario.
+     */
     private void navigateToUserSetUpActivity() {
-
-        // Crear el intent para navegar a UserSetUpActivity
         Intent intent = new Intent(SignUpActivity.this, UserSetUpActivity.class);
-
-        // Limpiar el back-stack para que no pueda volver a SignIn
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        // Lanzar el intent
         startActivity(intent);
-
-        // Aplicar animación de transición
         overridePendingTransition(R.anim.slide_in_right_fade, R.anim.slide_out_left_fade);
-
     }
 
+    /**
+     * Valida si un email tiene un formato correcto.
+     *
+     * @param email Email a validar
+     * @return true si el email es válido, false en caso contrario
+     */
     public static boolean isEmailValid(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
