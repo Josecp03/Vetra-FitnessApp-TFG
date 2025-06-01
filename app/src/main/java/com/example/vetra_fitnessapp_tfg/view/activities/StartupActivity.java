@@ -20,32 +20,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Actividad de inicio que determina el flujo de navegación inicial de la aplicación.
+ * Verifica el estado de autenticación, verificación de email, rutinas en progreso
+ * y completitud del perfil del usuario para dirigir a la pantalla apropiada.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class StartupActivity extends AppCompatActivity {
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicia el proceso de verificación del estado del usuario.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        // 1) si no hay user, a login
         if (user == null) {
             navigateTo(SignInActivity.class);
             return;
         }
-
-        // 2) recargar estado y, si no verificado, a VerifyEmailActivity
         user.reload().addOnCompleteListener(task -> {
             if (!user.isEmailVerified()) {
                 navigateTo(VerifyEmailActivity.class);
             } else {
-                // 3) ya verificado → continuar con el flujo normal
                 initAppFlow();
             }
         });
     }
 
-    /** Continúa con la lógica original: rutina en progreso o perfil/setup */
+    /**
+     * Continúa con la lógica de flujo de la aplicación después de verificar autenticación.
+     * Verifica si hay una rutina en progreso o procede con el flujo normal de perfil.
+     */
     private void initAppFlow() {
         // Si estamos en medio de una rutina guardada
         if (Prefs.isRoutineInProgress(this)) {
@@ -63,10 +76,15 @@ public class StartupActivity extends AppCompatActivity {
                 return;
             }
         }
-        // Si no, pasamos al flujo normal de perfil
         proceedNormalFlow();
     }
 
+    /**
+     * Maneja el documento de rutina obtenido de Firestore.
+     * Si existe, reconstruye la rutina y navega a la actividad de entrenamiento.
+     *
+     * @param doc Documento de Firestore con los datos de la rutina
+     */
     private void onRoutineDocument(DocumentSnapshot doc) {
         if (!doc.exists()) {
             Prefs.setRoutineInProgress(this, false);
@@ -128,9 +146,11 @@ public class StartupActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Procede con el flujo normal verificando el estado del perfil del usuario.
+     */
     private void proceedNormalFlow() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        // A estas alturas user no es null ni es unverified: cargar perfil
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())
@@ -141,6 +161,12 @@ public class StartupActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Maneja el documento de perfil del usuario obtenido de Firestore.
+     * Verifica si el perfil está completo para determinar la navegación.
+     *
+     * @param doc Documento de Firestore con los datos del perfil
+     */
     private void onProfileDocument(DocumentSnapshot doc) {
         boolean hasAll = doc.exists()
                 && doc.contains("real_name")
@@ -157,7 +183,11 @@ public class StartupActivity extends AppCompatActivity {
         }
     }
 
-    /** Helper para lanzar una activity y limpiar back-stack */
+    /**
+     * Helper para lanzar una actividad y limpiar el back-stack.
+     *
+     * @param cls Clase de la actividad a la que navegar
+     */
     private void navigateTo(Class<?> cls) {
         Intent i = new Intent(this, cls)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

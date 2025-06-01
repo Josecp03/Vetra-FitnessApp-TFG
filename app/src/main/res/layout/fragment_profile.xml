@@ -22,7 +22,6 @@
             android:paddingTop="30dp"
             android:paddingBottom="30dp">
 
-            <!-- Imagen de perfil -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/profile_image"
                 android:layout_width="123dp"
@@ -31,7 +30,6 @@
                 android:src="@drawable/ic_profile_picture"
                 app:shapeAppearanceOverlay="@style/RoundedImage" />
 
-            <!-- Cambiar imagen -->
             <TextView
                 android:id="@+id/change_picture_text"
                 android:layout_width="wrap_content"
@@ -55,7 +53,6 @@
                 android:background="@drawable/rounded_rectangle_background"
                 android:orientation="vertical">
 
-                <!-- UserName -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -106,7 +103,6 @@
                     android:layout_marginTop="8dp"
                     android:background="@android:color/black" />
 
-                <!-- Age -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -163,7 +159,6 @@
                     android:layout_marginTop="8dp"
                     android:background="@android:color/black" />
 
-                <!-- Weight -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -218,7 +213,6 @@
                     android:layout_marginTop="8dp"
                     android:background="@android:color/black" />
 
-                <!-- Height -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -273,7 +267,6 @@
                     android:layout_marginTop="8dp"
                     android:background="@android:color/black" />
 
-                <!-- Calorie Goal -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -366,7 +359,6 @@
                 android:gravity="center"
                 android:paddingHorizontal="40dp">
 
-                <!-- Guardar cambios -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonSaveChanges"
                     android:layout_width="wrap_content"
@@ -382,7 +374,6 @@
                     app:cornerRadius="8dp"
                     app:iconTint="@null" />
 
-                <!-- Cerrar sesión -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonLogOut"
                     android:layout_width="wrap_content"
@@ -406,7 +397,6 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="40dp">
 
-                <!-- Borrar cuenta -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonDeleteAccount"
                     android:layout_width="wrap_content"

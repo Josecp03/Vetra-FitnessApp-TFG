@@ -30,22 +30,78 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import okhttp3.Call;
 
+/**
+ * Fragmento que implementa la interfaz de chat con VetraGPT.
+ * Proporciona un chatbot especializado en fitness con límites de uso,
+ * sugerencias predefinidas y filtrado basado en preferencias del usuario.
+ * Incluye sistema de reinicio mensual de límites y persistencia de configuración.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class ChatbotFragment extends Fragment {
 
+    /**
+     * Binding para acceder a las vistas del fragmento.
+     */
     private FragmentChatbotBinding binding;
+
+    /**
+     * Cliente API para comunicación con el chatbot.
+     */
     private ChatApiClient apiClient;
+
+    /**
+     * Gestor de cifrado para datos sensibles.
+     */
     private KeyStoreManager keyStore;
+
+    /**
+     * Instancia de Firestore para operaciones de base de datos.
+     */
     private FirebaseFirestore db;
+
+    /**
+     * ID único del usuario actual.
+     */
     private String uid;
+
+    /**
+     * Datos del perfil del usuario para personalización.
+     */
     private int age, height, calorieGoal;
     private double weight;
     private String gender;
+
+    /**
+     * Llamada HTTP actual para poder cancelarla si es necesario.
+     */
     private Call currentCall;
+
+    /**
+     * Burbuja de texto que muestra el estado de carga.
+     */
     private TextView loadingBubble;
+
+    /**
+     * Contador de mensajes enviados por el usuario.
+     */
     private long chatCount = 0;
 
+    /**
+     * Crea y configura la vista del fragmento.
+     *
+     * @param inflater Inflater para crear la vista
+     * @param container Contenedor padre
+     * @param savedInstanceState Estado guardado
+     * @return Vista configurada del fragmento
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,6 +122,9 @@ public class ChatbotFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Limpia recursos al destruir la vista del fragmento.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -74,9 +133,13 @@ public class ChatbotFragment extends Fragment {
         }
     }
 
+    /**
+     * Carga los datos del usuario desde Firestore y verifica límites de uso.
+     * Implementa sistema de reinicio automático mensual de contadores.
+     */
     private void loadUserData() {
-        db.collection("users").document(uid)
-                .get()
+        DocumentReference ref = db.collection("users").document(uid);
+        ref.get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists()) return;
                     age         = doc.getLong("age").intValue();
@@ -84,15 +147,45 @@ public class ChatbotFragment extends Fragment {
                     weight      = doc.getDouble("weight");
                     calorieGoal = doc.getLong("user_calories").intValue();
                     gender      = keyStore.decrypt(doc.getString("gender"));
+                    long lastResetMonth = doc.contains("last_reset_month")
+                            ? doc.getLong("last_reset_month")
+                            : -1L;
+                    long lastResetYear  = doc.contains("last_reset_year")
+                            ? doc.getLong("last_reset_year")
+                            : -1L;
+                    Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+                    int currentMonth = cal.get(Calendar.MONTH) + 1;
+                    int currentYear  = cal.get(Calendar.YEAR);
 
-                    chatCount = doc.contains("limit_chat") ? doc.getLong("limit_chat") : 0L;
-                    checkLimit(chatCount);
+                    if (lastResetYear != currentYear || lastResetMonth != currentMonth) {
+                        ref.update(
+                                "limit_chat", 0L,
+                                "last_reset_month", (long) currentMonth,
+                                "last_reset_year",  (long) currentYear
+                        ).addOnSuccessListener(aVoid -> {
+                            chatCount = 0L;
+                            checkLimit(chatCount);
+                        }).addOnFailureListener(e -> {
+                            Log.w("ChatbotFragment",
+                                    "Error al reiniciar límite de chat en Firestore", e);
+                            chatCount = 0L;
+                            checkLimit(chatCount);
+                        });
+                    } else {
+                        chatCount = doc.contains("limit_chat")
+                                ? doc.getLong("limit_chat")
+                                : 0L;
+                        checkLimit(chatCount);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.w("ChatbotFragment", "Error loading user data", e);
+                    Log.w("ChatbotFragment", "Error cargando datos de usuario", e);
                 });
     }
 
+    /**
+     * Configura los listeners de botones de envío, limpieza y sugerencias.
+     */
     private void setupButtons() {
         binding.btnSend.setOnClickListener(v ->
                 sendMessage(binding.etMessage.getText().toString().trim())
@@ -122,6 +215,11 @@ public class ChatbotFragment extends Fragment {
         );
     }
 
+    /**
+     * Envía un mensaje al chatbot y maneja la respuesta.
+     *
+     * @param msg Mensaje del usuario para enviar
+     */
     private void sendMessage(String msg) {
         if (TextUtils.isEmpty(msg) || chatCount >= 100) return;
 
@@ -148,6 +246,9 @@ public class ChatbotFragment extends Fragment {
         });
     }
 
+    /**
+     * Incrementa el contador de uso del chat en Firestore.
+     */
     private void incrementChatCounter() {
         DocumentReference ref = db.collection("users").document(uid);
         db.runTransaction(tx -> {
@@ -164,7 +265,11 @@ public class ChatbotFragment extends Fragment {
         });
     }
 
-
+    /**
+     * Verifica y aplica los límites de uso del chatbot.
+     *
+     * @param count Número actual de mensajes enviados
+     */
     private void checkLimit(long count) {
         boolean blocked = count >= 100;
         binding.etMessage.setEnabled(!blocked);
@@ -175,6 +280,9 @@ public class ChatbotFragment extends Fragment {
         setSuggestionsEnabled(!blocked);
     }
 
+    /**
+     * Muestra la burbuja de carga mientras se procesa la respuesta.
+     */
     private void startLoading() {
         binding.btnSend.setEnabled(false);
         binding.btnClear.setEnabled(false);
@@ -211,6 +319,9 @@ public class ChatbotFragment extends Fragment {
         );
     }
 
+    /**
+     * Oculta la burbuja de carga y restaura la interfaz.
+     */
     private void stopLoading() {
         if (loadingBubble != null) {
             binding.messagesContainer.removeView(loadingBubble);
@@ -223,6 +334,11 @@ public class ChatbotFragment extends Fragment {
         setSuggestionsEnabled(true);
     }
 
+    /**
+     * Habilita o deshabilita los botones de sugerencias.
+     *
+     * @param enabled true para habilitar, false para deshabilitar
+     */
     private void setSuggestionsEnabled(boolean enabled) {
         for (int id : new int[]{
                 R.id.btnSugSnack, R.id.btnSugWeight,
@@ -232,10 +348,23 @@ public class ChatbotFragment extends Fragment {
         }
     }
 
+    /**
+     * Muestra una burbuja de mensaje del bot.
+     *
+     * @param msg Mensaje a mostrar
+     */
     private void showBotBubble(String msg) {
         showMessageBubble(msg, Gravity.START, R.drawable.bot_bubble_background, Color.BLACK);
     }
 
+    /**
+     * Muestra una burbuja de mensaje genérica.
+     *
+     * @param msg Mensaje a mostrar
+     * @param gravity Alineación del mensaje
+     * @param bgRes Recurso de fondo
+     * @param textColor Color del texto
+     */
     @SuppressLint("DefaultLocale")
     private void showMessageBubble(String msg, int gravity, int bgRes, int textColor) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -270,6 +399,9 @@ public class ChatbotFragment extends Fragment {
         );
     }
 
+    /**
+     * Muestra el diálogo de información sobre límites de uso.
+     */
     private void showUsageLimitDialog() {
         View dlg = getLayoutInflater().inflate(R.layout.dialog_usage_limit, null);
         BottomSheetDialog d = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
@@ -278,6 +410,9 @@ public class ChatbotFragment extends Fragment {
         d.show();
     }
 
+    /**
+     * Muestra el diálogo de confirmación para limpiar el chat.
+     */
     private void showClearChatDialog() {
         View v = getLayoutInflater().inflate(R.layout.dialog_clear_chat, null);
         BottomSheetDialog dlg = new BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme);
@@ -295,8 +430,15 @@ public class ChatbotFragment extends Fragment {
         dlg.show();
     }
 
+    /**
+     * Convierte píxeles independientes de densidad a píxeles.
+     *
+     * @param dp Valor en dp a convertir
+     * @return Valor equivalente en píxeles
+     */
     private int dpToPx(int dp) {
         float d = requireContext().getResources().getDisplayMetrics().density;
         return Math.round(dp * d);
     }
+
 }

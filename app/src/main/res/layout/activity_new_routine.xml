@@ -8,7 +8,6 @@
     android:background="@color/almost_black"
     android:fitsSystemWindows="true">
 
-    <!-- Toolbar opaco -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarNewRoutine"
         android:layout_width="0dp"
@@ -70,7 +69,6 @@
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Contenedor con gradiente que arranca justo bajo el Toolbar -->
     <FrameLayout
         android:id="@+id/contentGradient"
         android:layout_width="0dp"
@@ -82,7 +80,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Contenido de la actividad -->
         <LinearLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"

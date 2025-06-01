@@ -1,5 +1,4 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Ambos estados usan el mismo track -->
     <item>
         <shape android:shape="rectangle">
             <size android:height="24dp"/>

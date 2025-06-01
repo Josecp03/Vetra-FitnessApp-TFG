@@ -13,20 +13,53 @@ import com.example.vetra_fitnessapp_tfg.R;
 import com.example.vetra_fitnessapp_tfg.model.training.Exercise;
 import java.util.List;
 
+/**
+ * Adaptador para mostrar ejercicios en un RecyclerView.
+ * Maneja la visualización de ejercicios con imagen, nombre y músculo objetivo.
+ * Proporciona callbacks para añadir ejercicios y ver detalles.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHolder> {
 
+    /**
+     * Interfaz de callback para manejar clics en el botón de añadir ejercicio.
+     */
     public interface OnAddClickListener {
         void onAdd(Exercise exercise);
     }
 
+    /**
+     * Interfaz de callback para manejar clics en elementos de ejercicio.
+     */
     public interface OnItemClickListener {
         void onItemClick(Exercise exercise);
     }
 
+    /**
+     * Lista de ejercicios a mostrar en el adaptador.
+     */
     private final List<Exercise> items;
+
+    /**
+     * Listener para manejar clics en el botón de añadir.
+     */
     private final OnAddClickListener addListener;
+
+    /**
+     * Listener para manejar clics en elementos de ejercicio.
+     */
     private final OnItemClickListener itemListener;
 
+
+    /**
+     * Constructor del adaptador.
+     *
+     * @param items Lista de ejercicios a mostrar
+     * @param addListener Listener para el botón de añadir
+     * @param itemListener Listener para clics en elementos
+     */
     public ExerciseAdapter(List<Exercise> items,
                            OnAddClickListener addListener,
                            OnItemClickListener itemListener) {
@@ -35,10 +68,22 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
         this.itemListener = itemListener;
     }
 
+    /**
+     * Obtiene la lista de ejercicios del adaptador.
+     *
+     * @return Lista mutable de ejercicios
+     */
     public List<Exercise> getItems() {
         return items;
     }
 
+    /**
+     * Crea un ViewHolder para un elemento de ejercicio.
+     *
+     * @param parent ViewGroup padre
+     * @param viewType Tipo de vista
+     * @return Nuevo ViewHolder configurado
+     */
     @NonNull @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -46,6 +91,12 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
         return new ViewHolder(v);
     }
 
+    /**
+     * Vincula datos a un ViewHolder específico.
+     *
+     * @param h ViewHolder a configurar
+     * @param pos Posición del elemento en la lista
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Exercise ex = items.get(pos);
@@ -62,6 +113,12 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
 
     @Override public int getItemCount() { return items.size(); }
 
+    /**
+     * Convierte texto a formato CamelCase.
+     *
+     * @param s Texto a convertir
+     * @return Texto en CamelCase
+     */
     private String toCamelCase(String s) {
         StringBuilder out = new StringBuilder();
         for (String w : s.split("\\s+")) {
@@ -73,10 +130,30 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
         return out.toString().trim();
     }
 
+    /**
+     * ViewHolder para elementos de ejercicio.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
+        /**
+         * ImageView para mostrar la imagen del ejercicio.
+         */
         ImageView ivExercise;
+
+        /**
+         * TextViews para nombre y músculo objetivo.
+         */
         TextView tvName, tvTarget;
+
+        /**
+         * Botón para añadir el ejercicio.
+         */
         ImageButton btnAdd;
+
+        /**
+         * Constructor del ViewHolder.
+         *
+         * @param itemView Vista del elemento
+         */
         ViewHolder(View itemView) {
             super(itemView);
             ivExercise = itemView.findViewById(R.id.ivExercise);
@@ -85,4 +162,5 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
             btnAdd     = itemView.findViewById(R.id.btnAddExercise);
         }
     }
+
 }

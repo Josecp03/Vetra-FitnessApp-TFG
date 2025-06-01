@@ -19,7 +19,6 @@
         android:paddingLeft="10dp"
         android:src="@drawable/ic_email_sent" />
 
-    <!-- Mensaje de instrucción -->
     <TextView
         android:id="@+id/textVerifyInfo"
         android:layout_width="wrap_content"

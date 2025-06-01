@@ -15,7 +15,6 @@
         android:background="@drawable/gender_selector_background"
         android:padding="12dp">
 
-        <!-- CABECERA DEL ITEM -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,7 +58,6 @@
             android:layout_marginTop="4dp"
             android:background="@android:color/black"/>
 
-        <!-- HEADER DE COLUMNAS -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,7 +93,6 @@
                 android:textColor="@color/black" />
         </LinearLayout>
 
-        <!-- contenedor dinámico de series -->
         <LinearLayout
             android:id="@+id/llSetsContainer"
             android:layout_width="match_parent"

@@ -9,16 +9,38 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * Gestor de cifrado y descifrado de datos sensibles usando AES-GCM.
+ * Proporciona métodos seguros para encriptar y desencriptar información
+ * del usuario como nombres, emails y otros datos personales.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class KeyStoreManager {
 
+    /** Tag para logging */
     private static final String TAG = "KeyStoreManager";
+
+    /** Clave secreta estática para demostración (en producción debería ser más segura) */
     private static final String SECRET_KEY = "ThisIsMyStaticKeyForDemoPurposesOnly";
+
+    /** Algoritmo de transformación para el cifrado */
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
+
+    /** Tamaño del vector de inicialización en bytes */
     private static final int IV_SIZE = 12;
+
+    /** Longitud del tag de autenticación en bits */
     private static final int TAG_LENGTH = 128;
 
+    /** Clave secreta derivada para el cifrado */
     private SecretKeySpec secretKey;
 
+    /**
+     * Constructor que inicializa el gestor de cifrado.
+     * Deriva una clave AES de 256 bits a partir de la clave secreta usando SHA-256.
+     */
     public KeyStoreManager() {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -29,6 +51,14 @@ public class KeyStoreManager {
         }
     }
 
+    /**
+     * Cifra un texto plano usando AES-GCM.
+     * Genera un IV aleatorio para cada operación de cifrado y lo incluye
+     * en el resultado final codificado en Base64.
+     *
+     * @param plainText Texto plano a cifrar
+     * @return Texto cifrado codificado en Base64, o null si ocurre un error
+     */
     public String encrypt(String plainText) {
         try {
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
@@ -53,6 +83,13 @@ public class KeyStoreManager {
         }
     }
 
+    /**
+     * Descifra un texto cifrado que fue codificado en Base64.
+     * Extrae el IV del inicio del texto cifrado y lo usa para el descifrado.
+     *
+     * @param cipherText Texto cifrado codificado en Base64
+     * @return Texto plano descifrado, o null si ocurre un error
+     */
     public String decrypt(String cipherText) {
         try {
             byte[] combined = Base64.decode(cipherText, Base64.NO_WRAP);

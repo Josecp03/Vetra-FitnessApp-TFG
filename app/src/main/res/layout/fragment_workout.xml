@@ -15,7 +15,6 @@
         android:textAlignment="center"
         tools:ignore="UselessParent">
 
-        <!-- Añadir rutina -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddRoutine"
             android:layout_width="match_parent"
@@ -42,7 +41,6 @@
             app:strokeColor="@android:color/black"
             app:strokeWidth="2dp" />
 
-        <!--Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

@@ -27,9 +27,23 @@ import com.google.firebase.firestore.Query;
 
 import java.util.List;
 
+/**
+ * Actividad que muestra los detalles completos de un ejercicio específico.
+ * Presenta información detallada incluyendo instrucciones paso a paso,
+ * músculos trabajados, historial de entrenamientos previos y GIF demostrativo.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class ExerciseDetailActivity extends AppCompatActivity {
     private ActivityExerciseDetailBinding binding;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa la vista, carga los datos del ejercicio y configura el historial.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +84,12 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Construye dinámicamente la lista de instrucciones del ejercicio.
+     * Crea elementos visuales numerados para cada paso de las instrucciones.
+     *
+     * @param instructions Lista de instrucciones paso a paso del ejercicio
+     */
     private void buildInstructions(List<String> instructions) {
         binding.llInstructions.removeAllViews();
         float density = getResources().getDisplayMetrics().density;
@@ -116,6 +136,14 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Carga el historial de entrenamientos del usuario para este ejercicio específico.
+     * Obtiene los datos de Firestore y los muestra en orden cronológico descendente.
+     *
+     * @param exerciseId ID del ejercicio para filtrar el historial
+     * @param photoUrl URL de la imagen del ejercicio
+     * @param name Nombre del ejercicio para mostrar
+     */
     private void loadHistory(String exerciseId, String photoUrl, String name) {
         binding.llHistory.removeAllViews();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -176,8 +204,13 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                 });
     }
 
-
-
+    /**
+     * Convierte una cadena de texto a formato CamelCase.
+     * Capitaliza la primera letra de cada palabra separada por espacios.
+     *
+     * @param s Cadena de texto a convertir
+     * @return Cadena convertida a CamelCase
+     */
     private String toCamelCase(String s) {
         StringBuilder out = new StringBuilder();
         for (String w : s.split("\\s+")) {

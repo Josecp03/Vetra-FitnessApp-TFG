@@ -33,13 +33,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Actividad para ejecutar una rutina de entrenamiento en tiempo real.
+ * Permite al usuario completar series, marcar ejercicios como realizados
+ * y guardar el progreso en el historial. Incluye validaciones de series
+ * incompletas y manejo de estado de rutina en progreso.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class StartRoutineActivity extends AppCompatActivity {
+
+    /**
+     * Clave para pasar la rutina como extra en el Intent.
+     */
     public static final String EXTRA_ROUTINE = "extra_routine";
 
+    /**
+     * Binding para acceder a las vistas del layout de la actividad.
+     */
     private ActivityStartRoutineBinding binding;
+
+    /**
+     * Rutina que se está ejecutando actualmente.
+     */
     private Routine routine;
+
+    /**
+     * Adaptador para mostrar los ejercicios durante la ejecución.
+     */
     private StartRoutineAdapter adapter;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Valida la rutina recibida, configura el estado y inicializa la interfaz.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +97,10 @@ public class StartRoutineActivity extends AppCompatActivity {
         binding.rvStartRoutine.setAdapter(adapter);
     }
 
+    /**
+     * Muestra el diálogo de confirmación para descartar la rutina en progreso.
+     * Permite al usuario cancelar el entrenamiento y limpiar el estado.
+     */
     private void showDiscardDialog() {
         View dlg = getLayoutInflater().inflate(
                 R.layout.dialog_discard_execution_routine, null);
@@ -84,19 +118,19 @@ public class StartRoutineActivity extends AppCompatActivity {
         sheet.show();
     }
 
+    /**
+     * Muestra el diálogo de finalización de rutina con validaciones.
+     * Detecta series incompletas o con valores vacíos y advierte al usuario.
+     */
     @SuppressLint("SetTextI18n")
     private void showFinishDialog() {
-        // 1) Detectar series incompletas
         boolean hasIncomplete = false;
-        // 2) Detectar series "completadas" pero con peso y reps a 0
         boolean hasZeroCompleted = false;
-
         for (RoutineExercise re : routine.getExercises()) {
             for (ExerciseSet s : re.getSets()) {
                 if (!s.isDone()) {
                     hasIncomplete = true;
                 }
-                // si está marcada como hecha pero sin peso y reps
                 if (s.isDone() && s.getWeight() == 0 && s.getReps() == 0) {
                     hasZeroCompleted = true;
                 }
@@ -110,10 +144,7 @@ public class StartRoutineActivity extends AppCompatActivity {
         BottomSheetDialog sheet = new BottomSheetDialog(
                 this, R.style.BottomSheetDialogTheme);
         sheet.setContentView(dlg);
-
         TextView tvMsg = dlg.findViewById(R.id.textMessageFinishRoutine);
-
-        // Si hay series incompletas O series "vacias" completadas, advertimos
         if (hasIncomplete || hasZeroCompleted) {
             tvMsg.setText(
                     "⚠️🚨 You have incomplete or zero-valued sets. " +
@@ -145,6 +176,10 @@ public class StartRoutineActivity extends AppCompatActivity {
         showDiscardDialog();
     }
 
+    /**
+     * Guarda el historial de ejercicios completados en Firestore.
+     * Solo guarda las series marcadas como completadas con valores válidos.
+     */
     private void saveHistory() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();

@@ -23,22 +23,47 @@ import java.util.HashMap;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.net.Uri;
 
-
-
+/**
+ * Actividad para la configuración inicial del perfil del usuario.
+ * Guía al usuario a través de un proceso de 3 pasos para completar
+ * su información personal, métricas corporales y objetivo calórico.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class UserSetUpActivity extends AppCompatActivity {
 
+    /** Binding para acceder a las vistas de la actividad */
     private ActivityUserSetUpBinding binding;
+
+    /** Índice del paso actual en el proceso de configuración */
     private int currentStep = 0;
+
+    /** Array de fragmentos que representan cada paso del proceso */
     private final Fragment[] steps = new Fragment[] {
             new PersonalInfoFragment(),
             new BodyMetricsFragment(),
             new CalorieGoalFragment()
     };
+
+    /** Nombre del usuario */
     public String firstName, lastName, gender;
+
+    /** Edad del usuario */
     public int age, height, calorieGoal;
+
+    /** Peso del usuario */
     public double weight;
+
+    /** Gestor de cifrado para datos sensibles */
     private KeyStoreManager keyStore;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa el binding, el gestor de cifrado y configura la navegación.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,123 +72,87 @@ public class UserSetUpActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         keyStore = new KeyStoreManager();
-
-        // Cargar el primer fragmento
         showStep(currentStep);
-
-        // Llamar al métood para configurar el menú de navegación
         setupNavigationButtons();
 
     }
 
-
+    /**
+     * Configura los listeners de los botones de navegación (Atrás y Siguiente).
+     */
     private void setupNavigationButtons() {
 
-        // Listener para el botón de volver
         binding.buttonBack.setOnClickListener(v -> {
-
-            // Solo retrocedemos si no estamos en el primer paso
             if (currentStep > 0) {
-
-                // Bajamos un paso y mostramos el fragmento anterior
                 currentStep--;
                 showStep(currentStep);
-
             }
-
         });
 
-        // Listener para el botón de siguiente
         binding.buttonNext.setOnClickListener(v -> {
-
-            // Buscar el fragmento actual
             Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
-
-            // Comprobar si el fragmento actual implementa StepValidator
             if (f instanceof StepValidator) {
-
-                // Si lo hace, llamar a la función correspodniente
                 boolean ok = ((StepValidator) f).validateFields();
-
-                // Si no pasa la validación, no guardamos ni avanzamos
                 if (!ok) {
                     return;
                 }
-
             }
-
-            // Guardamos los datos del paso actual antes de cambiar
             saveStepData(currentStep);
-
-            // Comprobar si no estamos en el último fragmento
             if (currentStep < steps.length - 1) {
-
-                // Actualizar el fragmento actual
                 currentStep++;
                 showStep(currentStep);
-
             } else {
-
-                // Guardar los datos en Firebase
                 saveAllToFirebase();
-
             }
-
         });
     }
 
+    /**
+     * Muestra el fragmento correspondiente al paso especificado.
+     * Actualiza la UI de indicadores de progreso y el texto del botón.
+     *
+     * @param stepIndex Índice del paso a mostrar (0-2)
+     */
     @SuppressLint("SetTextI18n")
     private void showStep(int stepIndex) {
-
-        // Cargar el fragmento correspondiente al índice
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, steps[stepIndex])
                 .commit();
-
-        // Manjear la visibilidad del botón de volver
         if (stepIndex == 0) {
             binding.buttonBack.setVisibility(View.GONE);
         } else {
             binding.buttonBack.setVisibility(View.VISIBLE);
         }
-
-        // Actualizar el color del primer fragmento
         if (stepIndex >= 0) {
             binding.step1.setBackgroundResource(R.color.white);
         } else {
             binding.step1.setBackgroundResource(R.color.dark_gray);
         }
-
-        // Actualizar el color del segundo fragmento
         if (stepIndex >= 1) {
             binding.step2.setBackgroundResource(R.color.white);
         } else {
             binding.step2.setBackgroundResource(R.color.dark_gray);
         }
-
-        // Actualizar el color del tercer fragmento
         if (stepIndex >= 2) {
             binding.step3.setBackgroundResource(R.color.white);
         } else {
             binding.step3.setBackgroundResource(R.color.dark_gray);
         }
-
-        // Cambiar el texto del botón si es el último paso
         if (stepIndex == steps.length - 1) {
             binding.buttonNext.setText("Finish");
         } else {
             binding.buttonNext.setText("Next");
         }
-
     }
 
+    /**
+     * Guarda los datos del paso actual en las variables de instancia.
+     *
+     * @param stepIndex Índice del paso cuyos datos se van a guardar
+     */
     private void saveStepData(int stepIndex) {
-
-        // Obtener los datos del fragmento actual
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
-
-        // Switch para guardar los datos en los atributos temporales
         switch (stepIndex) {
             case 0:
                 PersonalInfoFragment p = (PersonalInfoFragment) f;
@@ -184,20 +173,15 @@ public class UserSetUpActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Guarda todos los datos recopilados en Firebase Firestore.
+     * Cifra los datos sensibles antes de almacenarlos y navega a MainActivity al completarse.
+     */
     private void saveAllToFirebase() {
-
-        // Obtener el usuario actual
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        // Guardar en una variable la foto de perfil
         Uri photoUri = user.getPhotoUrl();
         String photoUrl = (photoUri != null) ? photoUri.toString() : "";
-
-        // Crear un mapa con los datos
         Map<String, Object> datos = new HashMap<>();
-
-        // Guardar los datos en el mapa
         datos.put("email", keyStore.encrypt(user.getEmail()));
         datos.put("username", keyStore.encrypt(user.getDisplayName()));
         datos.put("real_name", keyStore.encrypt(firstName));
@@ -208,33 +192,19 @@ public class UserSetUpActivity extends AppCompatActivity {
         datos.put("weight", weight);
         datos.put("user_calories", calorieGoal);
         datos.put("profile_photo_url", photoUrl);
-
-        // Guardar los datos en Firebase
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())
                 .set(datos)
                 .addOnSuccessListener(unused -> {
-
-                    // Crear el intent para navegar a MainActivity
                     Intent intent = new Intent(this, MainActivity.class);
-
-                    // Limpiar el historial de actividades anteriores para que no se pueda volver
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                    // Lanzar el intent
                     startActivity(intent);
-
-                    // Aplicar animación de transición
                     overridePendingTransition(R.anim.slide_in_left_fade, R.anim.slide_out_right_fade);
-
                 })
-
-                // Manejar el error
                 .addOnFailureListener(e -> {
                     Log.e("UserSetUpActivity", "Error al guardar los datos en Firebase", e);
                 });
 
     }
-
 }

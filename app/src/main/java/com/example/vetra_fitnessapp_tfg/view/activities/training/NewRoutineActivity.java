@@ -31,14 +31,52 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Actividad para crear una nueva rutina de entrenamiento.
+ * Permite añadir ejercicios, configurar series y guardar la rutina completa.
+ * Incluye validaciones de límites y diálogos de confirmación para descarte.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class NewRoutineActivity extends AppCompatActivity {
+
+    /**
+     * Binding para acceder a las vistas del layout de la actividad.
+     */
     private ActivityNewRoutineBinding binding;
+
+    /**
+     * Lista de ejercicios añadidos a la rutina.
+     */
     private final List<RoutineExercise> exercises = new ArrayList<>();
+
+    /**
+     * Adaptador para mostrar los ejercicios de la rutina.
+     */
     private RoutineExerciseAdapter routineAdapter;
+
+    /**
+     * Código de solicitud para la selección de ejercicios.
+     */
     private static final int REQ_SELECT_EX = 1001;
+
+    /**
+     * Instancia de Firestore para operaciones de base de datos.
+     */
     private FirebaseFirestore db;
+
+    /**
+     * Instancia de autenticación de Firebase.
+     */
     private FirebaseAuth auth;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa Firebase, configura el RecyclerView y establece los listeners.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +117,10 @@ public class NewRoutineActivity extends AppCompatActivity {
         binding.buttonDiscard.setOnClickListener(v -> showDiscardRoutineDialog());
     }
 
+    /**
+     * Muestra el diálogo de confirmación para descartar la rutina.
+     * Permite al usuario cancelar la creación y limpiar el estado de progreso.
+     */
     private void showDiscardRoutineDialog() {
         // Inflamos el layout de tu dialog_discard_routine.xml
         View dialogView = getLayoutInflater()
@@ -104,6 +146,10 @@ public class NewRoutineActivity extends AppCompatActivity {
         bottomSheet.show();
     }
 
+    /**
+     * Muestra el diálogo para guardar la rutina con un nombre específico.
+     * Valida el nombre y guarda la rutina completa en Firestore.
+     */
     private void showSaveRoutineDialog() {
         DialogSaveRoutineBinding dialogBinding = DialogSaveRoutineBinding.inflate(getLayoutInflater());
         BottomSheetDialog bottomSheet = new BottomSheetDialog(this, R.style.BottomSheetDialogTheme);
@@ -167,12 +213,23 @@ public class NewRoutineActivity extends AppCompatActivity {
         bottomSheet.show();
     }
 
+    /**
+     * Maneja el botón de retroceso del sistema.
+     * Muestra el diálogo de descarte en lugar de cerrar directamente.
+     */
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         showDiscardRoutineDialog();
     }
 
+    /**
+     * Maneja el resultado de actividades iniciadas para obtener resultados.
+     *
+     * @param requestCode Código de la solicitud
+     * @param resultCode Código del resultado
+     * @param data Datos devueltos por la actividad
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -187,6 +244,13 @@ public class NewRoutineActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Convierte una cadena de texto a formato CamelCase.
+     * Capitaliza la primera letra de cada palabra.
+     *
+     * @param s Cadena de texto a convertir
+     * @return Cadena convertida a CamelCase
+     */
     private String toCamelCase(String s) {
         StringBuilder out = new StringBuilder();
         for (String w : s.split("\\s+")) {

@@ -35,19 +35,68 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Actividad para la selección de ejercicios con filtros avanzados.
+ * Permite buscar ejercicios por nombre, filtrar por grupo muscular y equipamiento,
+ * y navegar a los detalles de cada ejercicio. Incluye sistema de placeholders
+ * durante la carga y manejo de estados vacíos.
+ *
+ * @author José Corrochano Pardo
+ * @version 1.0
+ */
 public class ExerciseSelectionActivity extends AppCompatActivity {
+
+    /**
+     * Binding para acceder a las vistas del layout de la actividad.
+     */
     private ActivityExerciseSelectionBinding binding;
+
+    /**
+     * Controlador para manejar la lógica de selección de ejercicios.
+     */
     private ExerciseSelectionController controller;
+
+    /**
+     * Adaptador para mostrar la lista de ejercicios en el RecyclerView.
+     */
     private ExerciseAdapter adapter;
 
+    /**
+     * Músculo seleccionado actualmente en los filtros.
+     */
     private String selectedMuscle = "All the muscles";
+
+    /**
+     * Equipamiento seleccionado actualmente en los filtros.
+     */
     private String selectedEquipment = "All the equipment";
 
+    /**
+     * TextView para mostrar la opción de músculos seleccionada.
+     */
     private TextView tvOptionMuscles, tvOptionEquipment, tvHeader;
+
+    /**
+     * Layouts para las opciones de filtros.
+     */
     private LinearLayout optionMuscles, optionEquipment, optionSearch;
+
+    /**
+     * Contenedor para mostrar placeholders durante la carga.
+     */
     private LinearLayout placeholderContainer;
+
+    /**
+     * TextView para mostrar mensaje cuando no hay ejercicios.
+     */
     private TextView tvNoExercises;
 
+    /**
+     * Método llamado al crear la actividad.
+     * Inicializa el controlador, configura el RecyclerView y establece los filtros.
+     *
+     * @param savedInstanceState Estado guardado de la instancia anterior
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +175,10 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Actualiza la interfaz de todos los filtros según las selecciones actuales.
+     * Cambia los colores de fondo y texto para indicar filtros activos.
+     */
     private void refreshAllFilters() {
         optionMuscles.setBackgroundResource(
                 selectedMuscle.equals("All the muscles")
@@ -144,6 +197,10 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         tvOptionEquipment.setTextColor(Color.BLACK);
     }
 
+    /**
+     * Ejecuta la búsqueda de ejercicios según los filtros y texto ingresado.
+     * Maneja búsqueda por nombre, filtros por músculo y equipamiento.
+     */
     private void doSearch() {
         String query = binding.editTextSearchExercise.getText()
                 .toString()
@@ -151,8 +208,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
 
         boolean allMuscles = selectedMuscle.equals("All the muscles");
         boolean allEquip   = selectedEquipment.equals("All the equipment");
-
-        // 1) Búsqueda por nombre (y luego aplico filtros)
         if (!query.isEmpty()) {
             updateHeaderForNameSearch(query);
             showLoadingPlaceholder(true);
@@ -167,7 +222,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                             binding.placeholderContainer.setVisibility(View.GONE);
                             if (res.isSuccessful() && res.body() != null) {
                                 List<Exercise> result = res.body();
-                                // 2) Filtrar por músculo y/o equipo si es necesario
                                 List<Exercise> filtered = new ArrayList<>();
                                 for (Exercise ex : result) {
                                     boolean matchMuscle = allMuscles ||
@@ -178,11 +232,9 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
                                         filtered.add(ex);
                                     }
                                 }
-                                // 3) Actualizar adapter
                                 adapter.getItems().clear();
                                 adapter.getItems().addAll(filtered);
                                 adapter.notifyDataSetChanged();
-                                // Mostrar o hide no-results
                                 boolean empty = filtered.isEmpty();
                                 tvNoExercises.setVisibility(empty ? View.VISIBLE : View.GONE);
                                 binding.rvPopularExercises.setVisibility(empty ? View.GONE : View.VISIBLE);
@@ -203,7 +255,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             return;
         }
 
-        // 4) Si query vacío, uso tu lógica actual de filtros:
         updateHeaderText();
         showLoadingPlaceholder(true);
 
@@ -224,7 +275,6 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
             );
         }
         else {
-            // combinación músculo + equipo
             controller.loadExercisesByTarget(
                     selectedMuscle.toLowerCase(), Integer.MAX_VALUE, 0,
                     wrapCallback(new Callback<List<Exercise>>() {
@@ -257,6 +307,11 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Crea un callback que actualiza el adaptador con la lista de ejercicios.
+     *
+     * @return Callback configurado para manejar respuestas de la API
+     */
     private Callback<List<Exercise>> updateAdapterCallback() {
         return new Callback<List<Exercise>>() {
             @Override
@@ -291,6 +346,12 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Envuelve un callback existente añadiendo funcionalidad de placeholders.
+     *
+     * @param inner Callback interno a envolver
+     * @return Callback envuelto con manejo de placeholders
+     */
     private Callback<List<Exercise>> wrapCallback(Callback<List<Exercise>> inner) {
         return new Callback<List<Exercise>>() {
             @Override
@@ -306,6 +367,12 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Muestra u oculta los placeholders de carga.
+     * Crea elementos visuales temporales mientras se cargan los datos reales.
+     *
+     * @param show true para mostrar placeholders, false para ocultarlos
+     */
     private void showLoadingPlaceholder(boolean show) {
         placeholderContainer.removeAllViews();
         if (show) {
@@ -323,6 +390,15 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Muestra un diálogo de selección para filtros (músculos o equipamiento).
+     * Carga dinámicamente las opciones disponibles desde la API.
+     *
+     * @param type Tipo de filtro ("muscle" o "equipment")
+     * @param loader Función para cargar las opciones del filtro
+     * @param current Opción actualmente seleccionada
+     * @param onSelect Callback para manejar la selección
+     */
     private void showSelectorDialog(
             String type,
             java.util.function.Consumer<Callback<List<String>>> loader,
@@ -434,10 +510,19 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         sheet.show();
     }
 
+    /**
+     * Convierte píxeles independientes de densidad a píxeles.
+     *
+     * @param dp Valor en dp a convertir
+     * @return Valor equivalente en píxeles
+     */
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
+    /**
+     * Actualiza el texto del encabezado según los filtros aplicados.
+     */
     private void updateHeaderText() {
         boolean allMuscles = selectedMuscle.equals("All the muscles");
         boolean allEquip   = selectedEquipment.equals("All the equipment");
@@ -453,7 +538,13 @@ public class ExerciseSelectionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Actualiza el texto del encabezado para búsquedas por nombre.
+     *
+     * @param query Término de búsqueda a mostrar
+     */
     private void updateHeaderForNameSearch(String query) {
         tvHeader.setText("Search results for: \"" + query + "\"");
     }
+
 }
